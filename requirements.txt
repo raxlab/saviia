@@ -1,0 +1,6 @@
+pyftpdlib==2.0.1
+asyncio==3.4.3
+pydantic==2.11.3
+# logging
+requests==2.32.3
+aioftp==0.25.1
