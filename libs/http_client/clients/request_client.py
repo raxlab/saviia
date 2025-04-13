@@ -17,11 +17,14 @@ class RequestsClient(HTTPClientContract):
         }
         
     def get(self, args: GetArgs) -> Dict[str, Any]:
-        endpoint, params = args.endpoint, args.params
-        url = f'{self.base_url}/{endpoint}'
-        response = requests.get(url=url, headers=self.headers, params=params)
-        response.raise_for_status()
-        return response.json()
+        try: 
+            endpoint, params = args.endpoint, args.params
+            url = f'{self.base_url}/{endpoint}'
+            response = requests.get(url=url, headers=self.headers, params=params)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as error:
+            raise ConnectionError(error)
 
     def upload_file(self, args: UploadFileArgs) -> Dict[str, Any]:
         endpoint, file_bytes = args.endpoint, args.file_bytes

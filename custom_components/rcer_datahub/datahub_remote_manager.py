@@ -1,6 +1,6 @@
 from ...libs.ftp_client import FTPClient, ListFilesArgs, FtpClientInitArgs
 from ...libs.http_client import HTTPClient, GetArgs
-
+from .const import LOGGER
 
 class DataHubRemoteManager:
     PATH_AVG_FILES = "ftp/thies/BINFILES/ARCH_AV1"
@@ -16,16 +16,20 @@ class DataHubRemoteManager:
 
         cloud_files = set()
         file_types = ["AVG", "EXT"]
-        for file_type in file_types:
-            destination_path = (
-                f"Onedrive_UC/noveno-semestre/IPRE-RCER/{folder_name}/{file_type}"
-            )
-            endpoint = f"drives/{drive_id}/root:/{destination_path}:/children"
-            response = self.http_client.get(GetArgs(endpoint=endpoint))
-            cloud_files.update(
-                {f"{file_type}_{item['name']}" for item in response["value"]}
-            )
-        return cloud_files
+        try: 
+            for file_type in file_types:
+                destination_path = (
+                    f"Onedrive_UC/noveno-semestre/IPRE-RCER/{folder_name}/{file_type}"
+                )
+                endpoint = f"drives/{drive_id}/root:/{destination_path}:/children"
+                response = self.http_client.get(GetArgs(endpoint=endpoint))
+                cloud_files.update(
+                    {f"{file_type}_{item['name']}" for item in response["value"]}
+                )
+            return cloud_files
+        except ConnectionError as error:
+            LOGGER.error(f"Unexpected error occurred while extracting RCER Cloud Data: {error}")
+            
 
     async def extract_thies_data(self) -> set:
         ftp_client = FTPClient(
