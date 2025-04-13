@@ -1,16 +1,17 @@
 from pydantic import BaseModel, Field
 
 
-class InitArgs(BaseModel):
+class HttpClientInitArgs(BaseModel):
+    access_token: str
+    base_url: str
     client_name: str = "request_client"
 
 
 class GetArgs(BaseModel):
-    url: str
-    params: dict = Field(default_factory=dict())
+    endpoint: str
+    params: dict | None = Field(default=None)
 
 
 class UploadFileArgs(BaseModel):
-    url: str
-    headers: str
+    endpoint: str
     file_bytes: bytes
