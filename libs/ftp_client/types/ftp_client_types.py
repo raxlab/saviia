@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class InitArgs(BaseModel):
+class FtpClientInitArgs(BaseModel):
     client_name: str = "fptlib_client"
     host: str
     user: str
