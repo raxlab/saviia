@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 class HttpClientInitArgs(BaseModel):
     access_token: str
     base_url: str
-    client_name: str = "request_client"
+    client_name: str = "aiohttp_client"
 
 
 class GetArgs(BaseModel):
