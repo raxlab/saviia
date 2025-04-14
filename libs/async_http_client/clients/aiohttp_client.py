@@ -2,16 +2,16 @@ from typing import Any, Dict
 
 from aiohttp import ClientError, ClientSession
 
-from libs.http_client.http_client_contract import HTTPClientContract
-from libs.http_client.types.http_client_types import (
+from libs.async_http_client.async_http_client_contract import AsyncHTTPClientContract
+from libs.async_http_client.types.async_http_client_types import (
     GetArgs,
-    HttpClientInitArgs,
+    AsyncHttpClientInitArgs,
     UploadFileArgs,
 )
 
 
-class AioHttpClient(HTTPClientContract):
-    def __init__(self, args: HttpClientInitArgs):
+class AioHttpClient(AsyncHTTPClientContract):
+    def __init__(self, args: AsyncHttpClientInitArgs):
         self.access_token = args.access_token
         self.base_url = args.base_url
         self.headers = self._build_headers()

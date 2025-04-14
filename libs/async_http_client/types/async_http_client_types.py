@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
 
-class HttpClientInitArgs(BaseModel):
+class AsyncHttpClientInitArgs(BaseModel):
     access_token: str
     base_url: str
     client_name: str = "aiohttp_client"

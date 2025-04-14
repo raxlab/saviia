@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
-from .types.http_client_types import GetArgs, UploadFileArgs
+from .types.async_http_client_types import GetArgs, UploadFileArgs
 
 
-class HTTPClientContract(ABC):
+class AsyncHTTPClientContract(ABC):
     @abstractmethod
     async def get(self, args: GetArgs) -> Dict[str, Any]:
         pass

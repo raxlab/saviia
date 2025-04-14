@@ -1,15 +1,15 @@
 from typing import Any, Dict
 
 from .clients.aiohttp_client import AioHttpClient
-from .http_client_contract import HTTPClientContract
-from .types.http_client_types import GetArgs, HttpClientInitArgs, UploadFileArgs
+from .async_http_client_contract import AsyncHTTPClientContract
+from .types.async_http_client_types import GetArgs, AsyncHttpClientInitArgs, UploadFileArgs
 
 
-class HTTPClient(HTTPClientContract):
+class AsyncHTTPClient(AsyncHTTPClientContract):
     CLIENTS = {"aiohttp_client"}
 
-    def __init__(self, args: HttpClientInitArgs):
-        if args.client_name not in HTTPClient.CLIENTS:
+    def __init__(self, args: AsyncHttpClientInitArgs):
+        if args.client_name not in AsyncHTTPClient.CLIENTS:
             raise KeyError(f"Unsupported client '{args.client_name}'")
         self.client_name = args.client_name
 
