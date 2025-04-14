@@ -2,12 +2,8 @@ from typing import Any, Dict
 
 from aiohttp import ClientError, ClientSession
 
-from libs.async_http_client.async_http_client_contract import AsyncHTTPClientContract
-from libs.async_http_client.types.async_http_client_types import (
-    GetArgs,
-    AsyncHttpClientInitArgs,
-    UploadFileArgs,
-)
+from ..types.async_http_client_types import AsyncHttpClientInitArgs, GetArgs, UploadFileArgs
+from ..async_http_client_contract import AsyncHTTPClientContract
 
 
 class AioHttpClient(AsyncHTTPClientContract):

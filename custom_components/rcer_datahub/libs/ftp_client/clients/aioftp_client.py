@@ -2,8 +2,8 @@ from typing import List
 
 from aioftp import Client
 
-from libs.ftp_client.ftp_client_contract import FTPClientContract
-from libs.ftp_client.types.ftp_client_types import FtpClientInitArgs, ListFilesArgs
+from ..ftp_client_contract import FTPClientContract
+from ..types.ftp_client_types import FtpClientInitArgs, ListFilesArgs, ReadFileArgs
 
 
 class AioFTPClient(FTPClientContract):
@@ -23,3 +23,8 @@ class AioFTPClient(FTPClientContract):
         return [
             path.name async for path, _ in self.client.list(args.path, recursive=False)
         ]
+        
+    async def read_file(self, args: ReadFileArgs) -> bytes:
+        await self._async_start()
+        async with self.client.download_stream(args.file_path) as stream:
+            return await stream.read()

@@ -16,6 +16,12 @@ class AsyncHTTPClient(AsyncHTTPClientContract):
         if args.client_name == "aiohttp_client":
             self.client_obj = AioHttpClient(args)
 
+    async def __aenter__(self):
+        return await self.client_obj.__aenter__()
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.client_obj.__aexit__(exc_type, exc_val, exc_tb)
+
     async def get(self, args: GetArgs) -> Dict[str, Any]:
         return await self.client_obj.get(args)
 

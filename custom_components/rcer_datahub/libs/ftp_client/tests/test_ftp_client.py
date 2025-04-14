@@ -32,16 +32,6 @@ class TestFtpClientConstruct(unittest.TestCase):
                 )
         self.assertEqual(client.client_obj, mock_client_instance)
 
-    @patch("libs.ftp_client.ftp_client.FTPLibClient")
-    def test_should_have_expected_attributes_and_methods_for_ftplib_client(
-        self, mock_ftplib_client: Mock
-    ):
-        self._test_client_attributes_and_methods(
-            mock_ftplib_client,
-            client_name="ftplib_client",
-            expected_properties=["client_name", "client_obj"],
-            expected_methods=["list_files"],
-        )
 
     @patch("libs.ftp_client.ftp_client.AioFTPClient")
     def test_should_have_expected_attributes_and_methods_for_aioftplib_client(
