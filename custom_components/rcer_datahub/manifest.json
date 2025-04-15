@@ -4,5 +4,5 @@
     "version": "1.0.0",
     "documentation": "https://github.com/raxlab/rcer-datahub",
     "codeowners": ["@pedrozavalat"],
-    "iot_class": "assumed_state"
+    "iot_class": "cloud_polling"
 }
