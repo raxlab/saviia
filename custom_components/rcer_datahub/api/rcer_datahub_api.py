@@ -14,6 +14,7 @@ from custom_components.rcer_datahub.libs.ftp_client import (
     ListFilesArgs,
     ReadFileArgs,
 )
+from custom_components.rcer_datahub.api.types import ConfigAPI
 
 from .utils import generate_file_content, http_response
 
@@ -26,11 +27,15 @@ class RCERDatahubAPI:
     DRIVE_ID = "b!Row14jaFrU-1q8qzrvj3OmPPTYWXizFEpJmI-wsfH5pXxA0qQwgQS50m2xvPCZem"
     FILE_TYPES = ["AVG", "EXT"]
 
-    def __init__(self) -> None:
+    def __init__(self, config: ConfigAPI) -> None:
         self.async_http_client = self._initialize_http_client()
         self.ftp_client = self._initialize_ftp_client()
         self.pending = set()
         self.uploading = set()
+        self.ftp_port = config.ftp_port
+        self.ftp_host = config.ftp_host
+        self.ftp_password = config.ftp_password
+        self.ftp_user = config.ftp_user
 
     @staticmethod
     def _initialize_http_client() -> AsyncHTTPClient:
@@ -43,16 +48,15 @@ class RCERDatahubAPI:
             )
         )
 
-    @staticmethod
-    def _initialize_ftp_client() -> FTPClient:
+    def _initialize_ftp_client(self) -> FTPClient:
         """Initialize the FTP client."""
         return FTPClient(
             FtpClientInitArgs(
                 client_name="aioftp_client",
-                host="localhost",
-                user="anonymous",
-                password=os.getenv("FTP_PASSWORD"),
-                port=21,
+                host=self.ftp_host,
+                user=self.ftp_user,
+                password=self.ftp_password,
+                port=self.ftp_port,
             )
         )
 
