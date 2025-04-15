@@ -23,13 +23,14 @@ load_dotenv()
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up RCER Datahub API from a config entry."""
     hass.data.setdefault(DOMAIN, {})
-
+    LOGGER.debug("[init] async_setup_entry_started")
     api = RCERDatahubAPI(
         ConfigAPI(
             ftp_host=os.getenv("FTP_HOST"),
             ftp_password=os.getenv("FTP_PASSWORD"),
             ftp_user=os.getenv("FTP_USER"),
             ftp_port=os.getenv("FTP_PORT"),
+            logger=LOGGER
         )
     )
     coordinator = RCERDatahubUpdateCoordinator(
@@ -47,4 +48,5 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = coordinator
     # TODO: Load sensors: Starlink and VRM
 
+    LOGGER.debug("[init] async_setup_entry_successful")
     return True

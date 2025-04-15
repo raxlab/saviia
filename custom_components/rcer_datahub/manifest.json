@@ -3,6 +3,8 @@
     "name": "RCER Data Hub",
     "version": "1.0.0",
     "documentation": "https://github.com/raxlab/rcer-datahub",
-    "codeowners": ["@pedrozavalat"],
-    "iot_class": "cloud_polling"
+    "iot_class": "cloud_polling",
+    "requirements": [],
+    "dependencies": [],
+    "codeowners": ["@pedrozavalat"]
 }

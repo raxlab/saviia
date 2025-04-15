@@ -2,7 +2,6 @@ import os
 
 from dotenv import load_dotenv
 
-from custom_components.rcer_datahub.const import LOGGER
 from custom_components.rcer_datahub.libs.async_http_client import (
     AsyncHTTPClient,
     AsyncHttpClientInitArgs,
@@ -36,6 +35,7 @@ class RCERDatahubAPI:
         self.ftp_host = config.ftp_host
         self.ftp_password = config.ftp_password
         self.ftp_user = config.ftp_user
+        self.logger = config.logger
 
     @staticmethod
     def _initialize_http_client() -> AsyncHTTPClient:
@@ -62,6 +62,7 @@ class RCERDatahubAPI:
 
     async def fetch_cloud_file_names(self, folder_name: str) -> set[str]:
         """Fetch file names from the RCER cloud."""
+        self.logger.info("[rcer_api] fetch_cloud_file_names_started")
         cloud_files = set()
         try:
             async with self.async_http_client:
@@ -77,11 +78,15 @@ class RCERDatahubAPI:
                         {f"{file_type}_{item['name']}" for item in response["value"]}
                     )
         except ConnectionError as error:
-            LOGGER.error(f"Error fetching cloud file names: {error}")
+            self.logger.error("[rcer_api] fetch_cloud_file_names_error", extra={
+                'error': error.__str__()
+            })
+        self.logger.info("[rcer_api] fetch_cloud_file_names_successful")
         return cloud_files
 
     async def fetch_thies_file_names(self) -> set[str]:
         """Fetch file names from the THIES FTP server."""
+        self.logger.info("[rcer_api] fetch_thies_file_names_started")
         try:
             avg_files = await self.ftp_client.list_files(
                 ListFilesArgs(path=self.PATH_AVG_FILES)
@@ -89,15 +94,19 @@ class RCERDatahubAPI:
             ext_files = await self.ftp_client.list_files(
                 ListFilesArgs(path=self.PATH_EXT_FILES)
             )
+            self.logger.info("[rcer_api] fetch_thies_file_names_successful")
             return {f"AVG_{name}" for name in avg_files} | {
                 f"EXT_{name}" for name in ext_files
             }
         except ConnectionError as error:
-            LOGGER.error(f"Error fetching THIES file names: {error}")
+            self.logger.error("[rcer_api] fetch_thies_file_names_error", extra={
+                'error': error.__str__()
+            })
             return set()
 
     async def fetch_thies_file_content(self) -> dict[str, bytes]:
         """Fetch the content of files from the THIES FTP server."""
+        self.logger.info("[rcer_api] fetch_thies_file_content_started")
         content_files = {}
         for file in self.uploading:
             try:
@@ -110,31 +119,41 @@ class RCERDatahubAPI:
                 content = await self.ftp_client.read_file(ReadFileArgs(file_path))
                 content_files[filename] = content
             except ConnectionError as error:
-                LOGGER.error(f"Failed to fetch content for file {file}: {error}")
+                self.logger.error("[rcer_api] fetch_thies_file_content_error", extra={
+                    'message': f"Failed to fetch content for file {file}",
+                    'error': error.__str__()
+                })
+        self.logger.info("[rcer_api] fetch_thies_file_content_successful")
         return content_files
 
     async def syncronize_thies_data_to_cloud(self) -> dict[str, dict[str, str]]:
         """Synchronize data from the THIES Center to the cloud."""
+        self.logger.debug("[rcer_api] syncronize_thies_data_to_cloud_started")
         try:
             thies_files = await self.fetch_thies_file_names()
             cloud_files = await self.fetch_cloud_file_names(folder_name="thies")
             self.uploading = thies_files - cloud_files
             if not self.uploading:
-                LOGGER.info("No new files to upload.")
-                return {"status": 200, "message": "No new files to upload."}
+                self.logger.info("[rcer_api] syncronize_thies_data_to_cloud_early_return", extra={
+                    "message": "No new files to upload."
+                })
+                return http_response(message="No new files to upload.", status=204)
             thies_file_contents = await self.fetch_thies_file_content()
             data = generate_file_content(thies_file_contents)
 
             # TODO: Implement the logic to upload thies_file_contents to the cloud
-
+            self.logger.info("[rcer_api] syncronize_thies_data_to_cloud_successful")
             return http_response(
-                message="Uploaded data successfully!",
+                message="Uploaded data successfully",
                 status=200,
                 metadata=data,
             )
         except ConnectionError as error:
             error_message = "Error during upload process"
-            LOGGER.error(f"{error_message}: {error}")
+            self.logger.error("[rcer_api] syncronize_thies_data_to_cloud_error", extra={
+                'message': error_message,
+                'error': error.__str__()
+            })
             return http_response(
                 message=error_message,
                 status=500,

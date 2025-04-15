@@ -26,7 +26,8 @@ class RCERDatahubUpdateCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self) -> dict:
         """Upload data from RCER API and get response."""
+        self.logger.debug("[coordinator] async_update_date_started")
         synced_files = await self.api.syncronize_thies_data_to_cloud()
-        self.logger.debug("Synchronised data from THIES Center: %s", synced_files)
         self.last_update = datetime_to_str(today())
+        self.logger.debug("[coordinator] async_update_date_successful", extra=synced_files)
         return synced_files
