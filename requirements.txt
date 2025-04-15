@@ -4,3 +4,4 @@ aioftp==0.25.1
 aiohttp==3.11.16
 dotenv==0.9.9
 pytest-asyncio==0.26.0
+pre-commit==4.2.0

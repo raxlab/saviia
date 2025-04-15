@@ -1,0 +1,43 @@
+# The contents of this file is based on https://github.com/home-assistant/core/blob/dev/pyproject.toml
+
+target-version = "py313"
+
+[lint]
+select = [
+    "ALL",
+]
+
+ignore = [
+    "ANN101", # Missing type annotation for `self` in method
+    "ANN204", # Missing type annotation for `cls` in class method
+    "ANN001", # Missing type annotation for `self` in method
+    "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
+    "D203", # no-blank-line-before-class (incompatible with formatter)
+    "D212", # multi-line-summary-first-line (incompatible with formatter)
+    "COM812", # incompatible with formatter
+    "ISC001", # incompatible with formatter
+    "D101", # missing docstring in public method
+    "D104", # missing docstring in public package
+    "D105", # missing docstring in magic method
+    "D107", # missing docstring in magic method
+    "D106", # missing docstring in magic method
+    "D102", # missing docstring in public module
+    "D103", # missing docstring in public package
+    "D107", # missing docstring in magic method
+    "D100", # missing docstring in public module
+    "RUF012", # incompatible with formatter
+    "PYI036", # incompatible with formatter
+    "E501", # incompatible with formatter,
+    "FIX002", # Fixing this would make the code less readable
+    "TD003",
+    "TD002",
+]
+
+[lint.flake8-pytest-style]
+fixture-parentheses = false
+
+[lint.pyupgrade]
+keep-runtime-typing = true
+
+[lint.mccabe]
+max-complexity = 25
