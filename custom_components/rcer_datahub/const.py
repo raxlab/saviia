@@ -1,4 +1,4 @@
-"""Constants variables"""
+"""Constants variables."""
 
 import logging
 

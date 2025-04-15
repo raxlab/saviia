@@ -1,14 +1,13 @@
-"""RCER Data Hub Integration"""
+"""RCER Data Hub Integration."""
+
+from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.helpers.typing import ConfigType
+from homeassistant.core import HomeAssistant
 
 from .api.rcer_datahub_api import RCERDatahubAPI
-from .coordinator import RCERDatahubUpdateCoordinator
-
 from .const import DOMAIN, LOGGER, UPDATE_INTERVAL_HOURS, UPDATE_INTERVAL_MINUTES
-from datetime import timedelta
+from .coordinator import RCERDatahubUpdateCoordinator
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

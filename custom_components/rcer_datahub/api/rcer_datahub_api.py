@@ -1,6 +1,4 @@
 import os
-from http import HTTPStatus
-from typing import Dict, Set
 
 from dotenv import load_dotenv
 
@@ -28,7 +26,7 @@ class RCERDatahubAPI:
     DRIVE_ID = "b!Row14jaFrU-1q8qzrvj3OmPPTYWXizFEpJmI-wsfH5pXxA0qQwgQS50m2xvPCZem"
     FILE_TYPES = ["AVG", "EXT"]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.async_http_client = self._initialize_http_client()
         self.ftp_client = self._initialize_ftp_client()
         self.pending = set()
@@ -53,12 +51,12 @@ class RCERDatahubAPI:
                 client_name="aioftp_client",
                 host="localhost",
                 user="anonymous",
-                password="12345678",
+                password=os.getenv("FTP_PASSWORD"),
                 port=21,
             )
         )
 
-    async def fetch_cloud_file_names(self, folder_name: str) -> Set[str]:
+    async def fetch_cloud_file_names(self, folder_name: str) -> set[str]:
         """Fetch file names from the RCER cloud."""
         cloud_files = set()
         try:
@@ -78,7 +76,7 @@ class RCERDatahubAPI:
             LOGGER.error(f"Error fetching cloud file names: {error}")
         return cloud_files
 
-    async def fetch_thies_file_names(self) -> Set[str]:
+    async def fetch_thies_file_names(self) -> set[str]:
         """Fetch file names from the THIES FTP server."""
         try:
             avg_files = await self.ftp_client.list_files(
@@ -90,11 +88,11 @@ class RCERDatahubAPI:
             return {f"AVG_{name}" for name in avg_files} | {
                 f"EXT_{name}" for name in ext_files
             }
-        except Exception as error:
+        except ConnectionError as error:
             LOGGER.error(f"Error fetching THIES file names: {error}")
             return set()
 
-    async def fetch_thies_file_content(self) -> Dict[str, bytes]:
+    async def fetch_thies_file_content(self) -> dict[str, bytes]:
         """Fetch the content of files from the THIES FTP server."""
         content_files = {}
         for file in self.uploading:
@@ -107,11 +105,11 @@ class RCERDatahubAPI:
                 )
                 content = await self.ftp_client.read_file(ReadFileArgs(file_path))
                 content_files[filename] = content
-            except Exception as error:
+            except ConnectionError as error:
                 LOGGER.error(f"Failed to fetch content for file {file}: {error}")
         return content_files
 
-    async def syncronize_thies_data_to_cloud(self) -> Dict[str, Dict[str, str]]:
+    async def syncronize_thies_data_to_cloud(self) -> dict[str, dict[str, str]]:
         """Synchronize data from the THIES Center to the cloud."""
         try:
             thies_files = await self.fetch_thies_file_names()
@@ -127,7 +125,7 @@ class RCERDatahubAPI:
 
             return http_response(
                 message="Uploaded data successfully!",
-                status=HTTPStatus.OK,
+                status=200,
                 metadata=data,
             )
         except ConnectionError as error:
@@ -135,15 +133,6 @@ class RCERDatahubAPI:
             LOGGER.error(f"{error_message}: {error}")
             return http_response(
                 message=error_message,
-                status=HTTPStatus.INTERNAL_SERVER_ERROR,
+                status=500,
                 metadata={"error": error},
             )
-
-    async def verify_pending_files(self) -> None:
-        """Verify pending files (to be implemented)."""
-        # TODO: Implement logic for verifying pending files
-        pass
-
-    async def extract_manual(self):
-        """Placeholder for manual extraction logic."""
-        return None

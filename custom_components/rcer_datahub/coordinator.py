@@ -1,26 +1,19 @@
-from datetime import timedelta
-
 from dotenv import load_dotenv
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from custom_components.rcer_datahub.libs.zero_dependency.helpers.datetime_utils import (
-    datetime_to_str,
-    today,
-)
-
-from .api.rcer_datahub_api import RCERDatahubAPI
-from .const import LOGGER, UPDATE_INTERVAL_HOURS, UPDATE_INTERVAL_MINUTES
+from custom_components.rcer_datahub.api.rcer_datahub_api import RCERDatahubAPI
+from custom_components.rcer_datahub.helpers.datetime_utils import datetime_to_str, today
 
 load_dotenv()
 
 
 class RCERDatahubUpdateCoordinator(DataUpdateCoordinator):
-    """Class to manage remote extraction workflow at EPII"""
+    """Class to manage remote extraction workflow at EPII."""
 
     def __init__(
         self, hass: HomeAssistant, api: RCERDatahubAPI, logger, name, update_interval
-    ):
+    ) -> None:
         self.api = api
         self.last_update = None
         super().__init(
@@ -32,8 +25,8 @@ class RCERDatahubUpdateCoordinator(DataUpdateCoordinator):
         )
 
     async def _async_update_data(self) -> dict:
-        """Upload data from RCER API and get response"""
+        """Upload data from RCER API and get response."""
         synced_files = await self.api.syncronize_thies_data_to_cloud()
-        LOGGER.debug("Synchronised data from THIES Center: %s", synced_files)
+        self.logger.debug("Synchronised data from THIES Center: %s", synced_files)
         self.last_update = datetime_to_str(today())
         return synced_files

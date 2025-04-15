@@ -1,13 +1,17 @@
-from typing import List
-
 from aioftp import Client
 
-from ..ftp_client_contract import FTPClientContract
-from ..types.ftp_client_types import FtpClientInitArgs, ListFilesArgs, ReadFileArgs
+from custom_components.rcer_datahub.libs.ftp_client.ftp_client_contract import (
+    FTPClientContract,
+)
+from custom_components.rcer_datahub.libs.ftp_client.types.ftp_client_types import (
+    FtpClientInitArgs,
+    ListFilesArgs,
+    ReadFileArgs,
+)
 
 
 class AioFTPClient(FTPClientContract):
-    def __init__(self, args: FtpClientInitArgs):
+    def __init__(self, args: FtpClientInitArgs) -> None:
         self.host = args.host
         self.port = args.port
         self.password = args.password
@@ -18,12 +22,12 @@ class AioFTPClient(FTPClientContract):
         await self.client.connect(host=self.host, port=self.port)
         await self.client.login(user=self.user, password=self.password)
 
-    async def list_files(self, args: ListFilesArgs) -> List[str]:
+    async def list_files(self, args: ListFilesArgs) -> list[str]:
         await self._async_start()
         return [
             path.name async for path, _ in self.client.list(args.path, recursive=False)
         ]
-        
+
     async def read_file(self, args: ReadFileArgs) -> bytes:
         await self._async_start()
         async with self.client.download_stream(args.file_path) as stream:
