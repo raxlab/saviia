@@ -1,12 +1,23 @@
 import os
-from datetime import datetime
+from http import HTTPStatus
 from typing import Dict, Set
 
 from dotenv import load_dotenv
 
-from .const import LOGGER
-from .libs.async_http_client import AsyncHTTPClient, AsyncHttpClientInitArgs, GetArgs
-from .libs.ftp_client import FTPClient, FtpClientInitArgs, ListFilesArgs, ReadFileArgs
+from custom_components.rcer_datahub.const import LOGGER
+from custom_components.rcer_datahub.libs.async_http_client import (
+    AsyncHTTPClient,
+    AsyncHttpClientInitArgs,
+    GetArgs,
+)
+from custom_components.rcer_datahub.libs.ftp_client import (
+    FTPClient,
+    FtpClientInitArgs,
+    ListFilesArgs,
+    ReadFileArgs,
+)
+
+from .utils import generate_file_content, http_response
 
 load_dotenv()
 
@@ -29,7 +40,7 @@ class RCERDatahubAPI:
         return AsyncHTTPClient(
             AsyncHttpClientInitArgs(
                 client_name="aiohttp_client",
-                access_token= os.getenv("MICROSOFT_GRAPH_ACCESS_TOKEN"),
+                access_token=os.getenv("MICROSOFT_GRAPH_ACCESS_TOKEN"),
                 base_url="https://graph.microsoft.com/v1.0/",
             )
         )
@@ -100,34 +111,33 @@ class RCERDatahubAPI:
                 LOGGER.error(f"Failed to fetch content for file {file}: {error}")
         return content_files
 
-    async def upload_data(self) -> Dict[str, Dict[str, str]]:
-        """Upload data from the THIES Center to the cloud."""
+    async def syncronize_thies_data_to_cloud(self) -> Dict[str, Dict[str, str]]:
+        """Synchronize data from the THIES Center to the cloud."""
         try:
             thies_files = await self.fetch_thies_file_names()
             cloud_files = await self.fetch_cloud_file_names(folder_name="thies")
-
             self.uploading = thies_files - cloud_files
-
             if not self.uploading:
                 LOGGER.info("No new files to upload.")
                 return {"status": 200, "message": "No new files to upload."}
-
             thies_file_contents = await self.fetch_thies_file_content()
-
-            data = {
-                filename: {
-                    "size": len(content),
-                    "date": datetime.now().isoformat(),
-                }
-                for filename, content in thies_file_contents.items()
-            }
+            data = generate_file_content(thies_file_contents)
 
             # TODO: Implement the logic to upload thies_file_contents to the cloud
 
-            return {"status": 200, "data": data}
+            return http_response(
+                message="Uploaded data successfully!",
+                status=HTTPStatus.OK,
+                metadata=data,
+            )
         except ConnectionError as error:
-            LOGGER.error(f"Error during upload process: {error}")
-            return {"status": 500, "error": str(error)}
+            error_message = "Error during upload process"
+            LOGGER.error(f"{error_message}: {error}")
+            return http_response(
+                message=error_message,
+                status=HTTPStatus.INTERNAL_SERVER_ERROR,
+                metadata={"error": error},
+            )
 
     async def verify_pending_files(self) -> None:
         """Verify pending files (to be implemented)."""
