@@ -8,7 +8,6 @@ select = [
 ]
 
 ignore = [
-    "ANN101", # Missing type annotation for `self` in method
     "ANN204", # Missing type annotation for `cls` in class method
     "ANN001", # Missing type annotation for `self` in method
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed

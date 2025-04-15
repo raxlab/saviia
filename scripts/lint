@@ -3,6 +3,6 @@
 set -e
 
 cd "$(dirname "$0")/.."
-
+echo "\nReviewing your files 👀 ...\n"
 ruff format .
 ruff check . --fix
