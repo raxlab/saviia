@@ -1,13 +1,11 @@
 """RCER Data Hub Integration."""
 
-import os
 from datetime import timedelta
 
 from dotenv import load_dotenv
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-
-from custom_components.rcer_datahub.api import ConfigAPI, RCERDatahubAPI
+from rcer_iot_client_pkg import EpiiAPI
 from custom_components.rcer_datahub.const import (
     DOMAIN,
     LOGGER,
@@ -24,15 +22,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up RCER Datahub API from a config entry."""
     hass.data.setdefault(DOMAIN, {})
     LOGGER.debug("[init] async_setup_entry_started")
-    api = RCERDatahubAPI(
-        ConfigAPI(
-            ftp_host=os.getenv("FTP_HOST"),
-            ftp_password=os.getenv("FTP_PASSWORD"),
-            ftp_user=os.getenv("FTP_USER"),
-            ftp_port=os.getenv("FTP_PORT"),
-            logger=LOGGER
-        )
-    )
+    api = EpiiAPI()
     coordinator = RCERDatahubUpdateCoordinator(
         hass=hass,
         api=api,
