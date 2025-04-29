@@ -1,0 +1,41 @@
+# Resource:  Brunas/meteo_lt
+name: "Validate"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  "0 0 * * *"
+  push:
+    paths-ignore:
+      - "**/README.md"
+      - "**/CHANGELOG.md"
+      - "**/CONTRIBUTING.md"
+      - "**/requirements.txt"
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  hassfest: 
+    name: "Hassfest Validation"
+    runs-on: "ubuntu-latest"
+    steps:
+        - name: Checkout the repository
+          uses: actions/checkout@v4.2.2
+
+        - name: Run hassfest validation
+          uses: home-assistant/actions/hassfest@master
+
+  hacs: 
+    name: HACS Validation
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout the repository
+          uses: actions/checkout@v4.2.2
+
+        - name: Run HACS validation
+          uses: hacs/action@main
+          with:
+            category: integration
