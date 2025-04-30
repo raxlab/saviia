@@ -3,9 +3,9 @@ from datetime import timedelta
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from rcer_iot_client_pkg import EpiiAPI, EpiiUpdateThiesConfig
+from saviialib import EpiiAPI, EpiiUpdateThiesConfig
 
-from custom_components.rcer_datahub.helpers.datetime_utils import datetime_to_str, today
+from custom_components.saviia.helpers.datetime_utils import datetime_to_str, today
 
 from .const import LOGGER, UPDATE_INTERVAL_HOURS, UPDATE_INTERVAL_MINUTES
 
@@ -47,7 +47,7 @@ class SyncThiesDataCoordinator(DataUpdateCoordinator):
         self.data: dict[str, dict] = {}
 
     async def _async_update_data(self) -> dict:
-        """Upload data from RCER API and get response."""
+        """Upload data using the Epii API from SAVIIA library and get uploaded files."""
         self.logger.debug("[coordinator] async_update_data_started")
         try:
             synced_files = await self.api.update_thies_data(self.update_thies_config)

@@ -1,6 +1,9 @@
-# RCER Datahub
+# SAVIIA 
+### *Sistema de Administración y Visualización de Información para la Investigación y Análisis*
+
 Home Assistant integration for remote data extraction at the UC Patagonia Research Center.
-![RCER Datahub](images/icon.png)
+
+![SAVIIA](images/icon.png)
 
 ## Inspired by
 

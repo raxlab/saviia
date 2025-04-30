@@ -1,4 +1,4 @@
-"""Config flow for RCER Data Hub integration."""
+"""Config flow for SAVIIA integration."""
 
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ class SyncThiesDataConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     return self.async_show_form(
                         step_id="user", data=self._get_schema(), errors=errors
                     )
-                return self.async_create_entry(title="RCER Data Hub", data=user_input)
+                return self.async_create_entry(title="SAVIIA", data=user_input)
             except ValueError as e:
                 LOGGER.error(f"Value error during config flow: {e}")
                 errors["base"] = "invalid_input"

@@ -7,7 +7,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
-from .coordinator import RCERDatahubUpdateCoordinator
+from .coordinator import SyncThiesDataCoordinator
 
 
 async def async_setup_entry(
@@ -15,7 +15,7 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up RCER Data hub sensor based on a config entry."""
+    """Set up SAVIIA sensor based on a config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     sensors = [FileUploadSensor(coordinator)]
     async_add_entities(sensors, update_before_add=True)
@@ -27,7 +27,7 @@ class FileUploadSensor(CoordinatorEntity, SensorEntity):
     _attr_name = "Uploaded Files"
     _attr_icon = "mdi:file-cloud-upload"
 
-    def __init__(self, coordinator: RCERDatahubUpdateCoordinator) -> None:
+    def __init__(self, coordinator: SyncThiesDataCoordinator) -> None:
         super().__init__(coordinator)
 
     @property

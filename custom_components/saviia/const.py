@@ -10,12 +10,12 @@ from homeassistant.const import CONF_NAME, Platform
 load_dotenv()
 
 # General variables
-DOMAIN = "rcer_datahub"
+DOMAIN = "saviia"
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
             {
-                vol.Optional(CONF_NAME, default="RCER Datahub"): cv.string,
+                vol.Optional(CONF_NAME, default="SAVIIA"): cv.string,
             }
         )
     },

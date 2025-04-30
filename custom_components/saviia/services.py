@@ -1,4 +1,4 @@
-"""Provides services for RCER Data Hub integration."""
+"""Provides services for SAVIIA integration."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ async def async_sync_thies_files(hass: HomeAssistant) -> None:
 
 
 async def async_setup_services(hass: HomeAssistant) -> None:
-    """Set up services for the RCER Data Hub integration."""
+    """Set up services for the SAVIIA integration."""
     hass.services.async_register(
         DOMAIN,
         SERVICE_SYNC_FILES,
@@ -35,5 +35,5 @@ async def async_setup_services(hass: HomeAssistant) -> None:
 
 
 async def async_unload_services(hass: HomeAssistant) -> None:
-    """Unload services for the RCER Data Hub integration."""
+    """Unload services for the SAVIIA integration."""
     hass.services.async_remove(DOMAIN, SERVICE_SYNC_FILES)
