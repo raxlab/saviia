@@ -25,7 +25,6 @@ async def async_sync_thies_files(hass: HomeAssistant) -> None:
 
 async def async_setup_services(hass: HomeAssistant) -> None:
     """Set up services for the RCER Data Hub integration."""
-    await async_sync_thies_files(hass)
     hass.services.async_register(
         DOMAIN,
         SERVICE_SYNC_FILES,

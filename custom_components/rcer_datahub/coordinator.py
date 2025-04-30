@@ -60,6 +60,7 @@ class SyncThiesDataCoordinator(DataUpdateCoordinator):
             return {"synced_files": synced_files}
         except Exception as e:
             self.logger.error(
-                "[coordinator] async_update_data_error", extra={"error": e.__str__()}
+                "[coordinator] async_update_data_error",
+                extra={"error": e.__str__()},
             )
             raise
