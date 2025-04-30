@@ -13,7 +13,7 @@ class RCERDatahubUpdateCoordinator(DataUpdateCoordinator):
     def __init__(
         self, hass: HomeAssistant, api: EpiiAPI, logger, name, update_interval
     ) -> None:
-        """Set up the coordinator"""
+        """Set up the coordinator."""
         self.api = api
         self.last_update = None
         self.data: dict[str, dict] = {}
@@ -40,4 +40,4 @@ class RCERDatahubUpdateCoordinator(DataUpdateCoordinator):
             self.logger.error(
                 "[coordinator] async_update_data_error", extra={"error": e.__str__()}
             )
-            raise e
+            raise

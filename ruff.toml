@@ -30,6 +30,8 @@ ignore = [
     "FIX002", # Fixing this would make the code less readable
     "TD003",
     "TD002",
+    "TRY400",
+    "TRY300"
 ]
 
 [lint.flake8-pytest-style]

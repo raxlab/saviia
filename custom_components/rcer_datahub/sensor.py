@@ -1,4 +1,3 @@
-from typing import Optional
 
 from homeassistant.components.sensor import (
     SensorEntity,
@@ -16,7 +15,7 @@ async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
-):
+) -> None:
     """Set up RCER Data hub sensor based on a config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
     sensors = [FileUploadSensor(coordinator)]
@@ -24,7 +23,7 @@ async def async_setup_entry(
 
 
 class FileUploadSensor(CoordinatorEntity, SensorEntity):
-    """Sensor to display the list of uploaded files to SharePoint folder"""
+    """Sensor to display the list of uploaded files to SharePoint folder."""
 
     _attr_name = "Uploaded Files"
     _attr_icon = "mdi:file-cloud-upload"
@@ -33,7 +32,7 @@ class FileUploadSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
 
     @property
-    def native_value(self) -> Optional[str]:
+    def native_value(self) -> str | None:
         return (
             self.coordinator.data if self.coordinator.data else "No files uploaded yet."
         )
