@@ -1,0 +1,8 @@
+{
+    "services": {
+        "sync_thies_files": {
+            "name": "Synchronize Thies Files",
+            "description": "Initiates file synchronization with the FTP server and cloud storage."
+        }
+    }
+}

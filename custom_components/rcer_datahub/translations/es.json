@@ -1,0 +1,8 @@
+{
+    "services": {
+        "sync_thies_files": {
+            "name": "Sincronizar Archivos de Thies",
+            "description": "Inicia la sincronización de archivos con el servidor FTP y el almacenamiento en la nube."
+        }
+    }
+}
