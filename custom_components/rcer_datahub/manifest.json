@@ -1,10 +1,10 @@
 {
+    "domain": "rcer_datahub",
+    "name": "RCER Data Hub",
     "codeowners": ["@pedrozavalat"],
     "dependencies": [],
     "documentation": "https://github.com/raxlab/rcer-datahub",
-    "domain": "rcer_datahub",
     "iot_class": "cloud_polling",
-    "name": "RCER Data Hub",
     "requirements": [],
     "version": "1.0.0"
 }
