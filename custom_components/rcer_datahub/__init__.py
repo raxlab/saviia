@@ -1,8 +1,6 @@
 """RCER Data Hub Integration."""
 
 from datetime import timedelta
-
-from dotenv import load_dotenv
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from rcer_iot_client_pkg import EpiiAPI
@@ -11,11 +9,10 @@ from custom_components.rcer_datahub.const import (
     LOGGER,
     UPDATE_INTERVAL_HOURS,
     UPDATE_INTERVAL_MINUTES,
+    PLATFORMS,
 )
 
 from .coordinator import RCERDatahubUpdateCoordinator
-
-load_dotenv()
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -36,7 +33,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_config_entry_first_refresh()
     # Save data in Hassio
     hass.data[DOMAIN][entry.entry_id] = coordinator
-    # TODO: Load sensors: Starlink and VRM
+    # Load sensors: Starlink and VRM [TODO]
+
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     LOGGER.debug("[init] async_setup_entry_successful")
     return True
+
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload a config entry."""
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.entry_id)
+
+    return unload_ok
