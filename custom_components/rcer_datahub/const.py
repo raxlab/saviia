@@ -3,15 +3,26 @@
 import logging
 import os
 
+import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from dotenv import load_dotenv
-from homeassistant.const import Platform
+from homeassistant.const import CONF_NAME, Platform
 from rcer_iot_client_pkg import EpiiUpdateThiesConfig
 
 load_dotenv()
 
 # General variables
 DOMAIN = "rcer_datahub"
+CONFIG_SCHEMA = vol.Schema(
+    {
+        DOMAIN: vol.Schema(
+            {
+                vol.Optional(CONF_NAME, default="RCER Datahub"): cv.string,
+            }
+        )
+    },
+    extra=vol.ALLOW_EXTRA,
+)
 LOGGER = logging.getLogger(__package__)
 PLATFORMS = [Platform.SENSOR]
 

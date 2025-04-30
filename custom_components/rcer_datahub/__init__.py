@@ -7,6 +7,7 @@ from homeassistant.core import HomeAssistant
 from rcer_iot_client_pkg import EpiiAPI
 
 from custom_components.rcer_datahub.const import (
+    CONFIG_SCHEMA,
     DOMAIN,
     LOGGER,
     PLATFORMS,
@@ -18,12 +19,14 @@ from .coordinator import RCERDatahubUpdateCoordinator
 from .services import async_setup_services, async_unload_services
 
 
-async def async_setup(hass: HomeAssistant) -> bool:
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the RCER Hub component."""
+    config = CONFIG_SCHEMA(config)
     if not hass.config_entries.async_entries(DOMAIN):
         hass.async_create_task(
             hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
         )
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
