@@ -33,6 +33,11 @@ jobs:
     steps:
         - name: Checkout the repository
           uses: actions/checkout@v4.2.2
+          with: 
+            fetch-depth: 0
+
+        - name: Get latest code
+          run: git pull origin main
 
         - name: Run HACS validation
           uses: hacs/action@main

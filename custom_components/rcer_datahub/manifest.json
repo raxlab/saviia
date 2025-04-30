@@ -11,11 +11,6 @@
     "integration_type": "service",
     "iot_class": "cloud_polling",
     "issue_tracker": "https://github.com/raxlab/rcer-datahub/issues",
-    "loggers": [
-        "rcer-iot-client-pkg"
-    ],
-    "requirements": [
-        "rcer-iot-client-pkg==0.6.1"
-    ],
+    "requirements": [],
     "version": "1.0.0"
 }
