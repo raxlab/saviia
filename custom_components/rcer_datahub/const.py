@@ -3,6 +3,7 @@
 import logging
 import os
 
+import voluptuous as vol
 from dotenv import load_dotenv
 from homeassistant.const import Platform
 from rcer_iot_client_pkg import EpiiUpdateThiesConfig
@@ -30,3 +31,8 @@ EPII_API_CONFIG = EpiiUpdateThiesConfig(
     sharepoint_tenant_name=os.getenv("TENANT_NAME"),
     sharepoint_site_name=os.getenv("SITE_NAME"),
 )
+
+# Services parameters
+
+SERVICE_SYNC_FILES = "sync_files"
+SERVICE_SYNC_FILES_SCHEMA = vol.Schema({})

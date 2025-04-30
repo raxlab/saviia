@@ -1,4 +1,3 @@
-
 from homeassistant.components.sensor import (
     SensorEntity,
 )
@@ -17,7 +16,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up RCER Data hub sensor based on a config entry."""
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
+    coordinator = hass.data[DOMAIN][config_entry.entry_id]
     sensors = [FileUploadSensor(coordinator)]
     async_add_entities(sensors, update_before_add=True)
 

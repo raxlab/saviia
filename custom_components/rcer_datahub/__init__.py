@@ -15,6 +15,7 @@ from custom_components.rcer_datahub.const import (
 )
 
 from .coordinator import RCERDatahubUpdateCoordinator
+from .services import async_setup_services, async_unload_services
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -34,10 +35,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Fetch data
     await coordinator.async_config_entry_first_refresh()
     # Save data in Hassio
-    hass.data[DOMAIN][entry.entry_id]["coordinator"] = coordinator
-    # Load sensors: Starlink and VRM [TODO]
+    hass.data[DOMAIN][entry.entry_id] = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await async_setup_services(hass)
 
     LOGGER.debug("[init] async_setup_entry_successful")
     return True
@@ -49,4 +50,5 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
 
+    await async_unload_services(hass)
     return unload_ok
