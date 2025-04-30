@@ -13,7 +13,7 @@ def today(timezone: str = "America/Santiago") -> str:
     return datetime.now(tz=ZoneInfo(timezone))
 
 
-def datetime_to_str(date: datetime, date_format: str = "%Y-%m-%dT%H:%M%:S") -> str:
+def datetime_to_str(date: datetime, date_format: str = "%Y-%m-%dT%H:%M:%S") -> str:
     """
     Convert a datetime object to a string in the specified format.
 

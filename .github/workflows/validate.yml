@@ -38,3 +38,5 @@ jobs:
           uses: hacs/action@main
           with:
             category: integration
+            repository: ${{ github.repository }}
+            github_token: ${{ secrets.GITHUB_TOKEN }}

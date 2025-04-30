@@ -32,7 +32,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Fetch data
     await coordinator.async_config_entry_first_refresh()
     # Save data in Hassio
-    hass.data[DOMAIN][entry.entry_id] = coordinator
+    hass.data[DOMAIN][entry.entry_id]["coordinator"] = coordinator
     # Load sensors: Starlink and VRM [TODO]
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
