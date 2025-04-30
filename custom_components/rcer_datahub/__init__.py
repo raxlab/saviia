@@ -18,6 +18,14 @@ from .coordinator import RCERDatahubUpdateCoordinator
 from .services import async_setup_services, async_unload_services
 
 
+async def async_setup(hass: HomeAssistant) -> bool:
+    """Set up the RCER Hub component."""
+    if not hass.config_entries.async_entries(DOMAIN):
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
+        )
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up RCER Datahub API from a config entry."""
     hass.data.setdefault(DOMAIN, {})

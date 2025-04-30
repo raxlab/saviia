@@ -2,8 +2,10 @@
     "domain": "rcer_datahub",
     "name": "RCER Data Hub",
     "codeowners": [
-        "@pedrozavalat"
+        "@pedrozavalat",
+        "@raxlab"
     ],
+    "config_flow": true,
     "dependencies": [],
     "documentation": "https://github.com/raxlab/rcer-datahub",
     "integration_type": "service",
