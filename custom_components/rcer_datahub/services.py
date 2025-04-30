@@ -10,14 +10,14 @@ if TYPE_CHECKING:
 from .const import DOMAIN, LOGGER, SERVICE_SYNC_FILES, SERVICE_SYNC_FILES_SCHEMA
 
 
-async def async_sync_files(hass: HomeAssistant) -> None:
+async def async_sync_thies_files(hass: HomeAssistant) -> None:
     """File synchronization."""
     LOGGER.debug("Service sync_files called")
     for entry_id in hass.data[DOMAIN]:
         coordinator = hass.data[DOMAIN][entry_id]
         try:
-            await coordinator.async_request_refresh()
             LOGGER.info("File synchronization initiated by service call")
+            await coordinator.async_request_refresh()
         except Exception as e:
             LOGGER.error(f"Error during file synchronization: {e}")
             raise
@@ -25,11 +25,10 @@ async def async_sync_files(hass: HomeAssistant) -> None:
 
 async def async_setup_services(hass: HomeAssistant) -> None:
     """Set up services for the RCER Data Hub integration."""
-    await async_sync_files(hass)
     hass.services.async_register(
         DOMAIN,
         SERVICE_SYNC_FILES,
-        async_sync_files,
+        async_sync_thies_files,
         schema=SERVICE_SYNC_FILES_SCHEMA,
         description="Initiates file synchronization with the FTP server and cloud storage.",
     )

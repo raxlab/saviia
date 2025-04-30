@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
-from rcer_iot_client_pkg import EpiiUpdateThiesConfig
 
 from .const import DOMAIN, LOGGER
 
@@ -15,35 +14,13 @@ if TYPE_CHECKING:
     from homeassistant.data_entry_flow import FlowResult
 
 
-class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for RCER Data Hub."""
+class SyncThiesDataConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Config flow for Thies Data Logger."""
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """Handle the initial step."""
-        errors = {}
-        if user_input is not None:
-            try:
-                EpiiUpdateThiesConfig(
-                    ftp_host=user_input["ftp_host"],
-                    ftp_port=user_input["ftp_port"],
-                    ftp_user=user_input["ftp_user"],
-                    ftp_password=user_input["ftp_password"],
-                    sharepoint_client_id=user_input["sharepoint_client_id"],
-                    sharepoint_client_secret=user_input["sharepoint_client_secret"],
-                    sharepoint_tenant_id=user_input["sharepoint_tenant_id"],
-                    sharepoint_tenant_name=user_input["sharepoint_tenant_name"],
-                    sharepoint_site_name=user_input["sharepoint_site_name"],
-                )
-                return self.async_create_entry(title="RCER Data Hub", data=user_input)
-            except ValueError:
-                errors["base"] = "invalid_input"
-            except Exception as e:
-                LOGGER.exception(f"Unexpected exception: {e}")
-                errors["base"] = "unknown"
-                raise
-        data_schema = vol.Schema(
+    VERSION = 1
+
+    def _get_schema(self) -> vol.Schema:
+        return vol.Schema(
             {
                 vol.Required("ftp_host"): str,
                 vol.Required("ftp_port"): int,
@@ -57,6 +34,33 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             }
         )
 
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle the initial step."""
+        errors = {}
+        if user_input is not None:
+            try:
+                ftp_port = user_input.get("ftp_port")
+                if not isinstance(ftp_port, int):
+                    errors["ftp_port"] = "invalid_port"
+                    return self.async_show_form(
+                        step_id="user", data=self._get_schema(), errors=errors
+                    )
+                return self.async_create_entry(title="RCER Data Hub", data=user_input)
+            except ValueError as e:
+                LOGGER.error(f"Value error during config flow: {e}")
+                errors["base"] = "invalid_input"
+            except vol.Invalid as e:
+                LOGGER.error(f"Schema validation error: {e}")
+                errors["base"] = "invalid_schema"
+            except OSError as e:
+                LOGGER.error(f"OS error during config flow: {e}")
+                errors["base"] = "os_error"
+            except RuntimeError as e:
+                LOGGER.error(f"Runtime error during config flow: {e}")
+                errors["base"] = "runtime_error"
+
         return self.async_show_form(
-            step_id="user", data_schema=data_schema, errors=errors
+            step_id="user", data_schema=self._get_schema(), errors=errors
         )
