@@ -1,0 +1,3 @@
+sync_files:
+  description: "Initiates file synchronization with the FTP server and cloud storage."
+  fields: {}
