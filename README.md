@@ -1,6 +1,6 @@
 # RCER Datahub
 Home Assistant integration for remote data extraction at the UC Patagonia Research Center.
-
+![RCER Datahub](images/icon.png)
 
 ## Inspired by
 
