@@ -22,15 +22,42 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def _get_schema(self) -> vol.Schema:
         return vol.Schema(
             {
-                vol.Required("ftp_host"): str,
-                vol.Required("ftp_port"): int,
-                vol.Required("ftp_user"): str,
-                vol.Required("ftp_password"): str,
-                vol.Required("sharepoint_client_id"): str,
-                vol.Required("sharepoint_client_secret"): str,
-                vol.Required("sharepoint_tenant_id"): str,
-                vol.Required("sharepoint_tenant_name"): str,
-                vol.Required("sharepoint_site_name"): str,
+                vol.Required(
+                    "ftp_host",
+                    description="Hostname or IP address of the FTP server.",
+                    default="localhost",
+                ): str,
+                vol.Required(
+                    "ftp_port", description="Port number of the FTP server.", default=21
+                ): int,
+                vol.Required(
+                    "ftp_user",
+                    description="Username for the FTP server.",
+                ): str,
+                vol.Required(
+                    "ftp_password",
+                    description="Password for the FTP server.",
+                ): str,
+                vol.Required(
+                    "sharepoint_client_id",
+                    description="Client ID for SharePoint authentication.",
+                ): str,
+                vol.Required(
+                    "sharepoint_client_secret",
+                    description="Client secret for SharePoint authentication.",
+                ): str,
+                vol.Required(
+                    "sharepoint_tenant_id",
+                    description="Tenant ID for SharePoint authentication.",
+                ): str,
+                vol.Required(
+                    "sharepoint_tenant_name",
+                    description="Tenant name for SharePoint.",
+                ): str,
+                vol.Required(
+                    "sharepoint_site_name",
+                    description="Site name in SharePoint.",
+                ): str,
             }
         )
 
@@ -41,13 +68,16 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
         if user_input is not None:
             try:
+                # Validate FTP port
                 ftp_port = user_input.get("ftp_port")
                 if not isinstance(ftp_port, int):
                     errors["ftp_port"] = "invalid_port"
                     return self.async_show_form(
                         step_id="user", data=self._get_schema(), errors=errors
                     )
-                return self.async_create_entry(title="SAVIIA", data=user_input)
+                return self.async_create_entry(
+                    title="SAVIIA Credentials", data=user_input
+                )
             except ValueError as e:
                 LOGGER.error(f"Value error during config flow: {e}")
                 errors["base"] = "invalid_input"
