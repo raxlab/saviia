@@ -30,7 +30,6 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         SERVICE_SYNC_FILES,
         async_sync_thies_files,
         schema=SERVICE_SYNC_FILES_SCHEMA,
-        description="Initiates file synchronization with the FTP server and cloud storage.",
     )
 
 
