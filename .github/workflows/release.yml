@@ -22,19 +22,24 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y yq zip
+      
       - name: Adjust version number
         shell: bash
         run: |
-          yq -i -o json '.version="${{ env.VERSION }}"' \
-            "${{ github.workspace }}/custom_components/meteo_lt/manifest.json"
+          jq -i -o json '.version="${{ env.VERSION }}"' \
+            "${{ github.workspace }}/custom_components/saviia/manifest.json"
 
       - name: ZIP the integration directory
         shell: bash
         run: |
-          cd "${{ github.workspace }}/custom_components/meteo_lt"
-          zip meteo_lt-${{ env.VERSION }}.zip -r ./
+          cd "${{ github.workspace }}/custom_components/saviia"
+          zip saviia-${{ env.VERSION }}.zip -r ./
 
       - name: Upload the ZIP file to the release
         uses: softprops/action-gh-release@v2.2.1
         with:
-          files: ${{ github.workspace }}/custom_components/meteo_lt/meteo_lt-${{ env.VERSION }}.zip
+          files: ${{ github.workspace }}/custom_components/saviia/saviia-${{ env.VERSION }}.zip
