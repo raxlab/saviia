@@ -15,7 +15,7 @@ CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
             {
-                vol.Optional(CONF_NAME, default="SAVIIA"): cv.string,
+                vol.Optional(CONF_NAME, default=DOMAIN): cv.string,
             }
         )
     },
