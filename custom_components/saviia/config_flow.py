@@ -75,8 +75,9 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     return self.async_show_form(
                         step_id="user", data=self._get_schema(), errors=errors
                     )
-                ftp_host = user_input.get("ftp_host")
-                return self.async_create_entry(title="SAVIIA Credentials", data=user_input)
+                return self.async_create_entry(
+                    title="SAVIIA Credentials", data=user_input
+                )
             except ValueError as e:
                 LOGGER.error(f"Value error during config flow: {e}")
                 errors["base"] = "invalid_input"

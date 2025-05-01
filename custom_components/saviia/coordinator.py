@@ -7,7 +7,7 @@ from saviialib import EpiiAPI, EpiiUpdateThiesConfig
 
 from custom_components.saviia.helpers.datetime_utils import datetime_to_str, today
 
-from .const import LOGGER, UPDATE_INTERVAL_HOURS, UPDATE_INTERVAL_MINUTES
+from .const import LOGGER, MANUFACTURER, UPDATE_INTERVAL_HOURS, UPDATE_INTERVAL_MINUTES
 
 
 class SyncThiesDataCoordinator(DataUpdateCoordinator):
@@ -23,6 +23,7 @@ class SyncThiesDataCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass,
             LOGGER,
+            name=MANUFACTURER,
             config_entry=config_entry,
             update_interval=timedelta(
                 hours=UPDATE_INTERVAL_HOURS,

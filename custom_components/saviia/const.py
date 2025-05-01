@@ -11,6 +11,7 @@ load_dotenv()
 
 # General variables
 DOMAIN = "saviia"
+MANUFACTURER = "raxlab"
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
