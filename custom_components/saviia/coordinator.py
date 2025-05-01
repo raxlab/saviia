@@ -55,8 +55,7 @@ class SyncThiesDataCoordinator(DataUpdateCoordinator):
             self.data = synced_files
             self.last_update = datetime_to_str(today())
             self.logger.debug(
-                "[coordinator] async_update_data_successful",
-                extra={"synced_files": synced_files},
+                "[coordinator] async_update_data_successful %s", synced_files,
             )
             return {"synced_files": synced_files}
         except Exception as e:
