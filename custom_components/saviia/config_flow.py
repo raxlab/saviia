@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from homeassistant.data_entry_flow import FlowResult
 
 
-class SyncThiesDataConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Thies Data Logger."""
 
     VERSION = 1
