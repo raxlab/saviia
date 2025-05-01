@@ -24,39 +24,29 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             {
                 vol.Required(
                     "ftp_host",
-                    description="Hostname or IP address of the FTP server.",
                     default="localhost",
                 ): str,
-                vol.Required(
-                    "ftp_port", description="Port number of the FTP server.", default=21
-                ): int,
+                vol.Required("ftp_port", default=21): int,
                 vol.Required(
                     "ftp_user",
-                    description="Username for the FTP server.",
                 ): str,
                 vol.Required(
                     "ftp_password",
-                    description="Password for the FTP server.",
                 ): str,
                 vol.Required(
                     "sharepoint_client_id",
-                    description="Client ID for SharePoint authentication.",
                 ): str,
                 vol.Required(
                     "sharepoint_client_secret",
-                    description="Client secret for SharePoint authentication.",
                 ): str,
                 vol.Required(
                     "sharepoint_tenant_id",
-                    description="Tenant ID for SharePoint authentication.",
                 ): str,
                 vol.Required(
                     "sharepoint_tenant_name",
-                    description="Tenant name for SharePoint.",
                 ): str,
                 vol.Required(
                     "sharepoint_site_name",
-                    description="Site name in SharePoint.",
                 ): str,
             }
         )
