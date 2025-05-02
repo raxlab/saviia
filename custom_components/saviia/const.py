@@ -25,8 +25,9 @@ CONFIG_SCHEMA = vol.Schema(
 LOGGER = logging.getLogger(__package__)
 PLATFORMS = [Platform.SENSOR]
 
-# Remote extraction cycle
-UPDATE_INTERVAL_HOURS = 1
+# Parameters for data fetching when the coordinator is loaded.
+UPDATE_INTERVAL_DAYS = 1
+UPDATE_INTERVAL_HOURS = 0
 UPDATE_INTERVAL_MINUTES = 0
 
 # Services parameters
