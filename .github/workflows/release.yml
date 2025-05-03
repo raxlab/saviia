@@ -4,42 +4,36 @@ on:
   release:
     types: [published]
 
-permissions: {}
+permissions:
+  contents: write 
 
 jobs:
   release:
-    name: "Release"
-    runs-on: "ubuntu-latest"
-    permissions:
-      contents: write
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4.2.2
 
       - name: Extract version from release
-        id: get_version
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
+          VERSION=$(echo "${GITHUB_REF#refs/tags/}" | sed 's/^v//')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y yq zip
-      
+          sudo apt-get install -y yq zip jq
+
       - name: Adjust version number
-        shell: bash
         run: |
-          jq -i -o json '.version="${{ env.VERSION }}"' \
-            "${{ github.workspace }}/custom_components/saviia/manifest.json"
+          jq --arg ver "$VERSION" '.version = $ver' custom_components/saviia/manifest.json > tmp.json && mv tmp.json custom_components/saviia/manifest.json
 
       - name: ZIP the integration directory
-        shell: bash
         run: |
-          cd "${{ github.workspace }}/custom_components/saviia"
-          zip saviia-${{ env.VERSION }}.zip -r ./
+          cd custom_components/saviia
+          zip saviia-${VERSION}.zip -r ./
 
       - name: Upload the ZIP file to the release
         uses: softprops/action-gh-release@v2.2.2
         with:
-          files: ${{ github.workspace }}/custom_components/saviia/saviia-${{ env.VERSION }}.zip
+          files: custom_components/saviia/saviia-${{ env.VERSION }}.zip
