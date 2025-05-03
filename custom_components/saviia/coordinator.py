@@ -7,7 +7,13 @@ from saviialib import EpiiAPI, EpiiUpdateThiesConfig
 
 from custom_components.saviia.helpers.datetime_utils import datetime_to_str, today
 
-from .const import LOGGER, MANUFACTURER, UPDATE_INTERVAL_HOURS, UPDATE_INTERVAL_MINUTES
+from .const import (
+    LOGGER,
+    MANUFACTURER,
+    UPDATE_INTERVAL_DAYS,
+    UPDATE_INTERVAL_HOURS,
+    UPDATE_INTERVAL_MINUTES,
+)
 
 
 class SyncThiesDataCoordinator(DataUpdateCoordinator):
@@ -26,6 +32,7 @@ class SyncThiesDataCoordinator(DataUpdateCoordinator):
             name=MANUFACTURER,
             config_entry=config_entry,
             update_interval=timedelta(
+                days=UPDATE_INTERVAL_DAYS,
                 hours=UPDATE_INTERVAL_HOURS,
                 minutes=UPDATE_INTERVAL_MINUTES,
             ),
@@ -55,8 +62,8 @@ class SyncThiesDataCoordinator(DataUpdateCoordinator):
             self.data = synced_files
             self.last_update = datetime_to_str(today())
             self.logger.debug(
-                "[coordinator] async_update_data_successful",
-                extra={"synced_files": synced_files},
+                "[coordinator] async_update_data_successful %s",
+                synced_files,
             )
             return {"synced_files": synced_files}
         except Exception as e:
