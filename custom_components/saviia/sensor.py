@@ -1,3 +1,5 @@
+from typing import Any
+
 from homeassistant.components.sensor import (
     SensorEntity,
 )
@@ -8,7 +10,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 from .coordinator import SyncThiesDataCoordinator
-from typing import Any
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -59,7 +61,7 @@ class SaviiaBaseSensor(CoordinatorEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
         return {
-            "last_updated": self.coordinator.last_updated,
+            "last_update": self.coordinator.last_update,
             "error": self.metadata.get("error"),
         }
 
