@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import DOMAIN, LOGGER
 from .coordinator import SyncThiesDataCoordinator
 
 
@@ -23,7 +23,6 @@ async def async_setup_entry(
         SaviiaNewFilesSensor(coordinator, config_entry),
         SaviiaFailedFilesSensor(coordinator, config_entry),
         SaviiaFileSyncStatusSensor(coordinator, config_entry),
-        SaviiaOverwrittenFilesSensor(coordinator, config_entry),
     ]
     async_add_entities(sensors, update_before_add=True)
 
@@ -51,7 +50,9 @@ class SaviiaBaseSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def metadata(self) -> dict[str, Any]:
-        return self.data.get("metadata", {}) or {}
+        meta = self.data.get("metadata", {}).get("data", {})
+        LOGGER.debug("[sensor] Extracted metadata: %s", meta)
+        return meta
 
     @property
     def native_value(self) -> str | None:
@@ -104,7 +105,18 @@ class SaviiaNewFilesSensor(SaviiaBaseSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         base = super().extra_state_attributes or {}
-        return {**base, "new_files": self.metadata.get("new_files", [])}
+        processed_files = self.metadata.get("processed_files", {})
+        new_files_attributes = []
+        if processed_files:
+            new_files_attributes = [
+                f"{name} [{info['processed_date']}|{info['file_size']} B]"
+                for name, info in processed_files.items()
+            ]
+        return {
+            **base,
+            "new_files": self.metadata.get("new_files", []),
+            "new_files_attributes": new_files_attributes,
+        }
 
 
 class SaviiaFailedFilesSensor(SaviiaBaseSensor):
@@ -127,25 +139,3 @@ class SaviiaFailedFilesSensor(SaviiaBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         base = super().extra_state_attributes or {}
         return {**base, "failed_files": self.metadata.get("failed_files", [])}
-
-
-class SaviiaOverwrittenFilesSensor(SaviiaBaseSensor):
-    """Sensor for number of overwritten files during sync."""
-
-    def __init__(self, coordinator, config_entry):
-        super().__init__(
-            coordinator,
-            config_entry,
-            attribute="overwritten_files",
-            name_suffix="Overwritten Files",
-            icon="mdi:file-rotate-left",
-        )
-
-    @property
-    def native_value(self) -> int:
-        return len(self.metadata.get("overwritten_files", []))
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        base = super().extra_state_attributes or {}
-        return {**base, "overwritten_files": self.metadata.get("overwritten_files", [])}
