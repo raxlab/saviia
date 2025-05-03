@@ -8,7 +8,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 from .coordinator import SyncThiesDataCoordinator
-
+from typing import Any
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -44,11 +44,11 @@ class SaviiaBaseSensor(CoordinatorEntity, SensorEntity):
         self._attr_icon = icon or "mdi:file"
 
     @property
-    def data(self) -> dict[str, dict]:
+    def data(self) -> dict[str, Any]:
         return self.coordinator.data.get("synced_files", {}) or {}
 
     @property
-    def metadata(self) -> dict[str, dict]:
+    def metadata(self) -> dict[str, Any]:
         return self.data.get("metadata", {}) or {}
 
     @property
@@ -57,7 +57,7 @@ class SaviiaBaseSensor(CoordinatorEntity, SensorEntity):
         return data.get("synced_files", {}).get("message", "No data yet.")
 
     @property
-    def extra_state_attributes(self) -> dict[str, dict] | None:
+    def extra_state_attributes(self) -> dict[str, Any] | None:
         return {
             "last_updated": self.coordinator.last_updated,
             "error": self.metadata.get("error"),
@@ -100,7 +100,7 @@ class SaviiaNewFilesSensor(SaviiaBaseSensor):
         return len(self.metadata.get("new_files", []))
 
     @property
-    def extra_state_attributes(self) -> dict[str, dict]:
+    def extra_state_attributes(self) -> dict[str, Any]:
         base = super().extra_state_attributes or {}
         return {**base, "new_files": self.metadata.get("new_files", [])}
 
@@ -122,7 +122,7 @@ class SaviiaFailedFilesSensor(SaviiaBaseSensor):
         return len(self.metadata.get("failed_files", []))
 
     @property
-    def extra_state_attributes(self) -> dict[str, dict]:
+    def extra_state_attributes(self) -> dict[str, Any]:
         base = super().extra_state_attributes or {}
         return {**base, "failed_files": self.metadata.get("failed_files", [])}
 
@@ -144,6 +144,6 @@ class SaviiaOverwrittenFilesSensor(SaviiaBaseSensor):
         return len(self.metadata.get("overwritten_files", []))
 
     @property
-    def extra_state_attributes(self) -> dict[str, dict]:
+    def extra_state_attributes(self) -> dict[str, Any]:
         base = super().extra_state_attributes or {}
         return {**base, "overwritten_files": self.metadata.get("overwritten_files", [])}
