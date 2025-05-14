@@ -1,5 +1,5 @@
 asyncio==3.4.3
 dotenv==0.9.9
 pytest-asyncio==0.26.0
-saviialib==0.6.2
+saviialib==0.8.0
 ruff>=0.11.7

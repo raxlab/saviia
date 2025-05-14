@@ -3,6 +3,10 @@
         "sync_thies_files": {
             "name": "Sincronizar Archivos de Thies",
             "description": "Inicia la sincronización de archivos con el servidor FTP y el almacenamiento en la nube."
+        },
+        "sync_local_backup": {
+            "name": "Ejecutar Backup local para los archivos extraídos.",
+            "description": "Inicia el backup de los archivos que fueron subidos en FileBrowser y que serán subidos a la carpeta de SharePoint."
         }
     }
 }

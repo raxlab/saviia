@@ -2,7 +2,7 @@
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from saviialib import EpiiAPI
+from saviialib import EpiiAPI, EpiiAPIConfig
 
 from custom_components.saviia.const import (
     CONFIG_SCHEMA,
@@ -11,7 +11,7 @@ from custom_components.saviia.const import (
     PLATFORMS,
 )
 
-from .coordinator import SyncThiesDataCoordinator
+from .coordinator import LocalBackupCoordinator, SyncThiesDataCoordinator
 from .services import async_setup_services, async_unload_services
 
 
@@ -29,15 +29,29 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     """Set up coordinator from a config entry."""
     hass.data.setdefault(DOMAIN, {})
     LOGGER.debug("[init] async_setup_entry_started")
-
-    coordinator = SyncThiesDataCoordinator(
-        hass=hass,
-        api=EpiiAPI(),
-        config_entry=config_entry,
+    coordinator_parameters = (
+        hass,
+        EpiiAPI(
+            EpiiAPIConfig(
+                ftp_port=config_entry.data["ftp_port"],
+                ftp_host=config_entry.data["ftp_host"],
+                ftp_user=config_entry.data["ftp_user"],
+                ftp_password=config_entry.data["ftp_password"],
+                sharepoint_client_id=config_entry.data["sharepoint_client_id"],
+                sharepoint_client_secret=config_entry.data["sharepoint_client_secret"],
+                sharepoint_tenant_id=config_entry.data["sharepoint_tenant_id"],
+                sharepoint_tenant_name=config_entry.data["sharepoint_tenant_name"],
+                sharepoint_site_name=config_entry.data["sharepoint_site_name"],
+            )
+        ),
+        config_entry,
     )
+    thies_coordinator = SyncThiesDataCoordinator(*coordinator_parameters)
+    backup_coordinator = LocalBackupCoordinator(*coordinator_parameters)
 
     try:
-        await coordinator.async_config_entry_first_refresh()
+        await thies_coordinator.async_config_entry_first_refresh()
+        await backup_coordinator.async_config_entry_first_refresh()
     except ValueError as ve:
         LOGGER.error(f"[init] ValueError during coordinator refresh: {ve}")
         return False
@@ -50,8 +64,10 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     except RuntimeError as re:
         LOGGER.error(f"[init] RuntimeError during coordinator refresh: {re}")
         return False
-
-    hass.data[DOMAIN][config_entry.entry_id] = coordinator
+    hass.data[DOMAIN][config_entry.entry_id][thies_coordinator.name] = thies_coordinator
+    hass.data[DOMAIN][config_entry.entry_id][backup_coordinator.name] = (
+        backup_coordinator
+    )
     LOGGER.debug(f"[init] coordinator saved: {hass.data[DOMAIN]}")
 
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)

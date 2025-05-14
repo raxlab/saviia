@@ -1,24 +1,14 @@
-from datetime import timedelta
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from saviialib import EpiiAPI, EpiiUpdateThiesConfig
+from saviialib import EpiiAPI
 
 from custom_components.saviia.helpers.datetime_utils import datetime_to_str, today
 
-from .const import (
-    LOGGER,
-    MANUFACTURER,
-    UPDATE_INTERVAL_DAYS,
-    UPDATE_INTERVAL_HOURS,
-    UPDATE_INTERVAL_MINUTES,
-)
+from .const import LOCAL_BACKUP_PATH, LOGGER, MANUFACTURER
 
 
-class SyncThiesDataCoordinator(DataUpdateCoordinator):
-    """Class to manage remote extraction workflow at EPII."""
-
+class SaviiaBaseCoordinator(DataUpdateCoordinator):
     def __init__(
         self,
         hass: HomeAssistant,
@@ -31,44 +21,64 @@ class SyncThiesDataCoordinator(DataUpdateCoordinator):
             LOGGER,
             name=MANUFACTURER,
             config_entry=config_entry,
-            update_interval=timedelta(
-                days=UPDATE_INTERVAL_DAYS,
-                hours=UPDATE_INTERVAL_HOURS,
-                minutes=UPDATE_INTERVAL_MINUTES,
-            ),
-            always_update=True,
+            update_interval=None,
         )
         self.api = api
         self.config_entry = config_entry
-        self.update_thies_config = EpiiUpdateThiesConfig(
-            ftp_port=config_entry.data["ftp_port"],
-            ftp_host=config_entry.data["ftp_host"],
-            ftp_user=config_entry.data["ftp_user"],
-            ftp_password=config_entry.data["ftp_password"],
-            sharepoint_client_id=config_entry.data["sharepoint_client_id"],
-            sharepoint_client_secret=config_entry.data["sharepoint_client_secret"],
-            sharepoint_tenant_id=config_entry.data["sharepoint_tenant_id"],
-            sharepoint_tenant_name=config_entry.data["sharepoint_tenant_name"],
-            sharepoint_site_name=config_entry.data["sharepoint_site_name"],
-        )
         self.last_update: str | None = None
         self.data: dict[str, dict] = {}
 
+
+class SyncThiesDataCoordinator(SaviiaBaseCoordinator):
+    """Class to manage remote extraction workflow at EPII."""
+
+    def __init__(self, hass, config_entry, api):
+        super().__init__(hass, config_entry, api)
+        self.name = "thies_coordinator"
+
     async def _async_update_data(self) -> dict:
         """Upload data using the Epii API from SAVIIA library and get uploaded files."""
-        self.logger.debug("[coordinator] async_update_data_started")
+        self.logger.debug("[%s] async_update_data_started", self.name)
         try:
-            synced_files = await self.api.update_thies_data(self.update_thies_config)
+            synced_files = await self.api.update_thies_data()
             self.data = synced_files
             self.last_update = datetime_to_str(today())
             self.logger.debug(
-                "[coordinator] async_update_data_successful %s",
-                synced_files,
+                "[%s] async_update_data_successful %s", self.name, synced_files
             )
             return {"synced_files": synced_files}
         except Exception as e:
             self.logger.error(
-                "[coordinator] async_update_data_error",
-                extra={"error": e.__str__()},
+                "[%s] async_update_data_error: %s",
+                self.name,
+                e.__str__(),
+            )
+            raise
+
+
+class LocalBackupCoordinator(SaviiaBaseCoordinator):
+    """Class to manage Local Backup at EPII."""
+
+    def __init__(self, hass, config_entry, api):
+        super().__init__(hass, config_entry, api)
+        self.name = "local_backup_coordinator"
+
+    async def _async_update_data(self) -> dict:
+        """Execute the local backup, extracting files from the source path requested."""
+        self.logger.debug("[%s] async_local_backup_started", self.name)
+        try:
+            exported_files = await self.api.upload_backup_to_sharepoint(
+                LOCAL_BACKUP_PATH
+            )
+            self.data = exported_files
+            self.last_update = datetime_to_str(today())
+            self.logger.debug(
+                "[%s] async_update_data_successful: %s", self.name, exported_files
+            )
+            return {"exported_files": exported_files}
+        except Exception as e:
+            self.logger.error(
+                "[%s] async_update_data_error",
+                e.__str__(),
             )
             raise
