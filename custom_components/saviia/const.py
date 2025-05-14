@@ -25,10 +25,9 @@ CONFIG_SCHEMA = vol.Schema(
 LOGGER = logging.getLogger(__package__)
 PLATFORMS = [Platform.SENSOR]
 
-# Parameters for data fetching when the coordinator is loaded.
-UPDATE_INTERVAL_DAYS = 1
-UPDATE_INTERVAL_HOURS = 0
-UPDATE_INTERVAL_MINUTES = 0
+# Sharepoint coordinator parameters
+LOCAL_BACKUP_PATH = "/media/backup_local"
+DESTINATION_FOLDERS = {"0_Camaras_Trampa": "Camaras_Trampa"}
 
 # Services parameters
 
@@ -37,4 +36,3 @@ SERVICE_SYNC_FILES_SCHEMA = vol.Schema({})
 
 SERVICE_LOCAL_BACKUP = "sync_local_backup"
 SERVICE_LOCAL_BACKUP_SCHEMA = vol.Schema({})
-LOCAL_BACKUP_PATH = "/media"

@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, LOGGER
+from .const import DOMAIN
 from .coordinator import SyncThiesDataCoordinator
 
 
@@ -50,14 +50,7 @@ class SaviiaBaseSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def metadata(self) -> dict[str, Any]:
-        meta = self.data.get("metadata", {}).get("data", {})
-        LOGGER.debug("[sensor] Extracted metadata: %s", meta)
-        return meta
-
-    @property
-    def native_value(self) -> str | None:
-        data = self.coordinator.data or {}
-        return data.get("synced_files", {}).get("message", "No data yet.")
+        return self.data.get("metadata", {}).get("data", {})
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
@@ -139,3 +132,28 @@ class SaviiaFailedFilesSensor(SaviiaBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         base = super().extra_state_attributes or {}
         return {**base, "failed_files": self.metadata.get("failed_files", [])}
+
+
+class SaviiaBackupStatusSensor(SaviiaBaseSensor):
+    """Sensor for backup status."""
+
+    def __init__(self, coordinator, config_entry):
+        super().__init__(
+            coordinator,
+            config_entry,
+            attribute="backup_status",
+            name_suffix="Backup Status",
+            icon="mdi:backup-restore",
+        )
+
+    @property
+    def native_value(self) -> str | None:
+        message = self.data.get("message", "No sync message")
+        server_status = self.data.get("status")
+        return f"[{server_status}] {message}"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        base = super().extra_state_attributes or {}
+        return {**base, "new_files": len(self.metadata.get("new_files", []))}
+
