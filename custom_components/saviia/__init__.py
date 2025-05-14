@@ -28,9 +28,12 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Set up coordinator from a config entry."""
     hass.data.setdefault(DOMAIN, {})
+    hass.data[DOMAIN].setdefault(config_entry.entry_id, {})
+
     LOGGER.debug("[init] async_setup_entry_started")
     coordinator_parameters = (
         hass,
+        config_entry,
         EpiiAPI(
             EpiiAPIConfig(
                 ftp_port=config_entry.data["ftp_port"],
@@ -42,9 +45,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 sharepoint_tenant_id=config_entry.data["sharepoint_tenant_id"],
                 sharepoint_tenant_name=config_entry.data["sharepoint_tenant_name"],
                 sharepoint_site_name=config_entry.data["sharepoint_site_name"],
+                logger=LOGGER,
             )
         ),
-        config_entry,
     )
     thies_coordinator = SyncThiesDataCoordinator(*coordinator_parameters)
     backup_coordinator = LocalBackupCoordinator(*coordinator_parameters)
@@ -68,6 +71,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     hass.data[DOMAIN][config_entry.entry_id][backup_coordinator.name] = (
         backup_coordinator
     )
+
     LOGGER.debug(f"[init] coordinator saved: {hass.data[DOMAIN]}")
 
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
