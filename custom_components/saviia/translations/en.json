@@ -3,6 +3,10 @@
         "sync_thies_files": {
             "name": "Synchronize Thies Files",
             "description": "Initiates file synchronization with the FTP server and cloud storage."
+        },
+        "sync_local_backup": {
+            "name": "Execute Local backup for extracted files",
+            "description": "Initiates a file backup which are uploaded in Filebrowser and moved to Sharepoint folder."
         }
     }
 }
