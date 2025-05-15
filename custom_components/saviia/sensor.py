@@ -19,7 +19,7 @@ async def async_setup_entry(
 ) -> None:
     """Set up SAVIIA sensor based on a config entry."""
     thies_coordinator = hass.data[DOMAIN][config_entry.entry_id]["thies_coordinator"]
-    backup_coordinator = hass.data[DOMAIN][config_entry.entry_id]["backup_coordinator"]
+    backup_coordinator = hass.data[DOMAIN][config_entry.entry_id]["local_backup_coordinator"]
     sensors = [
         SaviiaNewFilesSensor(thies_coordinator, config_entry),
         SaviiaFailedFilesSensor(thies_coordinator, config_entry),
