@@ -18,11 +18,13 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up SAVIIA sensor based on a config entry."""
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    thies_coordinator = hass.data[DOMAIN][config_entry.entry_id]["thies_coordinator"]
+    backup_coordinator = hass.data[DOMAIN][config_entry.entry_id]["backup_coordinator"]
     sensors = [
-        SaviiaNewFilesSensor(coordinator, config_entry),
-        SaviiaFailedFilesSensor(coordinator, config_entry),
-        SaviiaFileSyncStatusSensor(coordinator, config_entry),
+        SaviiaNewFilesSensor(thies_coordinator, config_entry),
+        SaviiaFailedFilesSensor(thies_coordinator, config_entry),
+        SaviiaFileSyncStatusSensor(thies_coordinator, config_entry),
+        SaviiaBackupStatusSensor(backup_coordinator, config_entry)
     ]
     async_add_entities(sensors, update_before_add=True)
 
