@@ -68,9 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         LOGGER.error(f"[init] RuntimeError during coordinator refresh: {re}")
         return False
     hass.data[DOMAIN][config_entry.entry_id][thies_coordinator.name] = thies_coordinator
-    hass.data[DOMAIN][config_entry.entry_id][backup_coordinator.name] = (
-        backup_coordinator
-    )
+    hass.data[DOMAIN][config_entry.entry_id][backup_coordinator.name] = backup_coordinator
 
     LOGGER.debug(f"[init] coordinator saved: {hass.data[DOMAIN]}")
 

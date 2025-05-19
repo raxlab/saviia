@@ -2,12 +2,9 @@
 
 import logging
 
-import homeassistant.helpers.config_validation as cv
-import voluptuous as vol
-from dotenv import load_dotenv
-from homeassistant.const import CONF_NAME, Platform
-
-load_dotenv()
+import homeassistant.helpers.config_validation as cv  # type: ignore
+import voluptuous as vol  # type: ignore
+from homeassistant.const import CONF_NAME, Platform  # type: ignore
 
 # General variables
 DOMAIN = "saviia"
@@ -25,10 +22,6 @@ CONFIG_SCHEMA = vol.Schema(
 LOGGER = logging.getLogger(__package__)
 PLATFORMS = [Platform.SENSOR]
 
-# Sharepoint coordinator parameters
-LOCAL_BACKUP_PATH = "/media/backup_local"
-DESTINATION_FOLDERS = {"0_Camaras_Trampa": "Camaras_Trampa"}
-
 # Services parameters
 
 SERVICE_SYNC_FILES = "sync_files"
@@ -36,3 +29,17 @@ SERVICE_SYNC_FILES_SCHEMA = vol.Schema({})
 
 SERVICE_LOCAL_BACKUP = "sync_local_backup"
 SERVICE_LOCAL_BACKUP_SCHEMA = vol.Schema({})
+
+
+# Config flow default parameters
+# - THIES Data Logger Synchronization
+DEFAULT_SHAREPOINT_THIES_AVG_FOLDER = "Shared%20Documents/General/Test_Raspberry/THIES/AVG"
+DEFAULT_SHAREPOINT_THIES_EXT_FOLDER = "Shared%20Documents/General/Test_Raspberry/THIES/EXT"
+
+DEFAULT_FTP_PATH_AVG = "ftp/thies/BINFILES/ARCH_AV1"
+DEFAULT_FTP_PATH_EXT = "ftp/thies/BINFILES/ARCH_EX1"
+
+# - Local Backup
+DEFAULT_SHAREPOINT_BASE_URL = "/sites/uc365_CentrosyEstacionesRegionalesUC/Shared%20Documents/General/Test_Raspberry"
+DEFAULT_LOCAL_BACKUP_PATH = "/media/backup_local"
+
