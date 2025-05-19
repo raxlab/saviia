@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 
-def today(timezone: str = "America/Santiago") -> str:
+def today(timezone: str = "America/Santiago") -> datetime:
     """
     Return the current date.
 

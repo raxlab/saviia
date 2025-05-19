@@ -18,11 +18,16 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up SAVIIA sensor based on a config entry."""
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    thies_coordinator = hass.data[DOMAIN][config_entry.entry_id]["thies_coordinator"]
+    backup_coordinator = hass.data[DOMAIN][config_entry.entry_id][
+        "local_backup_coordinator"
+    ]
+
     sensors = [
-        SaviiaNewFilesSensor(coordinator, config_entry),
-        SaviiaFailedFilesSensor(coordinator, config_entry),
-        SaviiaFileSyncStatusSensor(coordinator, config_entry),
+        SaviiaNewFilesSensor(thies_coordinator, config_entry),
+        SaviiaFailedFilesSensor(thies_coordinator, config_entry),
+        SaviiaFileSyncStatusSensor(thies_coordinator, config_entry),
+        SaviiaBackupStatusSensor(backup_coordinator, config_entry),
     ]
     async_add_entities(sensors, update_before_add=True)
 
@@ -46,7 +51,19 @@ class SaviiaBaseSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def data(self) -> dict[str, Any]:
-        return self.coordinator.data.get("synced_files", {}) or {}
+        coordinator_response = {
+            "thies_coordinator": "synced_files",
+            "local_backup_coordinator": "exported_files",
+        }
+        if coordinator_response.get(self.coordinator.name):
+            return (
+                self.coordinator.data.get(
+                    coordinator_response[self.coordinator.name], {}
+                )
+                or {}
+            )
+        error_message = "Invalid coordinator name."
+        raise KeyError(error_message)
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -56,7 +73,7 @@ class SaviiaBaseSensor(CoordinatorEntity, SensorEntity):
     def extra_state_attributes(self) -> dict[str, Any] | None:
         return {
             "last_update": self.coordinator.last_update,
-            "error": self.metadata.get("error"),
+            "error": self.data.get("metadata", {}).get("error", {}),
         }
 
 
@@ -99,16 +116,10 @@ class SaviiaNewFilesSensor(SaviiaBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         base = super().extra_state_attributes or {}
         processed_files = self.metadata.get("processed_files", {})
-        new_files_attributes = []
-        if processed_files:
-            new_files_attributes = [
-                f"{name} [{info['processed_date']}|{info['file_size']} B]"
-                for name, info in processed_files.items()
-            ]
         return {
             **base,
             "new_files": self.metadata.get("new_files", []),
-            "new_files_attributes": new_files_attributes,
+            "new_files_attributes": processed_files,
         }
 
 
@@ -155,5 +166,4 @@ class SaviiaBackupStatusSensor(SaviiaBaseSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         base = super().extra_state_attributes or {}
-        return {**base, "new_files": len(self.metadata.get("new_files", []))}
-
+        return {**base, "new_files": self.metadata.get("new_files", 0)}

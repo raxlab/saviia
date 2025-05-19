@@ -54,7 +54,7 @@ async def async_local_backup(call: ServiceCall) -> None:
     _is_coordinator_in_hass_data(hass)
 
     for entry_id in hass.data[DOMAIN]:
-        coordinator = hass.data[DOMAIN][entry_id]["backup_coordinator"]
+        coordinator = hass.data[DOMAIN][entry_id]["local_backup_coordinator"]
         try:
             success = await coordinator.async_request_refresh()
             LOGGER.info("[service] local_backup_successful")
