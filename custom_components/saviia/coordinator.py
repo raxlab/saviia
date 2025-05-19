@@ -1,9 +1,9 @@
-from homeassistant.config_entries import ConfigEntry  # type: ignore
-from homeassistant.core import HomeAssistant  # type: ignore
-from homeassistant.helpers.update_coordinator import (  # type: ignore
-    DataUpdateCoordinator,  # type: ignore
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.update_coordinator import (
+    DataUpdateCoordinator,
 )
-from saviialib import EpiiAPI  # type: ignore
+from saviialib import EpiiAPI
 
 from custom_components.saviia.helpers.datetime_utils import datetime_to_str, today
 
@@ -76,7 +76,9 @@ class LocalBackupCoordinator(SaviiaBaseCoordinator):
         super().__init__(hass, config_entry, api)
         self.name = "local_backup_coordinator"
         self.local_backup_source_path = config_entry.data["local_backup_source_path"]
-        self.sharepoint_backup_base_url = config_entry.data["sharepoint_backup_base_url"]
+        self.sharepoint_backup_base_url = config_entry.data[
+            "sharepoint_backup_base_url"
+        ]
 
     async def _async_update_data(self) -> dict:
         """Execute the local backup, extracting files from the source path requested."""

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-import voluptuous as vol  # type: ignore
-from homeassistant import config_entries  # type: ignore
-from homeassistant.data_entry_flow import FlowResult  # type: ignore
+import voluptuous as vol
+from homeassistant import config_entries
+from homeassistant.data_entry_flow import FlowResult
 
 from .const import (
     DEFAULT_FTP_PATH_AVG,
@@ -20,10 +20,10 @@ from .const import (
 )
 
 if TYPE_CHECKING:
-    from homeassistant.data_entry_flow import FlowResult  # type: ignore
+    from homeassistant.data_entry_flow import FlowResult
 
 
-class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore
+class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Thies Data Logger."""
 
     VERSION = 1

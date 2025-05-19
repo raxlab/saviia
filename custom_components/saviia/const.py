@@ -2,9 +2,9 @@
 
 import logging
 
-import homeassistant.helpers.config_validation as cv  # type: ignore
-import voluptuous as vol  # type: ignore
-from homeassistant.const import CONF_NAME, Platform  # type: ignore
+import homeassistant.helpers.config_validation as cv
+import voluptuous as vol
+from homeassistant.const import CONF_NAME, Platform
 
 # General variables
 DOMAIN = "saviia"
@@ -33,8 +33,12 @@ SERVICE_LOCAL_BACKUP_SCHEMA = vol.Schema({})
 
 # Config flow default parameters
 # - THIES Data Logger Synchronization
-DEFAULT_SHAREPOINT_THIES_AVG_FOLDER = "Shared%20Documents/General/Test_Raspberry/THIES/AVG"
-DEFAULT_SHAREPOINT_THIES_EXT_FOLDER = "Shared%20Documents/General/Test_Raspberry/THIES/EXT"
+DEFAULT_SHAREPOINT_THIES_AVG_FOLDER = (
+    "Shared%20Documents/General/Test_Raspberry/THIES/AVG"
+)
+DEFAULT_SHAREPOINT_THIES_EXT_FOLDER = (
+    "Shared%20Documents/General/Test_Raspberry/THIES/EXT"
+)
 
 DEFAULT_FTP_PATH_AVG = "ftp/thies/BINFILES/ARCH_AV1"
 DEFAULT_FTP_PATH_EXT = "ftp/thies/BINFILES/ARCH_EX1"
@@ -42,4 +46,3 @@ DEFAULT_FTP_PATH_EXT = "ftp/thies/BINFILES/ARCH_EX1"
 # - Local Backup
 DEFAULT_SHAREPOINT_BASE_URL = "/sites/uc365_CentrosyEstacionesRegionalesUC/Shared%20Documents/General/Test_Raspberry"
 DEFAULT_LOCAL_BACKUP_PATH = "/media/backup_local"
-
