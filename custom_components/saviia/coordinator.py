@@ -45,7 +45,7 @@ class SyncThiesDataCoordinator(SaviiaBaseCoordinator):
             config_entry.data["thies_ftp_server_avg_path"],
             config_entry.data["thies_ftp_server_ext_path"],
         ]
-        self.thies_service = api.get('thies')
+        self.thies_service = api.get("thies")
 
     async def _async_update_data(self) -> dict:
         """Upload data using the Epii API from SAVIIA library and get uploaded files."""
@@ -80,7 +80,7 @@ class LocalBackupCoordinator(SaviiaBaseCoordinator):
         self.sharepoint_backup_base_url = config_entry.data[
             "sharepoint_backup_base_url"
         ]
-        self.backup_service = api.get('backup')
+        self.backup_service = api.get("backup")
 
     async def _async_update_data(self) -> dict:
         """Execute the local backup, extracting files from the source path requested."""
