@@ -2,7 +2,7 @@
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from saviialib import EpiiAPI, EpiiAPIConfig
+from saviialib import SaviiaAPI, SaviiaAPIConfig
 
 from custom_components.saviia.const import (
     CONFIG_SCHEMA,
@@ -34,8 +34,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     coordinator_parameters = (
         hass,
         config_entry,
-        EpiiAPI(
-            EpiiAPIConfig(
+        SaviiaAPI(
+            SaviiaAPIConfig(
                 ftp_port=config_entry.data["ftp_port"],
                 ftp_host=config_entry.data["ftp_host"],
                 ftp_user=config_entry.data["ftp_user"],
