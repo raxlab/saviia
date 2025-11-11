@@ -3,7 +3,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
-from saviialib import EpiiAPI
+from saviialib import SaviiaAPI
 
 from custom_components.saviia.helpers.datetime_utils import datetime_to_str, today
 
@@ -15,7 +15,7 @@ class SaviiaBaseCoordinator(DataUpdateCoordinator):
         self,
         hass: HomeAssistant,
         config_entry: ConfigEntry,
-        api: EpiiAPI,
+        api: SaviiaAPI,
     ) -> None:
         """Set up the coordinator."""
         super().__init__(
@@ -32,9 +32,9 @@ class SaviiaBaseCoordinator(DataUpdateCoordinator):
 
 
 class SyncThiesDataCoordinator(SaviiaBaseCoordinator):
-    """Class to manage remote extraction workflow at EPII."""
+    """Class to manage remote extraction workflow for Thies Data Logger."""
 
-    def __init__(self, hass, config_entry, api):
+    def __init__(self, hass, config_entry, api: SaviiaAPI):
         super().__init__(hass, config_entry, api)
         self.name = "thies_coordinator"
         self.sharepoint_folders_path = [
@@ -45,14 +45,17 @@ class SyncThiesDataCoordinator(SaviiaBaseCoordinator):
             config_entry.data["thies_ftp_server_avg_path"],
             config_entry.data["thies_ftp_server_ext_path"],
         ]
+        self.local_backup_path = config_entry.data["local_backup_source_path"]
+        self.thies_service = api.get("thies")
 
     async def _async_update_data(self) -> dict:
-        """Upload data using the Epii API from SAVIIA library and get uploaded files."""
+        """Upload data using the SAVIIA library and get uploaded files."""
         self.logger.info("[%s] async_update_data_started", self.name)
         try:
-            synced_files = await self.api.update_thies_data(
+            synced_files = await self.thies_service.update_thies_data(
                 sharepoint_folders_path=self.sharepoint_folders_path,
                 ftp_server_folders_path=self.ftp_server_folders_path,
+                local_backup_source_path=self.local_backup_path,
             )
             self.data = synced_files
             self.last_update = datetime_to_str(today())
@@ -70,7 +73,7 @@ class SyncThiesDataCoordinator(SaviiaBaseCoordinator):
 
 
 class LocalBackupCoordinator(SaviiaBaseCoordinator):
-    """Class to manage Local Backup at EPII."""
+    """Class to manage the Local Backup."""
 
     def __init__(self, hass, config_entry, api):
         super().__init__(hass, config_entry, api)
@@ -79,12 +82,13 @@ class LocalBackupCoordinator(SaviiaBaseCoordinator):
         self.sharepoint_backup_base_url = config_entry.data[
             "sharepoint_backup_base_url"
         ]
+        self.backup_service = api.get("backup")
 
     async def _async_update_data(self) -> dict:
         """Execute the local backup, extracting files from the source path requested."""
         self.logger.info("[%s] async_local_backup_started", self.name)
         try:
-            exported_files = await self.api.upload_backup_to_sharepoint(
+            exported_files = await self.backup_service.upload_backup_to_sharepoint(
                 local_backup_source_path=self.local_backup_source_path,
                 sharepoint_destination_path=self.sharepoint_backup_base_url,
             )
