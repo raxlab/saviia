@@ -95,6 +95,12 @@ class SaviiaFileSyncStatusSensor(SaviiaBaseSensor):
         server_status = self.data.get("status")
         return f"[{server_status}] {message}"
 
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        base = super().extra_state_attributes or {}
+        server_status = self.data.get("status")
+        return {**base, "status": server_status}
+
 
 class SaviiaNewFilesSensor(SaviiaBaseSensor):
     """Sensor for number of new uploaded files."""
