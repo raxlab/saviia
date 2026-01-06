@@ -30,6 +30,20 @@ SERVICE_SYNC_FILES_SCHEMA = vol.Schema({})
 SERVICE_LOCAL_BACKUP = "sync_local_backup"
 SERVICE_LOCAL_BACKUP_SCHEMA = vol.Schema({})
 
+SERVICE_CREATE_TASK = "create_task"
+SERVICE_CREATE_TASK_SCHEMA = vol.Schema(
+    {
+        vol.Required("channel_id"): str,
+        vol.Required("name"): str,
+        vol.Required("description"): str,
+        vol.Required("due_date"): str,  # ISO 8601
+        vol.Required("priority"): vol.All(int, vol.Range(min=1, max=4)),
+        vol.Required("assignee"): str,
+        vol.Required("category"): str,
+        vol.Optional("images", default=[]): list,
+    }
+)
+
 
 # Config flow default parameters
 # - THIES Data Logger Synchronization

@@ -104,3 +104,32 @@ class LocalBackupCoordinator(SaviiaBaseCoordinator):
                 e.__str__(),
             )
             raise
+
+
+class TasksCoordinator(SaviiaBaseCoordinator):
+    def __init__(self, hass, config_entry, api):
+        super().__init__(hass, config_entry, api)
+        self.name = "tasks_coordinator"
+        self.tasks_service = api.get("tasks")
+        self.channel_id = config_entry.data.get("notification_channel_id", "")
+
+    async def _async_update_data(self) -> dict:
+        self.logger.info("[%s] async_get_tasks_started", self.name)
+        try:
+            response = await self.tasks_service.get_tasks(
+                self.channel_id,
+                params={"sort": "desc", "fields": ["title", "due_date", "priority"]},
+            )
+            tasks = response["metadata"]["tasks"]
+            self.data = tasks
+            self.last_update = datetime_to_str(today())
+            self.logger.info(
+                "[%s] async_update_data_successful: %s", self.name, len(tasks)
+            )
+            return {"tasks": tasks}
+        except Exception as e:
+            self.logger.info(
+                "[%s] async_update_data_error",
+                e.__str__(),
+            )
+            raise

@@ -7,23 +7,22 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant, ServiceCall
 
-from .const import (
-    DOMAIN,
-    LOGGER,
-    SERVICE_LOCAL_BACKUP,
-    SERVICE_LOCAL_BACKUP_SCHEMA,
-    SERVICE_SYNC_FILES,
-    SERVICE_SYNC_FILES_SCHEMA,
-)
+
+from http import HTTPStatus
+
+from homeassistant.components import persistent_notification
+from saviialib import SaviiaAPI
+
+from . import const as c
 
 
-def _is_coordinator_in_hass_data(hass) -> None:
-    if DOMAIN not in hass.data:
-        LOGGER.error(
-            f"[service] No data found for {DOMAIN}. Please ensure the integration is set up first."
+def _ensure_domain_setup(hass) -> None:
+    if c.DOMAIN not in hass.data:
+        c.LOGGER.error(
+            f"[service] No data found for {c.DOMAIN}. Please ensure the integration is set up first."
         )
         error_message = (
-            f"[service] No data found for {DOMAIN}. "
+            f"[service] No data found for {c.DOMAIN}. "
             "Ensure the integration is properly set up before calling this service."
         )
         raise ValueError(error_message)
@@ -31,58 +30,121 @@ def _is_coordinator_in_hass_data(hass) -> None:
 
 async def async_sync_thies_files(call: ServiceCall) -> None:
     """File synchronization."""
-    LOGGER.info("[service] sync_thies_files_started")
+    c.LOGGER.info("[service] sync_thies_files_started")
     hass = call.hass
-    _is_coordinator_in_hass_data(hass)
+    _ensure_domain_setup(hass)
 
-    for entry_id in hass.data[DOMAIN]:
-        coordinator = hass.data[DOMAIN][entry_id]["thies_coordinator"]
+    for entry_id in hass.data[c.DOMAIN]:
+        coordinator = hass.data[c.DOMAIN][entry_id]["thies_coordinator"]
         try:
             success = await coordinator.async_request_refresh()
-            LOGGER.info("[service] sync_thies_files_successful")
+            c.LOGGER.info("[service] sync_thies_files_successful")
             if success:
                 metadata = coordinator.data.get("metadata")
-                LOGGER.debug("[service] sync_thies_files_response: %s", metadata)
+                c.LOGGER.debug("[service] sync_thies_files_response: %s", metadata)
         except Exception as e:
-            LOGGER.error(f"[service] sync_thies_files_error: {e}")
+            c.LOGGER.error(f"[service] sync_thies_files_error: {e}")
             raise
 
 
 async def async_local_backup(call: ServiceCall) -> None:
-    LOGGER.info("[service] async_local_backup_started")
+    c.LOGGER.info("[service] async_local_backup_started")
     hass = call.hass
-    _is_coordinator_in_hass_data(hass)
+    _ensure_domain_setup(hass)
 
-    for entry_id in hass.data[DOMAIN]:
-        coordinator = hass.data[DOMAIN][entry_id]["local_backup_coordinator"]
+    for entry_id in hass.data[c.DOMAIN]:
+        coordinator = hass.data[c.DOMAIN][entry_id]["local_backup_coordinator"]
         try:
             success = await coordinator.async_request_refresh()
-            LOGGER.info("[service] local_backup_successful")
+            c.LOGGER.info("[service] local_backup_successful")
             if success:
                 metadata = coordinator.data.get("metadata")
-                LOGGER.debug("[service] local_backup_response: %s", metadata)
+                c.LOGGER.debug("[service] local_backup_response: %s", metadata)
         except Exception as e:
-            LOGGER.error(f"[service] local_backup_error: {e}")
+            c.LOGGER.error(f"[service] local_backup_error: {e}")
+            raise
+
+
+async def async_create_task(call: ServiceCall) -> None:
+    hass = call.hass
+    _ensure_domain_setup(hass)
+
+    for entry_data in hass.data[c.DOMAIN].values():
+        api: SaviiaAPI = entry_data["api"]
+        tasks_service = api.get("tasks")  # type: ignore
+
+        task = {
+            "name": call.data["name"],
+            "description": call.data["description"],
+            "due_date": call.data["due_date"],
+            "priority": call.data["priority"],
+            "assignee": call.data["assignee"],
+            "category": call.data["category"],
+            "images": call.data["images"],
+        }
+        try:
+            response = await tasks_service.create_task(
+                channel_id=call.data["channel_id"],
+                task=task,
+            )
+            tasks_coordinator = entry_data.get("tasks_coordinator")
+            if tasks_coordinator:
+                await tasks_coordinator.async_request_refresh()
+
+            if response["status"] == HTTPStatus.OK.value:
+                persistent_notification.async_create(
+                    hass,
+                    message="✅ La tarea fue creada correctamente.",
+                    title="SAVIIA - Tarea creada",
+                    notification_id="saviia_create_task_success",
+                )
+            else:
+                error = response["metadata"]["error"]
+                message = (
+                    "❌ No se pudo crear la tarea.\n\n"
+                    f"**Error:** {error}\n\n"
+                    "Revisa los datos ingresados o la conexión con Discord."
+                )
+                persistent_notification.async_create(
+                    hass,
+                    message=message,
+                    title="SAVIIA - Error al crear tarea",
+                    notification_id="saviia_create_task_error",
+                )
+                hass.bus.async_fire(
+                    "saviia_task_failed",
+                    {"error": error},
+                )
+
+        except Exception as e:
+            c.LOGGER.error(f"[service] local_backup_error: {e}")
             raise
 
 
 async def async_setup_services(hass: HomeAssistant) -> None:
     """Set up services for the SAVIIA integration."""
     hass.services.async_register(
-        DOMAIN,
-        SERVICE_SYNC_FILES,
+        c.DOMAIN,
+        c.SERVICE_SYNC_FILES,
         async_sync_thies_files,
-        schema=SERVICE_SYNC_FILES_SCHEMA,
+        schema=c.SERVICE_SYNC_FILES_SCHEMA,
     )
     hass.services.async_register(
-        DOMAIN,
-        SERVICE_LOCAL_BACKUP,
+        c.DOMAIN,
+        c.SERVICE_LOCAL_BACKUP,
         async_local_backup,
-        schema=SERVICE_LOCAL_BACKUP_SCHEMA,
+        schema=c.SERVICE_LOCAL_BACKUP_SCHEMA,
+    )
+    hass.services.async_register(
+        c.DOMAIN,
+        c.SERVICE_CREATE_TASK,
+        async_create_task,
+        schema=c.SERVICE_CREATE_TASK_SCHEMA,
     )
 
 
 async def async_unload_services(hass: HomeAssistant) -> None:
     """Unload services for the SAVIIA integration."""
-    hass.services.async_remove(DOMAIN, SERVICE_SYNC_FILES)
-    hass.services.async_remove(DOMAIN, SERVICE_LOCAL_BACKUP)
+    hass.services.async_remove(c.DOMAIN, c.SERVICE_SYNC_FILES)
+    hass.services.async_remove(c.DOMAIN, c.SERVICE_LOCAL_BACKUP)
+    hass.services.async_remove(c.DOMAIN, c.SERVICE_CREATE_TASK)

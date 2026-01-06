@@ -31,7 +31,9 @@ ignore = [
     "TD003",
     "TD002",
     "TRY400",
-    "TRY300"
+    "TRY300",
+    "PGH003",
+    "TC002"
 ]
 
 [lint.flake8-pytest-style]
