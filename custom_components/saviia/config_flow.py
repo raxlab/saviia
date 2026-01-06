@@ -9,12 +9,7 @@ from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
 
 from .const import (
-    DEFAULT_FTP_PATH_AVG,
     DEFAULT_FTP_PATH_EXT,
-    DEFAULT_LOCAL_BACKUP_PATH,
-    DEFAULT_SHAREPOINT_BASE_URL,
-    DEFAULT_SHAREPOINT_THIES_AVG_FOLDER,
-    DEFAULT_SHAREPOINT_THIES_EXT_FOLDER,
     DOMAIN,
     LOGGER,
 )
@@ -57,27 +52,23 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(
                     "sharepoint_site_name",
                 ): str,  # THIES Data Logger Parameters
-                vol.Required(
-                    "thies_ftp_server_avg_path", default=DEFAULT_FTP_PATH_AVG
-                ): str,
+                vol.Required("thies_ftp_server_avg_path"): str,
                 vol.Required(
                     "thies_ftp_server_ext_path", default=DEFAULT_FTP_PATH_EXT
                 ): str,
+                vol.Required("sharepoint_avg_backup_folder_name"): str,
                 vol.Required(
-                    "sharepoint_avg_backup_folder_name",
-                    default=DEFAULT_SHAREPOINT_THIES_AVG_FOLDER,
-                ): str,
-                vol.Required(
-                    "sharepoint_ext_backup_folder_name",
-                    default=DEFAULT_SHAREPOINT_THIES_EXT_FOLDER,
+                    "sharepoint_ext_backup_folder_name"
                 ): str,  # Local Backup Parameters
-                vol.Required(
-                    "local_backup_source_path",
-                    default=DEFAULT_LOCAL_BACKUP_PATH,
+                vol.Required("local_backup_source_path"): str,
+                vol.Required("sharepoint_backup_base_url"): str,
+                vol.Optional(
+                    "notification_client_api_key",
+                    description="Optional API key for Discord Bot client",
                 ): str,
-                vol.Required(
-                    "sharepoint_backup_base_url",
-                    default=DEFAULT_SHAREPOINT_BASE_URL,
+                vol.Optional(
+                    "notification_channel_id",
+                    description="Optional Channel ID for notifications of new tasks created using the Discord Bot",
                 ): str,
             }
         )

@@ -7,3 +7,45 @@ sync_local_backup:
   name: "Execute Local backup for extracted files"
   description: "Initiates a file backup which are uploaded in Filebrowser and moved to Sharepoint folder "
   fields: {}
+
+create_task:
+  name: "Create SAVIIA Task"
+  description: "Create a task in a Discord channel via SAVIIA"
+  fields:
+    channel_id:
+      name: Channel ID
+      required: true
+      selector:
+        text:
+    name:
+      name: Task title
+      required: true
+      selector:
+        text:
+    description:
+      name: Description
+      required: true
+      selector:
+        text:
+    due_date:
+      name: Due date (ISO 8601)
+      required: true
+      selector:
+        text:
+    priority:
+      name: Priority
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 4
+    assignee:
+      name: Assignee
+      required: true
+      selector:
+        text:
+    category:
+      name: Category
+      required: true
+      selector:
+        text:
