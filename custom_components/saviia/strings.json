@@ -1,0 +1,34 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "[%key:common::config_flow::abort::already_configured%]"
+        },
+        "error": {
+            "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+            "invalid_api_key": "[%key:common::config_flow::error::invalid_api_key%]",
+            "invalid_input": "Invalid input provided"
+        },
+        "step": {
+            "user": {
+                "title": "SAVIIA configuration",
+                "description": "Configure access to FTP, SharePoint and notification services.",
+                "data": {
+                    "host": "[%key:common::config_flow::data::host%]",
+                    "port": "[%key:common::config_flow::data::port%]",
+                    "username": "[%key:common::config_flow::data::username%]",
+                    "password": "[%key:common::config_flow::data::password%]",
+                    "client_id": "[%key:common::config_flow::data::client_id%]",
+                    "client_secret": "[%key:common::config_flow::data::client_secret%]",
+                    "tenant_id": "Tenant ID",
+                    "tenant_name": "Tenant name",
+                    "site_name": "SharePoint site name",
+                    "notification_channel_id": "Notification channel ID",
+                    "api_key": "[%key:common::config_flow::data::api_key%]"
+                },
+                "data_description": {
+                    "api_key": "API key used to authenticate the notification service (Discord bot)."
+                }
+            }
+        }
+    }
+}
