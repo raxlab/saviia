@@ -6,16 +6,16 @@ from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.data_entry_flow import FlowResult
 from homeassistant.const import (
-    CONF_HOST,
-    CONF_PORT,
-    CONF_USERNAME,
-    CONF_PASSWORD,
     CONF_API_KEY,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_PORT,
+    CONF_USERNAME,
 )
+from homeassistant.data_entry_flow import FlowResult
 
 from .const import (
     DOMAIN,
@@ -47,16 +47,13 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required("site_name"): str,
                 # THIES
                 vol.Required("thies_ftp_server_avg_path"): str,
-                vol.Required(
-                    "thies_ftp_server_ext_path",
-                    default=DEFAULT_FTP_PATH_EXT,
-                ): str,
+                vol.Required("thies_ftp_server_ext_path"): str,
                 # Backups
                 vol.Required("sharepoint_avg_backup_folder_name"): str,
                 vol.Required("sharepoint_ext_backup_folder_name"): str,
                 vol.Required("local_backup_source_path"): str,
                 vol.Required("sharepoint_backup_base_url"): str,
-                # Notifications (optional)
+                # Notifications
                 vol.Optional(CONF_API_KEY): str,
                 vol.Optional("notification_channel_id"): str,
             }
