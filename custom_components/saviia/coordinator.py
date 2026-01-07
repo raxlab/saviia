@@ -7,7 +7,7 @@ from saviialib import SaviiaAPI
 
 from custom_components.saviia.helpers.datetime_utils import datetime_to_str, today
 
-from .const import LOGGER, MANUFACTURER
+from .const import DOMAIN, LOGGER, MANUFACTURER
 
 
 class SaviiaBaseCoordinator(DataUpdateCoordinator):
@@ -106,37 +106,22 @@ class LocalBackupCoordinator(SaviiaBaseCoordinator):
             raise
 
 
-class TasksCoordinator(SaviiaBaseCoordinator):
+class CreatedTaskCoordinator(SaviiaBaseCoordinator):
     def __init__(self, hass, config_entry, api):
         super().__init__(hass, config_entry, api)
-        self.name = "tasks_coordinator"
-        self.tasks_service = api.get("tasks")
-        self.channel_id = config_entry.data.get("notification_channel_id", "")
+        self.name = "created_task_coordinator"
+        self.entry_id = config_entry.entry_id
 
     async def _async_update_data(self) -> dict:
-        self.logger.info("[%s] async_get_tasks_started", self.name)
-        try:
-            response = await self.tasks_service.get_tasks(
-                self.channel_id,
-                params={"sort": "desc", "fields": ["title", "due_date", "priority"]},
-            )
-            tasks = response.get("metadata", {}).get("tasks", [])
-            if not isinstance(tasks, list):
-                tasks = []
-            self.data = {
-                "tasks": tasks,
-                "status": response.get("status"),
-                "message": response.get("message"),
+        self.logger.info("[%s] async_update_tasks_started", self.name)
+        entry_data = self.hass.data[DOMAIN].get(self.entry_id, {})
+        last_response = entry_data.get("last_task_response")
+        if not last_response:
+            return {}
+        self.data = {
+            "last_task_info": {
+                "last_task_status": last_response["status"],
+                "last_task_meta": last_response["metadata"],
             }
-            self.last_update = datetime_to_str(today())
-
-            self.logger.info(
-                "[%s] async_update_data_successful: %s tasks", self.name, len(tasks)
-            )
-            return self.data
-        except Exception as e:
-            self.logger.info(
-                "[%s] async_update_data_error",
-                e.__str__(),
-            )
-            raise
+        }
+        return self.data
