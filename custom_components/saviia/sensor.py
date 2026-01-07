@@ -191,27 +191,33 @@ class SaviiaPendingTasksSensor(SaviiaBaseSensor):
 
     @property
     def _tasks(self) -> list[dict]:
-        if not self.coordinator.data:
+        tasks = self.coordinator.data.get("tasks", [])
+        if not isinstance(tasks, list):
             return []
-        return self.coordinator.data  # type: ignore
+        return tasks
 
     @property
     def native_value(self) -> int:
-        """Number of not completed tasks."""
-        return len([task for task in self._tasks if not task.get("completed", False)])
+        return sum(
+            1
+            for task in self._tasks
+            if isinstance(task, dict) and not task.get("completed", False)
+        )
 
     @property
     def extra_state_attributes(self) -> dict:
         base = super().extra_state_attributes or {}
+
         pending_tasks = [
             {
-                "title": task["task"]["title"],
-                "priority": task["task"]["priority"],
-                "due_date": task["task"]["due_date"],
+                "title": task.get("task", {}).get("title"),
+                "priority": task.get("task", {}).get("priority"),
+                "due_date": task.get("task", {}).get("due_date"),
             }
             for task in self._tasks
             if not task.get("completed", False)
         ]
+
         return {
             **base,
             "pending_tasks": pending_tasks,

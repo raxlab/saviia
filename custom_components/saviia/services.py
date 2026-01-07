@@ -35,7 +35,12 @@ async def async_sync_thies_files(call: ServiceCall) -> None:
     _ensure_domain_setup(hass)
 
     for entry_id in hass.data[c.DOMAIN]:
+        if entry_id == "services_registered":
+            continue
+
         coordinator = hass.data[c.DOMAIN][entry_id]["thies_coordinator"]
+        if not coordinator:
+            continue
         try:
             success = await coordinator.async_request_refresh()
             c.LOGGER.info("[service] sync_thies_files_successful")

@@ -120,13 +120,20 @@ class TasksCoordinator(SaviiaBaseCoordinator):
                 self.channel_id,
                 params={"sort": "desc", "fields": ["title", "due_date", "priority"]},
             )
-            tasks = response["metadata"]["tasks"]
-            self.data = tasks
+            tasks = response.get("metadata", {}).get("tasks", [])
+            if not isinstance(tasks, list):
+                tasks = []
+            self.data = {
+                "tasks": tasks,
+                "status": response.get("status"),
+                "message": response.get("message"),
+            }
             self.last_update = datetime_to_str(today())
+
             self.logger.info(
-                "[%s] async_update_data_successful: %s", self.name, len(tasks)
+                "[%s] async_update_data_successful: %s tasks", self.name, len(tasks)
             )
-            return {"tasks": tasks}
+            return self.data
         except Exception as e:
             self.logger.info(
                 "[%s] async_update_data_error",
