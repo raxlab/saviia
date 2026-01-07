@@ -12,9 +12,9 @@ from custom_components.saviia.const import (
 )
 
 from .coordinator import (
+    CreatedTaskCoordinator,
     LocalBackupCoordinator,
     SyncThiesDataCoordinator,
-    CreatedTaskCoordinator,
 )
 from .services import async_setup_services, async_unload_services
 
@@ -81,7 +81,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     hass.data[DOMAIN][config_entry.entry_id][backup_coordinator.name] = (
         backup_coordinator
     )
-    hass.data[DOMAIN][config_entry.entry_id][created_task_coordinator.name] = created_task_coordinator
+    hass.data[DOMAIN][config_entry.entry_id][created_task_coordinator.name] = (
+        created_task_coordinator
+    )
 
     LOGGER.debug(f"[init] coordinator saved: {hass.data[DOMAIN]}")
 

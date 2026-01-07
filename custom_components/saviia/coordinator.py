@@ -7,7 +7,7 @@ from saviialib import SaviiaAPI
 
 from custom_components.saviia.helpers.datetime_utils import datetime_to_str, today
 
-from .const import LOGGER, MANUFACTURER, DOMAIN
+from .const import DOMAIN, LOGGER, MANUFACTURER
 
 
 class SaviiaBaseCoordinator(DataUpdateCoordinator):
