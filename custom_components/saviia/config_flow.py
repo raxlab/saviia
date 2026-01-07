@@ -6,15 +6,6 @@ from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import (
-    CONF_API_KEY,
-    CONF_CLIENT_ID,
-    CONF_CLIENT_SECRET,
-    CONF_HOST,
-    CONF_PASSWORD,
-    CONF_PORT,
-    CONF_USERNAME,
-)
 from homeassistant.data_entry_flow import FlowResult
 
 from .const import (
@@ -34,28 +25,48 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def _get_schema(self) -> vol.Schema:
         return vol.Schema(
             {
-                # FTP
-                vol.Required(CONF_HOST, default="localhost"): str,
-                vol.Required(CONF_PORT, default=21): int,
-                vol.Required(CONF_USERNAME): str,
-                vol.Required(CONF_PASSWORD): str,
-                # SharePoint / Microsoft
-                vol.Required(CONF_CLIENT_ID): str,
-                vol.Required(CONF_CLIENT_SECRET): str,
-                vol.Required("tenant_id"): str,
-                vol.Required("tenant_name"): str,
-                vol.Required("site_name"): str,
-                # THIES
+                vol.Required(
+                    "ftp_host",
+                    default="localhost",
+                ): str,
+                vol.Required("ftp_port", default=21): int,
+                vol.Required(
+                    "ftp_user",
+                ): str,
+                vol.Required(
+                    "ftp_password",
+                ): str,
+                vol.Required(
+                    "sharepoint_client_id",
+                ): str,
+                vol.Required(
+                    "sharepoint_client_secret",
+                ): str,
+                vol.Required(
+                    "sharepoint_tenant_id",
+                ): str,
+                vol.Required(
+                    "sharepoint_tenant_name",
+                ): str,
+                vol.Required(
+                    "sharepoint_site_name",
+                ): str,  # THIES Data Logger Parameters
                 vol.Required("thies_ftp_server_avg_path"): str,
                 vol.Required("thies_ftp_server_ext_path"): str,
-                # Backups
                 vol.Required("sharepoint_avg_backup_folder_name"): str,
-                vol.Required("sharepoint_ext_backup_folder_name"): str,
+                vol.Required(
+                    "sharepoint_ext_backup_folder_name"
+                ): str,  # Local Backup Parameters
                 vol.Required("local_backup_source_path"): str,
                 vol.Required("sharepoint_backup_base_url"): str,
-                # Notifications
-                vol.Optional(CONF_API_KEY): str,
-                vol.Optional("notification_channel_id"): str,
+                vol.Optional(
+                    "notification_client_api_key",
+                    description="Optional API key for Discord Bot client",
+                ): str,
+                vol.Optional(
+                    "notification_channel_id",
+                    description="Optional Channel ID for notifications of new tasks created using the Discord Bot",
+                ): str,
             }
         )
 
