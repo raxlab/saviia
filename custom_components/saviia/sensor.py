@@ -22,14 +22,16 @@ async def async_setup_entry(
     backup_coordinator = hass.data[DOMAIN][config_entry.entry_id][
         "local_backup_coordinator"
     ]
-    tasks_coordinator = hass.data[DOMAIN][config_entry.entry_id]["tasks_coordinator"]
+    created_task_coordinator = hass.data[DOMAIN][config_entry.entry_id][
+        "created_task_coordinator"
+    ]
 
     sensors = [
         SaviiaNewFilesSensor(thies_coordinator, config_entry),
         SaviiaFailedFilesSensor(thies_coordinator, config_entry),
         SaviiaFileSyncStatusSensor(thies_coordinator, config_entry),
         SaviiaBackupStatusSensor(backup_coordinator, config_entry),
-        SaviiaPendingTasksSensor(tasks_coordinator, config_entry),
+        SaviiaCreatedTaskSensor(created_task_coordinator, config_entry),
     ]
     async_add_entities(sensors, update_before_add=True)
 
@@ -57,7 +59,7 @@ class SaviiaBaseSensor(CoordinatorEntity, SensorEntity):
         coordinator_response = {
             "thies_coordinator": "synced_files",
             "local_backup_coordinator": "exported_files",
-            "tasks_coordinator": "tasks",
+            "created_task_coordinator": "last_task_info",
         }
         if coordinator_response.get(self.coordinator.name):
             return (
@@ -179,48 +181,25 @@ class SaviiaBackupStatusSensor(SaviiaBaseSensor):
         return {**base, "new_files": self.metadata.get("new_files", 0)}
 
 
-class SaviiaPendingTasksSensor(SaviiaBaseSensor):
+class SaviiaCreatedTaskSensor(SaviiaBaseSensor):
     def __init__(self, coordinator, config_entry):
         super().__init__(
             coordinator,
             config_entry,
-            attribute="pending_tasks",
-            name_suffix="Pending Tasks",
+            attribute="last_task_status",
+            name_suffix="Created Task",
             icon="mdi:clipboard-text-clock",
         )
 
     @property
-    def _tasks(self) -> list[dict]:
-        tasks = self.coordinator.data.get("tasks", [])
-        if not isinstance(tasks, list):
-            return []
-        return tasks
-
-    @property
-    def native_value(self) -> int:
-        return sum(
-            1
-            for task in self._tasks
-            if isinstance(task, dict) and not task.get("completed", False)
-        )
+    def native_value(self) -> dict | None:
+        return self.coordinator.data.get("last_task_status")
 
     @property
     def extra_state_attributes(self) -> dict:
         base = super().extra_state_attributes or {}
 
-        pending_tasks = [
-            {
-                "title": task.get("task", {}).get("title"),
-                "priority": task.get("task", {}).get("priority"),
-                "due_date": task.get("task", {}).get("due_date"),
-            }
-            for task in self._tasks
-            if not task.get("completed", False)
-        ]
-
         return {
             **base,
-            "pending_tasks": pending_tasks,
-            "total_tasks": len(self._tasks),
-            "completed_tasks": len(self._tasks) - len(pending_tasks),
+            "metadata": self.coordinator.data.get("last_task_meta", {}),
         }

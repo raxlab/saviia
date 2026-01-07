@@ -14,7 +14,7 @@ from custom_components.saviia.const import (
 from .coordinator import (
     LocalBackupCoordinator,
     SyncThiesDataCoordinator,
-    TasksCoordinator,
+    CreatedTaskCoordinator,
 )
 from .services import async_setup_services, async_unload_services
 
@@ -59,12 +59,12 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     )
     thies_coordinator = SyncThiesDataCoordinator(*coordinator_parameters)
     backup_coordinator = LocalBackupCoordinator(*coordinator_parameters)
-    tasks_coordinator = TasksCoordinator(*coordinator_parameters)
+    created_task_coordinator = CreatedTaskCoordinator(*coordinator_parameters)
 
     try:
         await thies_coordinator.async_config_entry_first_refresh()
         await backup_coordinator.async_config_entry_first_refresh()
-        await tasks_coordinator.async_config_entry_first_refresh()
+        await created_task_coordinator.async_config_entry_first_refresh()
     except ValueError as ve:
         LOGGER.error(f"[init] ValueError during coordinator refresh: {ve}")
         return False
@@ -81,7 +81,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     hass.data[DOMAIN][config_entry.entry_id][backup_coordinator.name] = (
         backup_coordinator
     )
-    hass.data[DOMAIN][config_entry.entry_id][tasks_coordinator.name] = tasks_coordinator
+    hass.data[DOMAIN][config_entry.entry_id][created_task_coordinator.name] = created_task_coordinator
 
     LOGGER.debug(f"[init] coordinator saved: {hass.data[DOMAIN]}")
 

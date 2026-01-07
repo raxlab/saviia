@@ -74,7 +74,7 @@ async def async_create_task(call: ServiceCall) -> None:
     hass = call.hass
     _ensure_domain_setup(hass)
 
-    for entry_data in hass.data[c.DOMAIN].values():
+    for entry_id, entry_data in hass.data[c.DOMAIN].items():
         api: SaviiaAPI = entry_data["api"]
         tasks_service = api.get("tasks")  # type: ignore
 
@@ -92,9 +92,13 @@ async def async_create_task(call: ServiceCall) -> None:
                 channel_id=call.data["channel_id"],
                 task=task,
             )
-            tasks_coordinator = entry_data.get("tasks_coordinator")
-            if tasks_coordinator:
-                await tasks_coordinator.async_request_refresh()
+            entry_data["last_task_response"] = {
+                "status": response["status"],
+                "metadata": response.get("metadata"),
+            }
+            created_task_coordinator = entry_data.get("created_task_coordinator")
+            if created_task_coordinator:
+                await created_task_coordinator.async_request_refresh()
 
             if response["status"] == HTTPStatus.OK.value:
                 persistent_notification.async_create(
@@ -102,6 +106,14 @@ async def async_create_task(call: ServiceCall) -> None:
                     message="✅ La tarea fue creada correctamente.",
                     title="SAVIIA - Tarea creada",
                     notification_id="saviia_create_task_success",
+                )
+                hass.bus.async_fire(
+                    "saviia_task_created",
+                    {
+                        "entry_id": entry_id,
+                        "status": response["status"],
+                        "task_id": response.get("metadata", {}).get("id"),
+                    },
                 )
             else:
                 error = response["metadata"]["error"]
