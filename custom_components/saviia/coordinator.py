@@ -113,6 +113,28 @@ class CreatedTaskCoordinator(SaviiaBaseCoordinator):
         self.entry_id = config_entry.entry_id
 
     async def _async_update_data(self) -> dict:
+        self.logger.info("[%s] async_created_task_started", self.name)
+        entry_data = self.hass.data[DOMAIN].get(self.entry_id, {})
+        last_response = entry_data.get("last_task_response")
+        if not last_response:
+            return {}
+        self.data = {
+            "last_task_info": {
+                "last_task_status": last_response["status"],
+                "last_task_meta": last_response["metadata"],
+            }
+        }
+        self.logger.info("[%s] async_created_task_successful", self.name)
+        return self.data
+
+
+class UpdateTaskCoordinator(SaviiaBaseCoordinator):
+    def __init__(self, hass, config_entry, api):
+        super().__init__(hass, config_entry, api)
+        self.name = "update_task_coordinator"
+        self.entry_id = config_entry.entry_id
+
+    async def _async_update_data(self) -> dict:
         self.logger.info("[%s] async_update_tasks_started", self.name)
         entry_data = self.hass.data[DOMAIN].get(self.entry_id, {})
         last_response = entry_data.get("last_task_response")
@@ -124,4 +146,5 @@ class CreatedTaskCoordinator(SaviiaBaseCoordinator):
                 "last_task_meta": last_response["metadata"],
             }
         }
+        self.logger.info("[%s] async_update_task_successful", self.name)
         return self.data

@@ -75,6 +75,8 @@ async def async_create_task(call: ServiceCall) -> None:
     _ensure_domain_setup(hass)
 
     for entry_id, entry_data in hass.data[c.DOMAIN].items():
+        if not isinstance(entry_data, dict):
+            continue
         api: SaviiaAPI = entry_data["api"]
         tasks_service = api.get("tasks")  # type: ignore
 
@@ -134,9 +136,38 @@ async def async_create_task(call: ServiceCall) -> None:
                 )
 
         except Exception as e:
-            c.LOGGER.error(f"[service] local_backup_error: {e}")
+            c.LOGGER.error(f"[service] create_task_error: {e}")
             raise
 
+async def async_update_task(call: ServiceCall) -> None:
+    hass = call.hass
+    _ensure_domain_setup(hass)
+
+    for entry_id, entry_data in hass.data[c.DOMAIN].items():
+        if not isinstance(entry_data, dict):
+            continue
+        api: SaviiaAPI = entry_data["api"]
+        tasks_service = api.get("tasks")  # type: ignore
+        completed = call.data["completed"]
+        task = {
+            "name": call.data["name"],
+            "description": call.data["description"],
+            "due_date": call.data["due_date"],
+            "priority": call.data["priority"],
+            "assignee": call.data["assignee"],
+            "category": call.data["category"],
+        }
+        try:
+            response = await tasks_service.update_task(
+                channel_id=call.data["channel_id"],
+                task=task,
+                completed=completed
+            )
+            update_task_coordinator = entry_data.get("update_task_coordinator")
+        except Exception as e:
+            c.LOGGER.error(f"[service] update_task_error: {e}")
+            raise
+        
 
 async def async_setup_services(hass: HomeAssistant) -> None:
     """Set up services for the SAVIIA integration."""
