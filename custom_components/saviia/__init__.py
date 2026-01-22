@@ -24,7 +24,7 @@ logclient = LogClient(
 )
 
 
-async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:  # noqa: ARG001
     """Set up the SAVIIA component."""
     logclient.method_name = "async_setup"
     logclient.debug(DebugArgs(status=LogStatus.STARTED))
