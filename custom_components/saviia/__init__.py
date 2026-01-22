@@ -26,13 +26,20 @@ logclient = LogClient(
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the SAVIIA component."""
-    config = GeneralParams.CONFIG_SCHEMA(config)
+    logclient.method_name = "async_setup"
+    logclient.debug(DebugArgs(status=LogStatus.STARTED))
     if not hass.config_entries.async_entries(GeneralParams.DOMAIN):
         hass.async_create_task(
             hass.config_entries.flow.async_init(
                 GeneralParams.DOMAIN, context={"source": "user"}
             )
         )
+    logclient.debug(
+        DebugArgs(
+            status=LogStatus.SUCCESSFUL,
+            metadata={"msg": "SAVIIA component setup successful"},
+        )
+    )
     return True
 
 
