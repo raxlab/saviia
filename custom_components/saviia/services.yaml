@@ -8,44 +8,23 @@ sync_local_backup:
   description: "Initiates a file backup which are uploaded in Filebrowser and moved to Sharepoint folder "
   fields: {}
 
-create_task:
-  name: "Create SAVIIA Task"
-  description: "Create a task in a Discord channel via SAVIIA"
+get_camera_time_rates:
+  name: "Get Camera Time Rates"
+  description: "Retrieve time rates for photo capture and video recording from connected network cameras"
   fields:
-    channel_id:
-      name: Channel ID
-      required: true
-      selector:
-        text:
-    name:
-      name: Task title
-      required: true
-      selector:
-        text:
-    description:
-      name: Description
-      required: true
-      selector:
-        text:
-    due_date:
-      name: Due date (ISO 8601)
-      required: true
-      selector:
-        text:
-    priority:
-      name: Priority
+    latitude: 
+      name: Latitude
       required: true
       selector:
         number:
-          min: 1
-          max: 4
-    assignee:
-      name: Assignee
+          min: -90
+          max: 90
+          step: 0.000001
+    longitude:
+      name: Longitude
       required: true
       selector:
-        text:
-    category:
-      name: Category
-      required: true
-      selector:
-        text:
+        number:
+          min: -180
+          max: 180
+          step: 0.000001

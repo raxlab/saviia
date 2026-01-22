@@ -5,163 +5,208 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant, ServiceCall
+    from homeassistant.core import (
+        HomeAssistant,
+        ServiceCall,
+        ServiceResponse,
+    )
 
 
 from http import HTTPStatus
 
-from homeassistant.components import persistent_notification
+from homeassistant.core import (
+    SupportsResponse,
+)
 from saviialib import SaviiaAPI
 
-from . import const as c
+from custom_components.saviia.const import (
+    GeneralParams,
+    ServicesParams,
+)
+from custom_components.saviia.libs.log_client import (
+    DebugArgs,
+    ErrorArgs,
+    InfoArgs,
+    LogClient,
+    LogClientArgs,
+    LogStatus,
+)
+
+HTTP_OK = 200
+
+logclient = LogClient(
+    LogClientArgs(client_name="logging", service_name="services", class_name="services")
+)
 
 
 def _ensure_domain_setup(hass) -> None:
-    if c.DOMAIN not in hass.data:
-        c.LOGGER.error(
-            f"[service] No data found for {c.DOMAIN}. Please ensure the integration is set up first."
-        )
+    logclient.method_name = "_ensure_domain_setup"
+    if GeneralParams.DOMAIN not in hass.data:
         error_message = (
-            f"[service] No data found for {c.DOMAIN}. "
+            f"[service] No data found for {GeneralParams.DOMAIN}. "
             "Ensure the integration is properly set up before calling this service."
+        )
+        logclient.error(
+            ErrorArgs(
+                status=LogStatus.ERROR,
+                metadata={"msg": error_message},
+            )
         )
         raise ValueError(error_message)
 
 
 async def async_sync_thies_files(call: ServiceCall) -> None:
     """File synchronization."""
-    c.LOGGER.info("[service] sync_thies_files_started")
+    logclient.method_name = "async_sync_thies_files"
+    logclient.debug(DebugArgs(status=LogStatus.STARTED))
     hass = call.hass
     _ensure_domain_setup(hass)
 
-    for entry_id in hass.data[c.DOMAIN]:
+    for entry_id in hass.data[GeneralParams.DOMAIN]:
         if entry_id == "services_registered":
             continue
 
-        coordinator = hass.data[c.DOMAIN][entry_id]["thies_coordinator"]
+        coordinator = hass.data[GeneralParams.DOMAIN][entry_id]["thies_coordinator"]
         if not coordinator:
             continue
         try:
             success = await coordinator.async_request_refresh()
-            c.LOGGER.info("[service] sync_thies_files_successful")
+            logclient.info(
+                InfoArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={"msg": "File sync successful"},
+                )
+            )
             if success:
                 metadata = coordinator.data.get("metadata")
-                c.LOGGER.debug("[service] sync_thies_files_response: %s", metadata)
+                logclient.debug(
+                    DebugArgs(
+                        status=LogStatus.SUCCESSFUL,
+                        metadata={"msg": f"Metadata: {metadata}"},
+                    )
+                )
+
         except Exception as e:
-            c.LOGGER.error(f"[service] sync_thies_files_error: {e}")
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": e.__str__()},
+                )
+            )
             raise
 
 
 async def async_local_backup(call: ServiceCall) -> None:
-    c.LOGGER.info("[service] async_local_backup_started")
+    logclient.method_name = "async_local_backup"
+    logclient.debug(DebugArgs(status=LogStatus.STARTED))
     hass = call.hass
     _ensure_domain_setup(hass)
 
-    for entry_id in hass.data[c.DOMAIN]:
-        coordinator = hass.data[c.DOMAIN][entry_id]["local_backup_coordinator"]
+    for entry_id in hass.data[GeneralParams.DOMAIN]:
+        if entry_id == "services_registered":
+            continue
+        coordinator = hass.data[GeneralParams.DOMAIN][entry_id][
+            "local_backup_coordinator"
+        ]
         try:
             success = await coordinator.async_request_refresh()
-            c.LOGGER.info("[service] local_backup_successful")
+            logclient.info(
+                InfoArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={"msg": "Local backup successful"},
+                )
+            )
             if success:
                 metadata = coordinator.data.get("metadata")
-                c.LOGGER.debug("[service] local_backup_response: %s", metadata)
+                logclient.debug(
+                    DebugArgs(
+                        status=LogStatus.SUCCESSFUL,
+                        metadata={"msg": f"Metadata: {metadata}"},
+                    )
+                )
         except Exception as e:
-            c.LOGGER.error(f"[service] local_backup_error: {e}")
-            raise
-
-
-async def async_create_task(call: ServiceCall) -> None:
-    hass = call.hass
-    _ensure_domain_setup(hass)
-
-    for entry_id, entry_data in hass.data[c.DOMAIN].items():
-        api: SaviiaAPI = entry_data["api"]
-        tasks_service = api.get("tasks")  # type: ignore
-
-        task = {
-            "name": call.data["name"],
-            "description": call.data["description"],
-            "due_date": call.data["due_date"],
-            "priority": call.data["priority"],
-            "assignee": call.data["assignee"],
-            "category": call.data["category"],
-            "images": call.data["images"],
-        }
-        try:
-            response = await tasks_service.create_task(
-                channel_id=call.data["channel_id"],
-                task=task,
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": e.__str__()},
+                )
             )
-            entry_data["last_task_response"] = {
-                "status": response["status"],
-                "metadata": response.get("metadata"),
-            }
-            created_task_coordinator = entry_data.get("created_task_coordinator")
-            if created_task_coordinator:
-                await created_task_coordinator.async_request_refresh()
+            raise
 
-            if response["status"] == HTTPStatus.OK.value:
-                persistent_notification.async_create(
-                    hass,
-                    message="✅ La tarea fue creada correctamente.",
-                    title="SAVIIA - Tarea creada",
-                    notification_id="saviia_create_task_success",
+
+async def async_get_netcamera_rates(call: ServiceCall) -> ServiceResponse:
+    """Get camera rates service."""
+    logclient.method_name = "async_get_camera_rates"
+    logclient.debug(DebugArgs(status=LogStatus.STARTED))
+    _ensure_domain_setup(call.hass)
+    for entry_data in call.hass.data[GeneralParams.DOMAIN].values():
+        api: SaviiaAPI = entry_data["api"]
+        lat, lon = call.data["latitude"], call.data["longitude"]
+        camera_services = api.get("netcamera")
+        try:
+            result = await camera_services.get_camera_rates(latitude=lat, longitude=lon)
+            logclient.info(
+                InfoArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={"msg": f"Camera rates retrieved: {result}"},
                 )
-                hass.bus.async_fire(
-                    "saviia_task_created",
-                    {
-                        "entry_id": entry_id,
-                        "status": response["status"],
-                        "task_id": response.get("metadata", {}).get("id"),
-                    },
+            )
+            if result["status"] == HTTPStatus.OK.value:
+                timestatus, photo_rate, video_rate = result["metadata"].values()
+                return {
+                    "timestatus": timestatus,
+                    "photo_rate": photo_rate,
+                    "video_rate": video_rate,
+                }
+            error_message = f"[{result['status']}] {result['message']}"
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": error_message},
                 )
-            else:
-                error = response["metadata"]["error"]
-                message = (
-                    "❌ No se pudo crear la tarea.\n\n"
-                    f"**Error:** {error}\n\n"
-                    "Revisa los datos ingresados o la conexión con Discord."
-                )
-                persistent_notification.async_create(
-                    hass,
-                    message=message,
-                    title="SAVIIA - Error al crear tarea",
-                    notification_id="saviia_create_task_error",
-                )
-                hass.bus.async_fire(
-                    "saviia_task_failed",
-                    {"error": error},
-                )
+            )
+            return {"error": error_message}
 
         except Exception as e:
-            c.LOGGER.error(f"[service] local_backup_error: {e}")
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": f"Error retrieving camera rates: {e}"},
+                )
+            )
             raise
+    return None
 
 
 async def async_setup_services(hass: HomeAssistant) -> None:
     """Set up services for the SAVIIA integration."""
     hass.services.async_register(
-        c.DOMAIN,
-        c.SERVICE_SYNC_FILES,
+        GeneralParams.DOMAIN,
+        ServicesParams.SERVICE_SYNC_FILES,
         async_sync_thies_files,
-        schema=c.SERVICE_SYNC_FILES_SCHEMA,
+        schema=ServicesParams.SERVICE_SYNC_FILES_SCHEMA,
     )
     hass.services.async_register(
-        c.DOMAIN,
-        c.SERVICE_LOCAL_BACKUP,
+        GeneralParams.DOMAIN,
+        ServicesParams.SERVICE_LOCAL_BACKUP,
         async_local_backup,
-        schema=c.SERVICE_LOCAL_BACKUP_SCHEMA,
+        schema=ServicesParams.SERVICE_LOCAL_BACKUP_SCHEMA,
     )
     hass.services.async_register(
-        c.DOMAIN,
-        c.SERVICE_CREATE_TASK,
-        async_create_task,
-        schema=c.SERVICE_CREATE_TASK_SCHEMA,
+        GeneralParams.DOMAIN,
+        ServicesParams.SERVICE_GET_NETCAMERA_RATES,
+        async_get_netcamera_rates,
+        schema=ServicesParams.SERVICE_GET_NETCAMERA_RATES_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
     )
 
 
 async def async_unload_services(hass: HomeAssistant) -> None:
     """Unload services for the SAVIIA integration."""
-    hass.services.async_remove(c.DOMAIN, c.SERVICE_SYNC_FILES)
-    hass.services.async_remove(c.DOMAIN, c.SERVICE_LOCAL_BACKUP)
-    hass.services.async_remove(c.DOMAIN, c.SERVICE_CREATE_TASK)
+    hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_SYNC_FILES)
+    hass.services.async_remove(
+        GeneralParams.DOMAIN, ServicesParams.SERVICE_LOCAL_BACKUP
+    )
+    hass.services.async_remove(
+        GeneralParams.DOMAIN, ServicesParams.SERVICE_GET_NETCAMERA_RATES
+    )
