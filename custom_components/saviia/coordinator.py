@@ -7,7 +7,7 @@ from saviialib import SaviiaAPI
 
 from custom_components.saviia.helpers.datetime_utils import datetime_to_str, today
 
-from .const import GeneralParams
+from .const import DOMAIN, LOGGER, MANUFACTURER
 
 
 class SaviiaBaseCoordinator(DataUpdateCoordinator):
@@ -20,8 +20,8 @@ class SaviiaBaseCoordinator(DataUpdateCoordinator):
         """Set up the coordinator."""
         super().__init__(
             hass,
-            GeneralParams.LOGGER,
-            name=GeneralParams.MANUFACTURER,
+            LOGGER,
+            name=MANUFACTURER,
             config_entry=config_entry,
             update_interval=None,
         )
@@ -104,3 +104,24 @@ class LocalBackupCoordinator(SaviiaBaseCoordinator):
                 e.__str__(),
             )
             raise
+
+
+class CreatedTaskCoordinator(SaviiaBaseCoordinator):
+    def __init__(self, hass, config_entry, api):
+        super().__init__(hass, config_entry, api)
+        self.name = "created_task_coordinator"
+        self.entry_id = config_entry.entry_id
+
+    async def _async_update_data(self) -> dict:
+        self.logger.info("[%s] async_update_tasks_started", self.name)
+        entry_data = self.hass.data[DOMAIN].get(self.entry_id, {})
+        last_response = entry_data.get("last_task_response")
+        if not last_response:
+            return {}
+        self.data = {
+            "last_task_info": {
+                "last_task_status": last_response["status"],
+                "last_task_meta": last_response["metadata"],
+            }
+        }
+        return self.data
