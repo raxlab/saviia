@@ -16,7 +16,7 @@ from custom_components.saviia.libs.log_client import (
     LogStatus,
 )
 
-from .const import DOMAIN, LOGGER, MANUFACTURER
+from .const import GeneralParams
 
 
 class SaviiaBaseCoordinator(DataUpdateCoordinator):
@@ -29,8 +29,8 @@ class SaviiaBaseCoordinator(DataUpdateCoordinator):
         """Set up the coordinator."""
         super().__init__(
             hass,
-            LOGGER,
-            name=MANUFACTURER,
+            GeneralParams.LOGGER,
+            name=GeneralParams.MANUFACTURER,
             config_entry=config_entry,
             update_interval=None,
         )
@@ -202,24 +202,3 @@ class NetcameraRatesCoordinator(SaviiaBaseCoordinator):
                 )
             )
             raise
-
-
-class CreatedTaskCoordinator(SaviiaBaseCoordinator):
-    def __init__(self, hass, config_entry, api):
-        super().__init__(hass, config_entry, api)
-        self.name = "created_task_coordinator"
-        self.entry_id = config_entry.entry_id
-
-    async def _async_update_data(self) -> dict:
-        self.logger.info("[%s] async_update_tasks_started", self.name)
-        entry_data = self.hass.data[DOMAIN].get(self.entry_id, {})
-        last_response = entry_data.get("last_task_response")
-        if not last_response:
-            return {}
-        self.data = {
-            "last_task_info": {
-                "last_task_status": last_response["status"],
-                "last_task_meta": last_response["metadata"],
-            }
-        }
-        return self.data
