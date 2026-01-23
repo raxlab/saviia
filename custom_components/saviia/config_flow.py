@@ -8,16 +8,26 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
 
-from .const import (
-    DOMAIN,
-    LOGGER,
-)
+from custom_components.saviia.const import GeneralParams
 
 if TYPE_CHECKING:
     from homeassistant.data_entry_flow import FlowResult
 
+from custom_components.saviia.libs.log_client import (
+    ErrorArgs,
+    LogClient,
+    LogClientArgs,
+    LogStatus,
+)
 
-class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+logclient = LogClient(
+    LogClientArgs(
+        client_name="logging", service_name="config_flow", class_name="config_flow"
+    )
+)
+
+
+class SaviiaConfigFlow(config_entries.ConfigFlow, domain=GeneralParams.DOMAIN):
     """Config flow for Thies Data Logger."""
 
     VERSION = 1
@@ -59,14 +69,8 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 ): str,  # Local Backup Parameters
                 vol.Required("local_backup_source_path"): str,
                 vol.Required("sharepoint_backup_base_url"): str,
-                vol.Optional(
-                    "notification_client_api_key",
-                    description="Optional API key for Discord Bot client",
-                ): str,
-                vol.Optional(
-                    "notification_channel_id",
-                    description="Optional Channel ID for notifications of new tasks created using the Discord Bot",
-                ): str,
+                vol.Optional("latitude"): str,
+                vol.Optional("longitude"): str,
             }
         )
 
@@ -88,16 +92,36 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     title="SAVIIA Credentials", data=user_input
                 )
             except ValueError as e:
-                LOGGER.error(f"Value error during config flow: {e}")
+                logclient.error(
+                    ErrorArgs(
+                        status=LogStatus.ERROR,
+                        metadata={"msg": f"Value error during config flow: {e}"},
+                    )
+                )
                 errors["base"] = "invalid_input"
             except vol.Invalid as e:
-                LOGGER.error(f"Schema validation error: {e}")
+                logclient.error(
+                    ErrorArgs(
+                        status=LogStatus.ERROR,
+                        metadata={"msg": f"Schema validation error: {e}"},
+                    )
+                )
                 errors["base"] = "invalid_schema"
             except OSError as e:
-                LOGGER.error(f"OS error during config flow: {e}")
+                logclient.error(
+                    ErrorArgs(
+                        status=LogStatus.ERROR,
+                        metadata={"msg": f"OS error during config flow: {e}"},
+                    )
+                )
                 errors["base"] = "os_error"
             except RuntimeError as e:
-                LOGGER.error(f"Runtime error during config flow: {e}")
+                logclient.error(
+                    ErrorArgs(
+                        status=LogStatus.ERROR,
+                        metadata={"msg": f"Runtime error during config flow: {e}"},
+                    )
+                )
                 errors["base"] = "runtime_error"
 
         return self.async_show_form(

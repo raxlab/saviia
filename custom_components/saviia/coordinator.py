@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import (
@@ -6,8 +8,15 @@ from homeassistant.helpers.update_coordinator import (
 from saviialib import SaviiaAPI
 
 from custom_components.saviia.helpers.datetime_utils import datetime_to_str, today
+from custom_components.saviia.libs.log_client import (
+    DebugArgs,
+    ErrorArgs,
+    LogClient,
+    LogClientArgs,
+    LogStatus,
+)
 
-from .const import DOMAIN, LOGGER, MANUFACTURER
+from .const import GeneralParams
 
 
 class SaviiaBaseCoordinator(DataUpdateCoordinator):
@@ -20,8 +29,8 @@ class SaviiaBaseCoordinator(DataUpdateCoordinator):
         """Set up the coordinator."""
         super().__init__(
             hass,
-            LOGGER,
-            name=MANUFACTURER,
+            GeneralParams.LOGGER,
+            name=GeneralParams.MANUFACTURER,
             config_entry=config_entry,
             update_interval=None,
         )
@@ -47,10 +56,22 @@ class SyncThiesDataCoordinator(SaviiaBaseCoordinator):
         ]
         self.local_backup_path = config_entry.data["local_backup_source_path"]
         self.thies_service = api.get("thies")
+        self.logclient = LogClient(
+            LogClientArgs(
+                client_name="logging",
+                service_name="coordinators",
+                class_name="sync_thies_data_coordinator",
+            )
+        )
 
     async def _async_update_data(self) -> dict:
         """Upload data using the SAVIIA library and get uploaded files."""
-        self.logger.info("[%s] async_update_data_started", self.name)
+        self.logclient.method_name = "_async_update_data"
+        self.logclient.debug(
+            DebugArgs(
+                status=LogStatus.STARTED, metadata={"msg": "Thies data sync started"}
+            )
+        )
         try:
             synced_files = await self.thies_service.update_thies_data(
                 sharepoint_folders_path=self.sharepoint_folders_path,
@@ -59,15 +80,21 @@ class SyncThiesDataCoordinator(SaviiaBaseCoordinator):
             )
             self.data = synced_files
             self.last_update = datetime_to_str(today())
-            self.logger.info(
-                "[%s] async_update_data_successful %s", self.name, synced_files
+            self.logclient.debug(
+                DebugArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={
+                        "msg": f"Thies data sync completed. Data: {synced_files}"
+                    },
+                )
             )
             return {"synced_files": synced_files}
         except Exception as e:
-            self.logger.info(
-                "[%s] async_update_data_error: %s",
-                self.name,
-                e.__str__(),
+            self.logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": e.__str__()},
+                )
             )
             raise
 
@@ -83,10 +110,22 @@ class LocalBackupCoordinator(SaviiaBaseCoordinator):
             "sharepoint_backup_base_url"
         ]
         self.backup_service = api.get("backup")
+        self.logclient = LogClient(
+            LogClientArgs(
+                client_name="logging",
+                service_name="coordinators",
+                class_name="local_backup_coordinator",
+            )
+        )
 
     async def _async_update_data(self) -> dict:
         """Execute the local backup, extracting files from the source path requested."""
-        self.logger.info("[%s] async_local_backup_started", self.name)
+        self.logclient.method_name = "_async_update_data"
+        self.logclient.debug(
+            DebugArgs(
+                status=LogStatus.STARTED, metadata={"msg": "Local backup started"}
+            )
+        )
         try:
             exported_files = await self.backup_service.upload_backup_to_sharepoint(
                 local_backup_source_path=self.local_backup_source_path,
@@ -94,34 +133,72 @@ class LocalBackupCoordinator(SaviiaBaseCoordinator):
             )
             self.data = exported_files
             self.last_update = datetime_to_str(today())
-            self.logger.info(
-                "[%s] async_update_data_successful: %s", self.name, exported_files
+            self.logclient.debug(
+                DebugArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={"msg": f"Local backup completed. Data: {exported_files}"},
+                )
             )
+
             return {"exported_files": exported_files}
         except Exception as e:
-            self.logger.info(
-                "[%s] async_update_data_error",
-                e.__str__(),
+            self.logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": e.__str__()},
+                )
             )
             raise
 
 
-class CreatedTaskCoordinator(SaviiaBaseCoordinator):
+class NetcameraRatesCoordinator(SaviiaBaseCoordinator):
+    """Class to manage the Netcamera time rates fetching."""
+
     def __init__(self, hass, config_entry, api):
         super().__init__(hass, config_entry, api)
-        self.name = "created_task_coordinator"
-        self.entry_id = config_entry.entry_id
+        self.name = "netcamera_rates_coordinator"
+        self.latitude = config_entry.data["latitude"]
+        self.longitude = config_entry.data["longitude"]
+        self.update_interval = timedelta(minutes=10)
+        self.backup_service = api.get("netcamera")
+        self.logclient = LogClient(
+            LogClientArgs(
+                client_name="logging",
+                service_name="coordinators",
+                class_name="netcamera_rates_coordinator",
+            )
+        )
 
     async def _async_update_data(self) -> dict:
-        self.logger.info("[%s] async_update_tasks_started", self.name)
-        entry_data = self.hass.data[DOMAIN].get(self.entry_id, {})
-        last_response = entry_data.get("last_task_response")
-        if not last_response:
-            return {}
-        self.data = {
-            "last_task_info": {
-                "last_task_status": last_response["status"],
-                "last_task_meta": last_response["metadata"],
-            }
-        }
-        return self.data
+        """Fetch netcamera time rates based on latitude and longitude."""
+        self.logclient.method_name = "_async_update_data"
+        self.logclient.debug(
+            DebugArgs(
+                status=LogStatus.STARTED,
+                metadata={"msg": "Netcamera rates fetching started"},
+            )
+        )
+        try:
+            netcamera_rates = await self.backup_service.get_camera_rates(
+                latitude=self.latitude,
+                longitude=self.longitude,
+            )
+            self.data = netcamera_rates
+            self.last_update = datetime_to_str(today())
+            self.logclient.debug(
+                DebugArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={
+                        "msg": f"Netcamera rates fetching completed. Data: {netcamera_rates}"
+                    },
+                )
+            )
+            return {"netcamera_rates": netcamera_rates}
+        except Exception as e:
+            self.logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": e.__str__()},
+                )
+            )
+            raise

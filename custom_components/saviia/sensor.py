@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import GeneralParams
 from .coordinator import SyncThiesDataCoordinator
 
 
@@ -18,20 +18,22 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up SAVIIA sensor based on a config entry."""
-    thies_coordinator = hass.data[DOMAIN][config_entry.entry_id]["thies_coordinator"]
-    backup_coordinator = hass.data[DOMAIN][config_entry.entry_id][
+    thies_coordinator = hass.data[GeneralParams.DOMAIN][config_entry.entry_id][
+        "thies_coordinator"
+    ]
+    backup_coordinator = hass.data[GeneralParams.DOMAIN][config_entry.entry_id][
         "local_backup_coordinator"
     ]
-    created_task_coordinator = hass.data[DOMAIN][config_entry.entry_id][
-        "created_task_coordinator"
-    ]
+    netcamera_rates_coordinator = hass.data[GeneralParams.DOMAIN][
+        config_entry.entry_id
+    ]["netcamera_rates_coordinator"]
 
     sensors = [
         SaviiaNewFilesSensor(thies_coordinator, config_entry),
         SaviiaFailedFilesSensor(thies_coordinator, config_entry),
         SaviiaFileSyncStatusSensor(thies_coordinator, config_entry),
         SaviiaBackupStatusSensor(backup_coordinator, config_entry),
-        SaviiaCreatedTaskSensor(created_task_coordinator, config_entry),
+        SaviiaNetcameraRatesSensor(netcamera_rates_coordinator, config_entry),
     ]
     async_add_entities(sensors, update_before_add=True)
 
@@ -56,10 +58,11 @@ class SaviiaBaseSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def data(self) -> dict[str, Any]:
+        # Add mapping for different coordinators and their data keys !
         coordinator_response = {
             "thies_coordinator": "synced_files",
             "local_backup_coordinator": "exported_files",
-            "created_task_coordinator": "last_task_info",
+            "netcamera_rates_coordinator": "netcamera_rates",
         }
         if coordinator_response.get(self.coordinator.name):
             return (
@@ -181,25 +184,31 @@ class SaviiaBackupStatusSensor(SaviiaBaseSensor):
         return {**base, "new_files": self.metadata.get("new_files", 0)}
 
 
-class SaviiaCreatedTaskSensor(SaviiaBaseSensor):
+class SaviiaNetcameraRatesSensor(SaviiaBaseSensor):
+    """Sensor to display netcamera time rates."""
+
     def __init__(self, coordinator, config_entry):
         super().__init__(
             coordinator,
             config_entry,
-            attribute="last_task_status",
-            name_suffix="Created Task",
-            icon="mdi:clipboard-text-clock",
+            attribute="netcamera_rates",
+            name_suffix="Netcamera Time Rates",
+            icon="mdi:camera-timer",
         )
 
     @property
-    def native_value(self) -> dict | None:
-        return self.coordinator.data.get("last_task_status")
+    def metadata(self) -> dict[str, Any]:
+        return self.data.get("metadata", {})
 
     @property
-    def extra_state_attributes(self) -> dict:
-        base = super().extra_state_attributes or {}
+    def native_value(self) -> str | None:
+        return self.data.get("metadata", {}).get("status", None)
 
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        base = super().extra_state_attributes or {}
         return {
             **base,
-            "metadata": self.coordinator.data.get("last_task_meta", {}),
+            "photo_rate": self.metadata.get("photo_rate", -1),
+            "video_rate": self.metadata.get("video_rate", -1),
         }
