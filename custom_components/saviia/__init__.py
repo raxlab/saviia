@@ -8,8 +8,8 @@ from custom_components.saviia.const import GeneralParams
 
 from .coordinator import (
     LocalBackupCoordinator,
-    SyncThiesDataCoordinator,
     NetcameraRatesCoordinator,
+    SyncThiesDataCoordinator,
 )
 from .libs.log_client import (
     DebugArgs,
