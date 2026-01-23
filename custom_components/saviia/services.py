@@ -140,7 +140,9 @@ async def async_get_netcamera_rates(call: ServiceCall) -> ServiceResponse:
     logclient.debug(DebugArgs(status=LogStatus.STARTED))
     _ensure_domain_setup(call.hass)
 
-    for entry_data in call.hass.data[GeneralParams.DOMAIN].values():
+    for entry_id, entry_data in call.hass.data[GeneralParams.DOMAIN].items():
+        if entry_id == "services_registered":
+            continue
         api: SaviiaAPI = entry_data["api"]
         camera_services = api.get("netcamera")
         try:
@@ -156,18 +158,17 @@ async def async_get_netcamera_rates(call: ServiceCall) -> ServiceResponse:
             if result.get("status") == HTTPStatus.OK.value:
                 rate_status, photo_rate, video_rate = result.get("metadata").values()
                 return {
-                    "timestatus": rate_status,
+                    "status": rate_status,
                     "photo_rate": photo_rate,
                     "video_rate": video_rate,
                 }
-            error_message = f"[{result['status']}] {result['message']}"
             logclient.error(
                 ErrorArgs(
                     status=LogStatus.ERROR,
-                    metadata={"msg": error_message},
+                    metadata={"msg": result["message"]},
                 )
             )
-            return {"error": error_message}
+            return result
 
         except Exception as e:
             logclient.error(
