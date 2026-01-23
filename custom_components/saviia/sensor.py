@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import GeneralParams
+from .const import DOMAIN
 from .coordinator import SyncThiesDataCoordinator
 
 
@@ -18,10 +18,8 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up SAVIIA sensor based on a config entry."""
-    thies_coordinator = hass.data[GeneralParams.DOMAIN][config_entry.entry_id][
-        "thies_coordinator"
-    ]
-    backup_coordinator = hass.data[GeneralParams.DOMAIN][config_entry.entry_id][
+    thies_coordinator = hass.data[DOMAIN][config_entry.entry_id]["thies_coordinator"]
+    backup_coordinator = hass.data[DOMAIN][config_entry.entry_id][
         "local_backup_coordinator"
     ]
     netcamera_rates_coordinator = hass.data[GeneralParams.DOMAIN][

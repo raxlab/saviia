@@ -8,26 +8,16 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
 
-from custom_components.saviia.const import GeneralParams
+from .const import (
+    DOMAIN,
+    LOGGER,
+)
 
 if TYPE_CHECKING:
     from homeassistant.data_entry_flow import FlowResult
 
-from custom_components.saviia.libs.log_client import (
-    ErrorArgs,
-    LogClient,
-    LogClientArgs,
-    LogStatus,
-)
 
-logclient = LogClient(
-    LogClientArgs(
-        client_name="logging", service_name="config_flow", class_name="config_flow"
-    )
-)
-
-
-class SaviiaConfigFlow(config_entries.ConfigFlow, domain=GeneralParams.DOMAIN):
+class SaviiaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Thies Data Logger."""
 
     VERSION = 1
@@ -92,36 +82,16 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=GeneralParams.DOMAIN):
                     title="SAVIIA Credentials", data=user_input
                 )
             except ValueError as e:
-                logclient.error(
-                    ErrorArgs(
-                        status=LogStatus.ERROR,
-                        metadata={"msg": f"Value error during config flow: {e}"},
-                    )
-                )
+                LOGGER.error(f"Value error during config flow: {e}")
                 errors["base"] = "invalid_input"
             except vol.Invalid as e:
-                logclient.error(
-                    ErrorArgs(
-                        status=LogStatus.ERROR,
-                        metadata={"msg": f"Schema validation error: {e}"},
-                    )
-                )
+                LOGGER.error(f"Schema validation error: {e}")
                 errors["base"] = "invalid_schema"
             except OSError as e:
-                logclient.error(
-                    ErrorArgs(
-                        status=LogStatus.ERROR,
-                        metadata={"msg": f"OS error during config flow: {e}"},
-                    )
-                )
+                LOGGER.error(f"OS error during config flow: {e}")
                 errors["base"] = "os_error"
             except RuntimeError as e:
-                logclient.error(
-                    ErrorArgs(
-                        status=LogStatus.ERROR,
-                        metadata={"msg": f"Runtime error during config flow: {e}"},
-                    )
-                )
+                LOGGER.error(f"Runtime error during config flow: {e}")
                 errors["base"] = "runtime_error"
 
         return self.async_show_form(
