@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
@@ -69,8 +70,8 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=GeneralParams.DOMAIN):
                 ): str,  # Local Backup Parameters
                 vol.Required("local_backup_source_path"): str,
                 vol.Required("sharepoint_backup_base_url"): str,
-                vol.Optional("latitude"): str,
-                vol.Optional("longitude"): str,
+                vol.Optional("latitude"): cv.latitude,
+                vol.Optional("longitude"): cv.longitude,
             }
         )
 

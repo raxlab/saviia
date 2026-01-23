@@ -17,6 +17,7 @@ from http import HTTPStatus
 from homeassistant.core import (
     SupportsResponse,
 )
+from saviialib import SaviiaAPI
 
 from custom_components.saviia.const import (
     GeneralParams,
@@ -138,32 +139,28 @@ async def async_get_netcamera_rates(call: ServiceCall) -> ServiceResponse:
     logclient.method_name = "async_get_camera_rates"
     logclient.debug(DebugArgs(status=LogStatus.STARTED))
     _ensure_domain_setup(call.hass)
-    for entry_id in call.hass.data[GeneralParams.DOMAIN]:
-        if entry_id == "services_registered":
-            continue
-        coordinator = call.hass.data[GeneralParams.DOMAIN][entry_id][
-            "netcamera_rates_coordinator"
-        ]
+
+    for entry_data in call.hass.data[GeneralParams.DOMAIN].values():
+        api: SaviiaAPI = entry_data["api"]
+        camera_services = api.get("netcamera")
         try:
-            response = await coordinator.async_request_refresh()
+            result = await camera_services.get_camera_rates()
             logclient.info(
                 InfoArgs(
                     status=LogStatus.SUCCESSFUL,
                     metadata={
-                        "msg": f"Camera rates retrieved: {coordinator.data.get('metadata')}"
+                        "msg": f"Camera rates retrieved: {result.get('metadata')}"
                     },
                 )
             )
-            if response.get("status") == HTTPStatus.OK.value:
-                rate_status, photo_rate, video_rate = coordinator.data.get(
-                    "metadata"
-                ).values()
+            if result.get("status") == HTTPStatus.OK.value:
+                rate_status, photo_rate, video_rate = result.get("metadata").values()
                 return {
                     "timestatus": rate_status,
                     "photo_rate": photo_rate,
                     "video_rate": video_rate,
                 }
-            error_message = f"[{response['status']}] {response['message']}"
+            error_message = f"[{result['status']}] {result['message']}"
             logclient.error(
                 ErrorArgs(
                     status=LogStatus.ERROR,
