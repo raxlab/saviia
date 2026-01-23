@@ -69,10 +69,8 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=GeneralParams.DOMAIN):
                 ): str,  # Local Backup Parameters
                 vol.Required("local_backup_source_path"): str,
                 vol.Required("sharepoint_backup_base_url"): str,
-                vol.Optional(
-                    "notification_client_api_key",
-                    description="Optional API key for Discord Bot client",
-                ): str,
+                vol.Optional("latitude"): str,
+                vol.Optional("longitude"): str,
             }
         )
 

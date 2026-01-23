@@ -9,6 +9,7 @@ from custom_components.saviia.const import GeneralParams
 from .coordinator import (
     LocalBackupCoordinator,
     SyncThiesDataCoordinator,
+    NetcameraRatesCoordinator,
 )
 from .libs.log_client import (
     DebugArgs,
@@ -59,9 +60,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             sharepoint_tenant_name=config_entry.data["sharepoint_tenant_name"],
             sharepoint_site_name=config_entry.data["sharepoint_site_name"],
             logger=GeneralParams.LOGGER,
-            notification_client_api_key=config_entry.data.get(
-                "notification_client_api_key", ""
-            ),
+            latitude=config_entry.data.get("latitude"),
+            longitude=config_entry.data.get("longitude"),
         )
     )
     hass.data.setdefault(GeneralParams.DOMAIN, {})
@@ -74,10 +74,12 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     )
     thies_coordinator = SyncThiesDataCoordinator(*coordinator_parameters)
     backup_coordinator = LocalBackupCoordinator(*coordinator_parameters)
+    netcamera_rates_coordinator = NetcameraRatesCoordinator(*coordinator_parameters)
 
     try:
         await thies_coordinator.async_config_entry_first_refresh()
         await backup_coordinator.async_config_entry_first_refresh()
+        await netcamera_rates_coordinator.async_config_entry_first_refresh()
 
     except ValueError as ve:
         logclient.error(
@@ -117,6 +119,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     hass.data[GeneralParams.DOMAIN][config_entry.entry_id][backup_coordinator.name] = (
         backup_coordinator
     )
+    hass.data[GeneralParams.DOMAIN][config_entry.entry_id][
+        netcamera_rates_coordinator.name
+    ] = netcamera_rates_coordinator
     logclient.debug(
         DebugArgs(
             status=LogStatus.SUCCESSFUL,

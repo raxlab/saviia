@@ -24,12 +24,16 @@ async def async_setup_entry(
     backup_coordinator = hass.data[GeneralParams.DOMAIN][config_entry.entry_id][
         "local_backup_coordinator"
     ]
+    netcamera_rates_coordinator = hass.data[GeneralParams.DOMAIN][
+        config_entry.entry_id
+    ]["netcamera_rates_coordinator"]
 
     sensors = [
         SaviiaNewFilesSensor(thies_coordinator, config_entry),
         SaviiaFailedFilesSensor(thies_coordinator, config_entry),
         SaviiaFileSyncStatusSensor(thies_coordinator, config_entry),
         SaviiaBackupStatusSensor(backup_coordinator, config_entry),
+        SaviiaNetcameraRatesSensor(netcamera_rates_coordinator, config_entry),
     ]
     async_add_entities(sensors, update_before_add=True)
 
@@ -54,9 +58,11 @@ class SaviiaBaseSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def data(self) -> dict[str, Any]:
+        # Add mapping for different coordinators and their data keys !
         coordinator_response = {
             "thies_coordinator": "synced_files",
             "local_backup_coordinator": "exported_files",
+            "netcamera_rates_coordinator": "netcamera_rates",
         }
         if coordinator_response.get(self.coordinator.name):
             return (
@@ -176,3 +182,33 @@ class SaviiaBackupStatusSensor(SaviiaBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         base = super().extra_state_attributes or {}
         return {**base, "new_files": self.metadata.get("new_files", 0)}
+
+
+class SaviiaNetcameraRatesSensor(SaviiaBaseSensor):
+    """Sensor to display netcamera time rates."""
+
+    def __init__(self, coordinator, config_entry):
+        super().__init__(
+            coordinator,
+            config_entry,
+            attribute="netcamera_rates",
+            name_suffix="Netcamera Time Rates",
+            icon="mdi:camera-timer",
+        )
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        return self.data.get("metadata", {})
+
+    @property
+    def native_value(self) -> str | None:
+        return self.data.get("metadata", {}).get("status", None)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        base = super().extra_state_attributes or {}
+        return {
+            **base,
+            "photo_rate": self.metadata.get("photo_rate", -1),
+            "video_rate": self.metadata.get("video_rate", -1),
+        }

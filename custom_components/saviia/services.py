@@ -152,9 +152,9 @@ async def async_get_netcamera_rates(call: ServiceCall) -> ServiceResponse:
                 )
             )
             if result["status"] == HTTPStatus.OK.value:
-                timestatus, photo_rate, video_rate = result["metadata"].values()
+                rate_status, photo_rate, video_rate = result["metadata"].values()
                 return {
-                    "timestatus": timestatus,
+                    "timestatus": rate_status,
                     "photo_rate": photo_rate,
                     "video_rate": video_rate,
                 }
