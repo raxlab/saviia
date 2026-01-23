@@ -160,7 +160,7 @@ class NetcameraRatesCoordinator(SaviiaBaseCoordinator):
         self.latitude = config_entry.data["latitude"]
         self.longitude = config_entry.data["longitude"]
         self.update_interval = timedelta(minutes=10)
-        self.backup_service = api.get("netcamera")
+        self.camera_service = api.get("netcamera")
         self.logclient = LogClient(
             LogClientArgs(
                 client_name="logging",
@@ -179,7 +179,7 @@ class NetcameraRatesCoordinator(SaviiaBaseCoordinator):
             )
         )
         try:
-            netcamera_rates = await self.backup_service.get_camera_rates()
+            netcamera_rates = await self.camera_service.get_camera_rates()
             self.data = netcamera_rates
             self.last_update = datetime_to_str(today())
             self.logclient.debug(

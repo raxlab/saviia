@@ -11,9 +11,6 @@ sync_local_backup:
 get_netcamera_rates:
   name: "Get Camera Time Rates"
   description: "Retrieve time rates for photo capture and video recording from connected network cameras"
-  target:
-    entity:
-      domain: camera
   fields:
     latitude:
       name: Latitude
