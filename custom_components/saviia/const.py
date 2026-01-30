@@ -42,6 +42,23 @@ class ServicesParams:
             vol.Required("longitude"): cv.longitude,
         }
     )
+    SERVICE_UPDATE_TASK = "update_task"
+    SERVICE_UPDATE_TASK_SCHEMA = vol.Schema(
+        {
+            vol.Required("webhook_url"): cv.string,
+            vol.Required("task"): dict,
+            vol.Required("completed"): bool,
+            vol.Optional("channel_id"): cv.string,
+        }
+    )
+    SERVICE_DELETE_TASK = "delete_task"
+    SERVICE_DELETE_TASK_SCHEMA = vol.Schema(
+        {
+            vol.Required("webhook_url"): cv.string,
+            vol.Required("task_id"): cv.string,
+            vol.Optional("channel_id"): cv.string,
+        }
+    )
 
 
 class ConfigDefaultsParams:
