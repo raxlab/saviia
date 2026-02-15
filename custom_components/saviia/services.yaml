@@ -26,6 +26,51 @@ get_netcamera_rates:
         number:
           min: -180
           max: 180
+
+update_task:
+  name: Update a Discord Task
+  description: Saviia provides this action for updating a message that had been sent in a Discord Channel
+  fields:
+    webhook_url:
+      name: Discord channel webhook URL
+      required: true
+      selector:
+        text:
+    task:
+      name: Task payload to update the Discord message
+      required: true
+      selector:
+        object:
+    completed:
+      name: Completed attribute which defines if the Task was finished.
+      required: true
+      selector:
+        boolean:
+    channel_id:
+      name: Channel ID from Discord
+      required: false
+      selector:
+        text:
+
+delete_task:
+  name: Delete a Discord Task
+  description: Saviia provides this action for deleting a message that had been sent in a Discord Channel
+  fields:
+    webhook_url:
+      name: Discord channel webhook URL
+      required: true
+      selector:
+        text:
+    task_id:
+      name: Task ID from Discord webhook channel
+      required: true
+      selector:
+        text:
+    channel_id:
+      name: Channel ID from Discord
+      required: false
+      selector:
+        text:
 create_task:
   name: "Create Task"
   description: "Create a new task and send it to Discord via webhook"

@@ -185,6 +185,109 @@ async def async_get_netcamera_rates(call: ServiceCall) -> ServiceResponse:
     return None
 
 
+async def async_update_task(call: ServiceCall) -> ServiceResponse:
+    """Update a Task in a Discord channel."""
+    logclient.method_name = "async_update_task"
+    logclient.debug(DebugArgs(status=LogStatus.STARTED))
+    _ensure_domain_setup(call.hass)
+
+    for entry_id, entry_data in call.hass.data[GeneralParams.DOMAIN].items():
+        if entry_id == "services_registered":
+            continue
+        api: SaviiaAPI = entry_data["api"]
+        task_service = api.get("tasks")
+        try:
+            webhook_url, task, completed, channel_id = (
+                call.data.get("webhook_url"),
+                call.data.get("task"),
+                call.data.get("completed"),
+                call.data.get("channel_id", ""),
+            )
+            result = await task_service.update_task(
+                webhook_url, task, completed, channel_id
+            )
+            if result.get("status") != HTTPStatus.OK.value:
+                logclient.error(
+                    ErrorArgs(
+                        status=LogStatus.ERROR,
+                        metadata={"msg": result["message"]},
+                    )
+                )
+            else:
+                logclient.info(
+                    InfoArgs(
+                        status=LogStatus.SUCCESSFUL,
+                        metadata={
+                            "msg": f"Task updated successfully: {result.get('metadata')}"
+                        },
+                    )
+                )
+            return {
+                "api_status": result.get("status"),
+                "api_message": result.get("message"),
+                "api_metadata": result.get("metadata"),
+            }
+        except Exception as e:
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": f"Error retrieving camera rates: {e}"},
+                )
+            )
+            raise
+    return None
+
+
+async def async_delete_task(call: ServiceCall) -> ServiceResponse:
+    """Delete a Task in a Discord channel."""
+    logclient.method_name = "async_delete_task"
+    logclient.debug(DebugArgs(status=LogStatus.STARTED))
+    _ensure_domain_setup(call.hass)
+
+    for entry_id, entry_data in call.hass.data[GeneralParams.DOMAIN].items():
+        if entry_id == "services_registered":
+            continue
+        api: SaviiaAPI = entry_data["api"]
+        task_service = api.get("tasks")
+        try:
+            webhook_url, task_id, channel_id = (
+                call.data.get("webhook_url"),
+                call.data.get("task_id"),
+                call.data.get("channel_id", ""),
+            )
+            result = await task_service.delete_task(webhook_url, task_id, channel_id)
+            if result.get("status") != HTTPStatus.OK.value:
+                logclient.error(
+                    ErrorArgs(
+                        status=LogStatus.ERROR,
+                        metadata={"msg": result["message"]},
+                    )
+                )
+            else:
+                logclient.info(
+                    InfoArgs(
+                        status=LogStatus.SUCCESSFUL,
+                        metadata={
+                            "msg": f"Task deleted successfully: {result.get('metadata')}"
+                        },
+                    )
+                )
+            return {
+                "api_status": result.get("status"),
+                "api_message": result.get("message"),
+                "api_metadata": result.get("metadata"),
+            }
+        except Exception as e:
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": f"Error retrieving camera rates: {e}"},
+                )
+            )
+            raise
+    return None
+
+
 async def async_create_task(call: ServiceCall) -> ServiceResponse:
     """Create a new task and send to Discord webhook."""
     logclient.method_name = "async_create_task"
@@ -359,6 +462,20 @@ async def async_setup_services(hass: HomeAssistant) -> None:
     )
     hass.services.async_register(
         GeneralParams.DOMAIN,
+        ServicesParams.SERVICE_UPDATE_TASK,
+        async_update_task,
+        schema=ServicesParams.SERVICE_UPDATE_TASK_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        GeneralParams.DOMAIN,
+        ServicesParams.SERVICE_DELETE_TASK,
+        async_delete_task,
+        schema=ServicesParams.SERVICE_DELETE_TASK_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        GeneralParams.DOMAIN,
         ServicesParams.SERVICE_CREATE_TASK,
         async_create_task,
         schema=ServicesParams.SERVICE_CREATE_TASK_SCHEMA,
@@ -375,4 +492,6 @@ async def async_unload_services(hass: HomeAssistant) -> None:
     hass.services.async_remove(
         GeneralParams.DOMAIN, ServicesParams.SERVICE_GET_NETCAMERA_RATES
     )
+    hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_UPDATE_TASK)
+    hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_DELETE_TASK)
     hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_CREATE_TASK)
