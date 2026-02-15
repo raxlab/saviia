@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+import base64
+import json
+from io import BytesIO
 
 if TYPE_CHECKING:
     from homeassistant.core import (
@@ -13,6 +16,7 @@ if TYPE_CHECKING:
 
 
 from http import HTTPStatus
+import aiohttp
 
 from homeassistant.core import (
     SupportsResponse,
@@ -181,6 +185,157 @@ async def async_get_netcamera_rates(call: ServiceCall) -> ServiceResponse:
     return None
 
 
+async def async_create_task(call: ServiceCall) -> ServiceResponse:
+    """Create a new task and send to Discord webhook."""
+    logclient.method_name = "async_create_task"
+    logclient.debug(DebugArgs(status=LogStatus.STARTED))
+
+    hass = call.hass
+    _ensure_domain_setup(hass)
+
+    # Get the Discord webhook URL from configuration
+    discord_webhook_url = None
+    for entry_id, entry_data in hass.data[GeneralParams.DOMAIN].items():
+        if entry_id != "services_registered":
+            discord_webhook_url = entry_data.get("config", {}).get(
+                "discord_webhook_url"
+            )
+            if discord_webhook_url:
+                break
+
+    if not discord_webhook_url:
+        logclient.error(
+            ErrorArgs(
+                status=LogStatus.ERROR,
+                metadata={"msg": "Discord webhook URL not configured"},
+            )
+        )
+        return {"success": False, "error": "Discord webhook URL not configured"}
+
+    try:
+        # Extract task data from service call
+        title = call.data.get("title", "")
+        details = call.data.get("details", "Sin descripción")
+        assignee = call.data.get("assignee", "No asignada")
+        category = call.data.get("category", "Sin categoría")
+        deadline = call.data.get("deadline", "")
+        periodicity = call.data.get("periodicity", "Sin periodicidad")
+        periodicity_num = call.data.get("periodicity_num", "?")
+        priority = call.data.get("priority", "Baja")
+        images = call.data.get("images", [])
+
+        if periodicity != "Sin periodicidad" and periodicity_num == "?":
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={
+                        "msg": "Invalid periodicity number for non-zero periodicity"
+                    },
+                )
+            )
+            return {
+                "success": False,
+                "error": "No definiste un número válido para la periodicidad.",
+            }
+
+        # Format periodicity string
+        periodicity_str = _format_periodicity(periodicity, periodicity_num)
+
+        # Build task content
+        content = f"## {title}\n"
+        content += "* __Estado__: Pendiente\n"
+        content += f"* __Fecha de realización__: {deadline}\n"
+        content += f"* __Descripcion__: {details}\n"
+        content += f"* __Periodicidad__: {periodicity_str}\n"
+        content += f"* __Prioridad__: {priority}\n"
+        content += f"* __Categoría__: {category}\n"
+        content += f"* __Persona asignada__: {assignee}\n"
+
+        # Prepare multipart form data with images
+        form_data = aiohttp.FormData()
+        embeds = []
+
+        for index, img in enumerate(images):
+            try:
+                # Decode base64 image data
+                img_data = img.get("data", "")
+                img_name = img.get("name", f"image_{index}")
+                img_type = img.get("type", "image/jpeg")
+
+                # Decode base64 and create BytesIO object
+                image_bytes = base64.b64decode(img_data)
+                form_data.add_field(
+                    f"files[{index}]",
+                    BytesIO(image_bytes),
+                    filename=img_name,
+                    content_type=img_type,
+                )
+
+                # Create embed for Discord
+                embeds.append(
+                    {
+                        "title": f"Imagen {index + 1}: {img_name}",
+                        "image": {"url": f"attachment://{img_name}"},
+                    }
+                )
+            except Exception as e:
+                logclient.error(
+                    ErrorArgs(
+                        status=LogStatus.ERROR,
+                        metadata={"msg": f"Error processing image {index}: {str(e)}"},
+                    )
+                )
+
+        # Add payload JSON
+        payload_json = {"content": content, "embeds": embeds}
+        form_data.add_field("payload_json", json.dumps(payload_json))
+
+        # Send to Discord webhook
+        async with aiohttp.ClientSession() as session:
+            async with session.post(discord_webhook_url, data=form_data) as response:
+                if response.status != 204 and response.status != 200:
+                    error_text = await response.text()
+                    logclient.error(
+                        ErrorArgs(
+                            status=LogStatus.ERROR,
+                            metadata={"msg": f"Discord webhook error: {error_text}"},
+                        )
+                    )
+                    return {"success": False, "error": f"Discord error: {error_text}"}
+
+                logclient.info(
+                    InfoArgs(
+                        status=LogStatus.SUCCESSFUL,
+                        metadata={"msg": "Task created successfully on Discord"},
+                    )
+                )
+                return {"success": True, "message": "Tarea creada con éxito ✅"}
+
+    except Exception as e:
+        logclient.error(
+            ErrorArgs(
+                status=LogStatus.ERROR,
+                metadata={"msg": f"Error creating task: {str(e)}"},
+            )
+        )
+        return {"success": False, "error": str(e)}
+
+
+def _format_periodicity(periodicity: str, periodicity_num) -> str:
+    """Format periodicity string."""
+    if periodicity == "" or periodicity == "Sin periodicidad":
+        return "Sin periodicidad"
+    elif periodicity == "daily":
+        return f"Cada {periodicity_num} día(s)"
+    elif periodicity == "weekly":
+        return f"Cada {periodicity_num} semana(s)"
+    elif periodicity == "monthly":
+        return f"Cada {periodicity_num} mes(es)"
+    elif periodicity == "yearly":
+        return f"Cada {periodicity_num} año(s)"
+    return "Sin periodicidad"
+
+
 async def async_setup_services(hass: HomeAssistant) -> None:
     """Set up services for the SAVIIA integration."""
     hass.services.async_register(
@@ -202,6 +357,13 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         schema=ServicesParams.SERVICE_GET_NETCAMERA_RATES_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
+    hass.services.async_register(
+        GeneralParams.DOMAIN,
+        ServicesParams.SERVICE_CREATE_TASK,
+        async_create_task,
+        schema=ServicesParams.SERVICE_CREATE_TASK_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
 
 
 async def async_unload_services(hass: HomeAssistant) -> None:
@@ -213,3 +375,4 @@ async def async_unload_services(hass: HomeAssistant) -> None:
     hass.services.async_remove(
         GeneralParams.DOMAIN, ServicesParams.SERVICE_GET_NETCAMERA_RATES
     )
+    hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_CREATE_TASK)

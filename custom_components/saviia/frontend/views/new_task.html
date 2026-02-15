@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva Tarea</title>
+    <link rel="stylesheet" href="../style/general.css">
+    <link rel="stylesheet" href="../style/forms.css">
+    <link rel="stylesheet" href="../style/alerts.css">
+
+</head>
+
+<body>
+    <h1>Crea una nueva tarea</h1>
+    <p>Completa el siguiente formulario para generar una nueva tarea</p>
+    <p><i>Los campos marcados con <span style="color: var(--color-accent)">*</span> son obligatorios.</i></p>
+    <form id="survey-form">
+
+        <fieldset>
+            <label>
+                <p>Nombre de la tarea <span style="color: var(--color-accent)">*</span> </p>
+                <input id="task-title" type="text" required />
+            </label>
+
+            <label>
+                <p>Fecha de ejecución de la tarea <span style="color: var(--color-accent)">*</span> </p>
+                <i>La(s) persona(s) encargadas de esta tarea deben finalizarla antes de esta fecha.</i>
+                <input id="deadline" type="date" required />
+            </label>
+
+            <label>
+                <p>Prioridad <span style="color: var(--color-accent)">*</span> </p>
+                <i>1 es la prioridad más alta y 4 la más baja</i>
+                <input id="priority" type="range" min="1" max="4" value="1">
+            </label>
+            <ul id="priority-nums">
+                <li>1</li>
+                <li>2</li>
+                <li>3</li>
+                <li>4</li>
+            </ul>
+
+            <label>
+                <p>Persona asignada <span style="color: var(--color-accent)">*</span> </p>
+                <i>La persona responsable de realizar esta tarea.</i>
+                <input id="author" type="text" required />
+            </label>
+
+            <label>
+                <p>Periodicidad</p>
+                <i>Indica si esta tarea se repite en un intervalo de tiempo específico.</i>
+                <select id="periodicity">
+                    <option value="" selected>Ninguna</option>
+                    <option value="daily">Diaria</option>
+                    <option value="weekly">Semanal</option>
+                    <option value="monthly">Mensual</option>
+                    <option value="yearly">Anual</option>
+                </select>
+                <br><br><i>Indica cuántas veces se repite esta tarea en el intervalo seleccionado. Por ejemplo, si el
+                    usuario define una repetición diaria, entonces se repetirá cada cierto número de días.</i>
+                <input id="periodicity-number" type="number" min="1" placeholder="Número de periodicidad" />
+            </label>
+
+            <label>
+                <p>Categoría</p>
+                <i>La categoría a la que pertenece esta tarea (opcional).</i>
+                <input id="categ" type="text" />
+            </label>
+
+            <label>
+                <p>Detalle de la tarea</p>
+                <i>Describe los detalles específicos de la tarea, ya sea para aclarar o para dar instrucciones.</i>
+                <textarea id="details" rows="4"></textarea>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Imágenes</legend>
+            <i>Arrastra imágenes aquí o haz click para seleccionarlas. Solo se pueden agregar hasta un máximo de 10
+                imágenes.</i>
+            <div id="dropzone">
+                Arrastra imágenes aquí o haz click
+                <input type="file" id="image-input" accept="image/*" multiple hidden>
+            </div>
+
+            <div id="preview"></div>
+        </fieldset>
+
+        <input id="submit" type="submit" value="Enviar tarea" />
+
+    </form>
+    <div id="alert-container"></div>
+    <script src="../js/new_task/new_task.js"></script>
+</body>
+
+</html>

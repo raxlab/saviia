@@ -72,6 +72,8 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=GeneralParams.DOMAIN):
                 vol.Required("sharepoint_backup_base_url"): str,
                 vol.Optional("latitude"): cv.latitude,
                 vol.Optional("longitude"): cv.longitude,
+                # Task Creation Parameters
+                vol.Optional("discord_webhook_url", default=""): cv.string,
             }
         )
 
