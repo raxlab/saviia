@@ -14,14 +14,5 @@
     "requirements": [
         "saviialib==1.10.0"
     ],
-    "version": "7.0.9.3",
-    "frontend": {
-        "panels": {
-            "saviia_tasks": {
-                "title": "Create Task",
-                "icon": "mdi:plus-circle",
-                "require_admin": false
-            }
-        }
-    }
+    "version": "7.0.9.3"
 }

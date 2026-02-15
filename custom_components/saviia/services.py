@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 import base64
 import json
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from homeassistant.core import (
@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 
 
 from http import HTTPStatus
-import aiohttp
 
+import aiohttp
 from homeassistant.core import (
     SupportsResponse,
 )
@@ -288,7 +288,7 @@ async def async_delete_task(call: ServiceCall) -> ServiceResponse:
     return None
 
 
-async def async_create_task(call: ServiceCall) -> ServiceResponse:
+async def async_create_task(call: ServiceCall) -> ServiceResponse:  # noqa: PLR0915
     """Create a new task and send to Discord webhook."""
     logclient.method_name = "async_create_task"
     logclient.debug(DebugArgs(status=LogStatus.STARTED))
@@ -381,11 +381,11 @@ async def async_create_task(call: ServiceCall) -> ServiceResponse:
                         "image": {"url": f"attachment://{img_name}"},
                     }
                 )
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logclient.error(
                     ErrorArgs(
                         status=LogStatus.ERROR,
-                        metadata={"msg": f"Error processing image {index}: {str(e)}"},
+                        metadata={"msg": f"Error processing image {index}: {e!s}"},
                     )
                 )
 
@@ -394,9 +394,9 @@ async def async_create_task(call: ServiceCall) -> ServiceResponse:
         form_data.add_field("payload_json", json.dumps(payload_json))
 
         # Send to Discord webhook
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession() as session:  # noqa: SIM117
             async with session.post(discord_webhook_url, data=form_data) as response:
-                if response.status != 204 and response.status != 200:
+                if response.status not in {204, 200}:
                     error_text = await response.text()
                     logclient.error(
                         ErrorArgs(
@@ -414,11 +414,11 @@ async def async_create_task(call: ServiceCall) -> ServiceResponse:
                 )
                 return {"success": True, "message": "Tarea creada con éxito ✅"}
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logclient.error(
             ErrorArgs(
                 status=LogStatus.ERROR,
-                metadata={"msg": f"Error creating task: {str(e)}"},
+                metadata={"msg": f"Error creating task: {e!s}"},
             )
         )
         return {"success": False, "error": str(e)}
@@ -426,15 +426,15 @@ async def async_create_task(call: ServiceCall) -> ServiceResponse:
 
 def _format_periodicity(periodicity: str, periodicity_num) -> str:
     """Format periodicity string."""
-    if periodicity == "" or periodicity == "Sin periodicidad":
+    if periodicity in {"", "Sin periodicidad"}:
         return "Sin periodicidad"
-    elif periodicity == "daily":
+    if periodicity == "daily":
         return f"Cada {periodicity_num} día(s)"
-    elif periodicity == "weekly":
+    if periodicity == "weekly":
         return f"Cada {periodicity_num} semana(s)"
-    elif periodicity == "monthly":
+    if periodicity == "monthly":
         return f"Cada {periodicity_num} mes(es)"
-    elif periodicity == "yearly":
+    if periodicity == "yearly":
         return f"Cada {periodicity_num} año(s)"
     return "Sin periodicidad"
 
