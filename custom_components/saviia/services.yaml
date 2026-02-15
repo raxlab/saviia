@@ -71,3 +71,74 @@ delete_task:
       required: false
       selector:
         text:
+create_task:
+  name: "Create Task"
+  description: "Create a new task and send it to Discord via webhook"
+  fields:
+    title:
+      name: Title
+      description: "Task title"
+      required: true
+      selector:
+        text:
+    details:
+      name: Details
+      description: "Task description/details"
+      required: false
+      selector:
+        text:
+          multiline: true
+    assignee:
+      name: Assignee
+      description: "Person assigned to the task"
+      required: false
+      selector:
+        text:
+    category:
+      name: Category
+      description: "Task category"
+      required: false
+      selector:
+        text:
+    deadline:
+      name: Deadline
+      description: "Task deadline date (YYYY-MM-DD format)"
+      required: false
+      selector:
+        text:
+    periodicity:
+      name: Periodicity
+      description: "Task recurrence type"
+      required: false
+      selector:
+        select:
+          options:
+            - "Sin periodicidad"
+            - "daily"
+            - "weekly"
+            - "monthly"
+            - "yearly"
+    periodicity_num:
+      name: Periodicity Number
+      description: "Number of periods (days, weeks, months, years)"
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 365
+          mode: box
+    priority:
+      name: Priority
+      description: "Task priority level"
+      required: false
+      selector:
+        select:
+          options:
+            - "Baja"
+            - "Media"
+            - "Alta"
+            - "Urgente"
+    images:
+      name: Images
+      description: "Base64 encoded images to attach"
+      required: false

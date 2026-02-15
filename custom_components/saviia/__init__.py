@@ -1,5 +1,7 @@
 """SAVIIA Integration."""
 
+from pathlib import Path
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from saviialib import SaviiaAPI, SaviiaAPIConfig
@@ -19,6 +21,9 @@ from .libs.log_client import (
     LogStatus,
 )
 from .services import async_setup_services, async_unload_services
+
+# Export CONFIG_SCHEMA for Home Assistant
+CONFIG_SCHEMA = GeneralParams.CONFIG_SCHEMA
 
 logclient = LogClient(
     LogClientArgs(client_name="logging", service_name="init", class_name="init")
@@ -141,6 +146,26 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 metadata={"msg": "Services setup successful"},
             )
         )
+
+        # Register static path for frontend files
+        try:
+            frontend_path = Path(__file__).parent / "frontend"
+            hass.http.register_static_path(
+                "/saviia", str(frontend_path), cache_headers=False
+            )
+            logclient.debug(
+                DebugArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={"msg": "Frontend registered at /saviia"},
+                )
+            )
+        except Exception as e:  # noqa: BLE001
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": f"Error registering frontend: {e!s}"},
+                )
+            )
 
     return True
 
