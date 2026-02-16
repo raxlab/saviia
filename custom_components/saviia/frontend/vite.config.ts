@@ -5,7 +5,6 @@ export default defineConfig({
         outDir: "../dist",
         emptyOutDir: true,
         rollupOptions: {
-            input: "./src/saviia-panel.ts",
             output: {
                 entryFileNames: "saviia-panel.js",
             },

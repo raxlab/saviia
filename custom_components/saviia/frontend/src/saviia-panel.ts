@@ -1,6 +1,5 @@
 import { LitElement, html } from "lit";
-import { CreateTask } from "./components/tasks/create-task/create-task";
-
+import "./components/tasks/create-task/create-task";
 
 export class SaviiaPanel extends LitElement {
     render() {

@@ -1,4 +1,9 @@
 import { HAApiUrl, HAToken } from '../config/env.config'
+declare global {
+    interface Window {
+        hass?: any; 
+    }
+}
 
 class HAClient {
     private baseUrl: string;
