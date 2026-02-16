@@ -300,23 +300,27 @@ async def async_create_task(call: ServiceCall) -> ServiceResponse:  # noqa: PLR0
     discord_webhook_url = None
     for entry_id, entry_data in hass.data[GeneralParams.DOMAIN].items():
         if entry_id != "services_registered":
-            discord_webhook_url = entry_data.get("config", {}).get(
-                "discord_webhook_url"
-            )
-            if discord_webhook_url:
-                break
-
-    if not discord_webhook_url:
+            continue
+        config = entry_data.get("config")
+        if not config:
+            continue
+        discord_webhook_url = config.get("discord_webhook_url")
+        if discord_webhook_url:
+            break
+    if discord_webhook_url is None:
         logclient.error(
             ErrorArgs(
                 status=LogStatus.ERROR,
                 metadata={"msg": "Discord webhook URL not configured"},
             )
         )
-        return {"success": False, "error": "Discord webhook URL not configured"}
+        return {
+            "success": False,
+            "error": "Discord webhook URL not configured",
+            "hass": hass.data[GeneralParams.DOMAIN].items(),
+        }
 
     try:
-        # Extract task data from service call
         title = call.data.get("title", "")
         details = call.data.get("details", "Sin descripción")
         assignee = call.data.get("assignee", "No asignada")
@@ -341,7 +345,20 @@ async def async_create_task(call: ServiceCall) -> ServiceResponse:  # noqa: PLR0
                 "error": "No definiste un número válido para la periodicidad.",
             }
 
-        # Format periodicity string
+        def _format_periodicity(periodicity: str, periodicity_num) -> str:
+            """Format periodicity string."""
+            if periodicity in {"", "Sin periodicidad"}:
+                return "Sin periodicidad"
+            if periodicity == "daily":
+                return f"Cada {periodicity_num} día(s)"
+            if periodicity == "weekly":
+                return f"Cada {periodicity_num} semana(s)"
+            if periodicity == "monthly":
+                return f"Cada {periodicity_num} mes(es)"
+            if periodicity == "yearly":
+                return f"Cada {periodicity_num} año(s)"
+            return "Sin periodicidad"
+
         periodicity_str = _format_periodicity(periodicity, periodicity_num)
 
         # Build task content
@@ -353,8 +370,6 @@ async def async_create_task(call: ServiceCall) -> ServiceResponse:  # noqa: PLR0
         content += f"* __Prioridad__: {priority}\n"
         content += f"* __Categoría__: {category}\n"
         content += f"* __Persona asignada__: {assignee}\n"
-
-        # Prepare multipart form data with images
         form_data = aiohttp.FormData()
         embeds = []
 
@@ -364,8 +379,6 @@ async def async_create_task(call: ServiceCall) -> ServiceResponse:  # noqa: PLR0
                 img_data = img.get("data", "")
                 img_name = img.get("name", f"image_{index}")
                 img_type = img.get("type", "image/jpeg")
-
-                # Decode base64 and create BytesIO object
                 image_bytes = base64.b64decode(img_data)
                 form_data.add_field(
                     f"files[{index}]",
@@ -373,8 +386,6 @@ async def async_create_task(call: ServiceCall) -> ServiceResponse:  # noqa: PLR0
                     filename=img_name,
                     content_type=img_type,
                 )
-
-                # Create embed for Discord
                 embeds.append(
                     {
                         "title": f"Imagen {index + 1}: {img_name}",
@@ -388,12 +399,8 @@ async def async_create_task(call: ServiceCall) -> ServiceResponse:  # noqa: PLR0
                         metadata={"msg": f"Error processing image {index}: {e!s}"},
                     )
                 )
-
-        # Add payload JSON
         payload_json = {"content": content, "embeds": embeds}
         form_data.add_field("payload_json", json.dumps(payload_json))
-
-        # Send to Discord webhook
         async with aiohttp.ClientSession() as session:  # noqa: SIM117
             async with session.post(discord_webhook_url, data=form_data) as response:
                 if response.status not in {204, 200}:
@@ -422,21 +429,6 @@ async def async_create_task(call: ServiceCall) -> ServiceResponse:  # noqa: PLR0
             )
         )
         return {"success": False, "error": str(e)}
-
-
-def _format_periodicity(periodicity: str, periodicity_num) -> str:
-    """Format periodicity string."""
-    if periodicity in {"", "Sin periodicidad"}:
-        return "Sin periodicidad"
-    if periodicity == "daily":
-        return f"Cada {periodicity_num} día(s)"
-    if periodicity == "weekly":
-        return f"Cada {periodicity_num} semana(s)"
-    if periodicity == "monthly":
-        return f"Cada {periodicity_num} mes(es)"
-    if periodicity == "yearly":
-        return f"Cada {periodicity_num} año(s)"
-    return "Sin periodicidad"
 
 
 async def async_setup_services(hass: HomeAssistant) -> None:

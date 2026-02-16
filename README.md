@@ -44,3 +44,4 @@ logger:
 ## Inspired by
 
 - [Meteo Lt](https://github.com/Brunas/meteo_lt)  
+- [AI Agent HA](https://github.com/sbenodiz/ai_agent_ha)
