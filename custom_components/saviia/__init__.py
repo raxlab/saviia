@@ -5,7 +5,8 @@ from pathlib import Path
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from saviialib import SaviiaAPI, SaviiaAPIConfig
-
+from homeassistant.components.http import StaticPathConfig
+from homeassistant.components.frontend import async_register_built_in_panel
 from custom_components.saviia.const import GeneralParams
 
 from .coordinator import (
@@ -150,9 +151,34 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         # Register static path for frontend files
         try:
             frontend_path = Path(__file__).parent / "frontend"
-            hass.http.register_static_path(
-                "/saviia", str(frontend_path), cache_headers=False
+            await hass.http.async_register_static_paths(
+                [
+                    StaticPathConfig(
+                        "/frontend/saviia",
+                        hass.config.path("custom_components/saviia/frontend"),
+                        False,
+                    )
+                ]
             )
+            panel_name = "saviia"
+            if not await _panel_exists(hass, panel_name):
+                async_register_built_in_panel(
+                    hass,
+                    component_name="custom",
+                    sidebar_title="SAVIIA",
+                    sidebar_icon="mdi:clipboard-check",
+                    frontend_url_path=panel_name,
+                    require_admin=False,
+                    config={
+                        "_panel_custom": {
+                            "name": "saviia-panel",
+                            "module_url": "/frontend/saviia/saviia_panel.js",
+                            "embed_iframe": False,
+                        }
+                    },
+                )
+
+
             logclient.debug(
                 DebugArgs(
                     status=LogStatus.SUCCESSFUL,
@@ -189,3 +215,18 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
     )
     return unload_ok
+
+
+async def _panel_exists(hass: HomeAssistant, panel_name: str) -> bool:
+    try:
+        return hasattr(hass.data, "frontend_panels") and panel_name in hass.data.get(
+            "frontend_panels", {}
+        )
+    except Exception as e:  # noqa: BLE001
+        logclient.debug(
+            DebugArgs(
+                status=LogStatus.SUCCESSFUL,
+                metadata={"msg": f"Error checking pannel existence: {e!s}"},
+            )
+        )
+        return False
