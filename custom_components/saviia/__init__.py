@@ -1,12 +1,11 @@
 """SAVIIA Integration."""
 
-from pathlib import Path
-
+from homeassistant.components.frontend import async_register_built_in_panel
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from saviialib import SaviiaAPI, SaviiaAPIConfig
-from homeassistant.components.http import StaticPathConfig
-from homeassistant.components.frontend import async_register_built_in_panel
+
 from custom_components.saviia.const import GeneralParams
 
 from .coordinator import (
@@ -150,13 +149,12 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
         # Register static path for frontend files
         try:
-            frontend_path = Path(__file__).parent / "frontend"
             await hass.http.async_register_static_paths(
                 [
                     StaticPathConfig(
                         "/frontend/saviia",
                         hass.config.path("custom_components/saviia/frontend"),
-                        False,
+                        False,  # noqa: FBT003
                     )
                 ]
             )
@@ -177,7 +175,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                         }
                     },
                 )
-
 
             logclient.debug(
                 DebugArgs(
