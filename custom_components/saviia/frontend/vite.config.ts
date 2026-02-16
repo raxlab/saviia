@@ -6,7 +6,7 @@ export default defineConfig({
         emptyOutDir: true,
         rollupOptions: {
             output: {
-                entryFileNames: "saviia-panel.js",
+                entryFileNames: "saviia_panel.js",
             },
         },
     },
