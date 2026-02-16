@@ -149,7 +149,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             [
                 StaticPathConfig(
                     url_path="/frontend/saviia",
-                    path=hass.config.path("frontend"),
+                    path=hass.config.path("custom_components/frontend/saviia"),
                     cache_headers=False,
                 )
             ]
