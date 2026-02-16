@@ -1,5 +1,4 @@
 import { CONFIG } from "./new_task_constants.js";
-import { getHass } from "./new_task_utils.js";
 
 const dropzone = document.getElementById("dropzone");
 const imageInput = document.getElementById("image-input");
@@ -67,7 +66,7 @@ document.getElementById("survey-form").addEventListener("submit", async (e) => {
     const btn = document.getElementById("submit");
     btn.disabled = true;
 
-    if (!getHass()) {
+    if (!window.hass) {
         alert("Error: Home Assistant connection not available");
         btn.disabled = false;
         return;
@@ -124,7 +123,7 @@ document.getElementById("survey-form").addEventListener("submit", async (e) => {
             images: imagesBase64
         };
 
-        const result = await getHass().callService(
+        const result = await window.hass.callService(
             "saviia",
             "create_task",
             serviceData,
