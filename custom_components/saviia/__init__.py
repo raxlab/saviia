@@ -1,8 +1,6 @@
 """SAVIIA Integration."""
 
-from pathlib import Path
-
-from homeassistant.components import panel_custom
+from homeassistant.components.frontend import async_register_built_in_panel
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -24,7 +22,6 @@ from .libs.log_client import (
 )
 from .services import async_setup_services, async_unload_services
 
-# Export CONFIG_SCHEMA for Home Assistant
 CONFIG_SCHEMA = GeneralParams.CONFIG_SCHEMA
 
 logclient = LogClient(
@@ -148,29 +145,41 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 metadata={"msg": "Services setup successful"},
             )
         )
-
-        # Register static path for frontend files
+        await hass.http.async_register_static_paths(
+            [
+                StaticPathConfig(
+                    url_path="/frontend/saviia",
+                    path=hass.config.path("frontend"),
+                    cache_headers=False,
+                )
+            ]
+        )
         try:
-            await hass.http.async_register_static_paths(
-                [
-                    StaticPathConfig(
-                        url_path="/frontend/saviia",
-                        path=str(Path(__file__).parent / "frontend"),
-                        cache_headers=False,
+            if await _panel_exists(hass, "saviia"):
+                logclient.debug(
+                    DebugArgs(
+                        status=LogStatus.SUCCESSFUL,
+                        metadata={
+                            "msg": "SAVIIA Panel already exists, skipping registration"
+                        },
                     )
-                ]
-            )
-
-            panel_custom.async_register(
+                )
+                return True
+            async_register_built_in_panel(
                 hass,
-                webcomponent_name="saviia-panel",
-                frontend_url_path="saviia",
-                module_url="/frontend/saviia/saviia_panel.js",
+                component_name="custom",
                 sidebar_title="SAVIIA",
                 sidebar_icon="mdi:clipboard-check",
+                frontend_url_path="saviia",
                 require_admin=False,
+                config={
+                    "_panel_custom": {
+                        "name": "saviia-panel",
+                        "module_url": "/frontend/saviia/saviia_panel.js",
+                        "embed_iframe": False,
+                    }
+                },
             )
-
             logclient.debug(
                 DebugArgs(
                     status=LogStatus.SUCCESSFUL,
