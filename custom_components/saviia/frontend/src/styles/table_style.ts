@@ -1,0 +1,144 @@
+import { css } from 'lit';
+
+export const tableStyle = css`
+:root {
+    --color-primary: #212121;
+    --color-background: #f5f5f5;
+    --color-text: #212121;
+    --color-light: #ffffff;
+    --color-dark: #000000;
+    --color-accent: #d1d1d1;
+    --color-accent-hover: rgb(243, 243, 243);
+    --color-border: #dcdada;
+    --color-priority-1: #e53935;
+    --color-priority-2: #f57c00;
+    --color-priority-3: #fbc02d;
+    --color-priority-4: #43a047;
+}
+
+.tasks-table {
+    width: 90%;
+    max-width: 1200px;
+    margin: 2em auto;
+    border-collapse: collapse;
+    background-color: var(--color-light);
+    border-radius: 0.5em;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.tasks-table thead {
+    background-color: var(--color-accent);
+    color: gray;
+}
+
+.tasks-table th {
+    padding: 1em;
+    text-align: left;
+    font-size: 0.95em;
+}
+
+.tasks-table td {
+    padding: 1em;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+}
+
+.tasks-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.tasks-table tbody tr:hover {
+    background-color: rgba(3, 169, 244, 0.05);
+}
+
+.tasks-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.task-title {
+    font-weight: 500;
+    color: var(--color-accent);
+}
+
+.task-status.Completada {
+    background-color: rgba(98, 255, 6, 0.238);
+    color: rgb(4, 151, 4);
+}
+
+.task-status.Pendiente {
+    background-color: rgba(255, 0, 0, 0.124);
+    color: rgb(229, 1, 1);
+}
+
+.task-status {
+    padding: .5rem;
+    border-radius: .5rem;
+    
+}
+
+
+.task-description {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9em;
+    color: #757575;
+}
+
+.priority-badge {
+    display: inline-block;
+    padding: 0.3em 0.6em;
+    border-radius: 0.3em;
+    font-size: 0.85em;
+    color: var(--color-light);
+}
+
+.priority-1 {
+    color: red;
+    background-color: rgb(255, 220, 220);
+}
+
+.priority-2 {
+    color: orange;
+    background-color: rgb(250, 226, 182);
+}
+
+.priority-3 {
+    color: rgb(205, 205, 0);
+    background-color: rgb(251, 255, 182);
+
+}
+
+.priority-4 {
+    color: rgb(6, 187, 6);
+    background-color: rgb(216, 253, 216);
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 2em;
+    font-size: 1.1em;
+    color: var(--color-accent);
+}
+
+@media (max-width: 768px) {
+    .tasks-table {
+        width: 95%;
+        font-size: 0.9em;
+    }
+
+    .tasks-table th,
+    .tasks-table td {
+        padding: 0.75em 0.5em;
+    }
+
+    .task-description {
+        max-width: 150px;
+    }
+}
+
+`

@@ -1,0 +1,359 @@
+import { css } from 'lit';
+
+export const modalStyle = css`
+.task-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.task-modal-content {
+    background-color: var(--color-light);
+    border-radius: 0.8em;
+    padding: 2em;
+    max-width: 80vw;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+.task-modal-close {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    background: none;
+    border: none;
+    font-size: 1.8em;
+    cursor: pointer;
+    color: var(--color-text);
+    padding: 0;
+    width: 2em;
+    height: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.task-modal-close:hover {
+    color: var(--color-accent);
+}
+
+.modal-task-title {
+    font-size: 1.5em;
+    color: var(--color-accent);
+    margin-bottom: 1em;
+    margin-top: 0.5em;
+}
+
+.modal-task-field {
+    margin-bottom: 1.2em;
+}
+
+.modal-task-field-label {
+    color: var(--color-primary);
+    font-size: 0.95em;
+    margin-bottom: 0.3em;
+    display: block;
+}
+
+.modal-task-field-value {
+    color: var(--color-text);
+    padding: 0.5em 0.8em;
+    background-color: var(--color-background);
+    border-radius: 0.4em;
+    border-left: 3px solid var(--color-accent);
+}
+
+.modal-task-images {
+    margin-top: 1.5em;
+}
+
+.modal-task-images-title {
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: 0.8em;
+    font-size: 0.95em;
+}
+
+.modal-task-image {
+    margin-bottom: 1em;
+    border-radius: 0.5em;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-task-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.modal-task-image-caption {
+    padding: 0.5em;
+    background-color: var(--color-background);
+    color: #757575;
+    font-size: 0.85em;
+    text-align: center;
+}
+
+.task-details-btn {
+    background-color: var(--color-accent);
+    color: gray;
+    border: none;
+    padding: 0.5em 1em;
+    border-radius: 0.4em;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+}
+
+.task-details-btn:hover {
+    background-color: var(--color-accent-hover);
+}
+
+/* Task Edit Form Styles */
+.task-edit-form {
+    display: flex;
+    width: 100%;
+    max-width: 70vw;
+    flex-direction: column;
+    gap: 1.2em;
+}
+
+.task-edit-form input[type="text"],
+.task-edit-form input[type="date"],
+.task-edit-form textarea {
+    width: 100%;
+    padding: 0.7em;
+    border: 1px solid #d0d0d0;
+    border-radius: 0.4em;
+    font-family: inherit;
+    font-size: 0.95em;
+    background-color: var(--color-light);
+    color: var(--color-text);
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.task-edit-form input[type="text"]:focus,
+.task-edit-form input[type="date"]:focus,
+.task-edit-form textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb), 0.1);
+}
+
+.task-edit-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.modal-task-actions {
+    display: flex;
+    gap: 1em;
+    margin-top: 1.5em;
+    justify-content: flex-end;
+}
+
+.modal-action-btn {
+    padding: 0.6em 1.2em;
+    border: none;
+    border-radius: 0.4em;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.modal-action-btn:hover {
+    transform: translateY(-2px);
+}
+
+.modal-action-btn:active {
+    transform: translateY(0);
+}
+
+.edit-btn {
+    background-color: var(--color-accent);
+    color: var(--color-light);
+}
+
+.edit-btn:hover {
+    background-color: var(--color-accent-hover);
+}
+
+.submit-btn {
+    background-color: #4caf50;
+    color: white;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}
+
+.cancel-btn {
+    background-color: #a6a6a6;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #ececec;
+}
+
+.delete-btn {
+    background-color: #d32f2f;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #b71c1c;
+}
+
+.delete-confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.delete-confirm-modal.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.delete-confirm-content {
+    background-color: var(--color-light);
+    border-radius: 0.8em;
+    padding: 2em;
+    max-width: 400px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.delete-confirm-title {
+    font-size: 1.3em;
+    color: #d32f2f;
+    margin-bottom: 1em;
+    font-weight: 600;
+}
+
+.delete-confirm-text {
+    color: var(--color-text);
+    margin-bottom: 1em;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+.delete-confirm-input-group {
+    margin-bottom: 1.5em;
+}
+
+.delete-confirm-input-label {
+    display: block;
+    font-size: 0.9em;
+    color: var(--color-primary);
+    margin-bottom: 0.5em;
+}
+
+.delete-confirm-input {
+    width: 100%;
+    padding: 0.7em;
+    border: 1px solid #d0d0d0;
+    border-radius: 0.4em;
+    font-family: inherit;
+    font-size: 0.95em;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.delete-confirm-input:focus {
+    outline: none;
+    border-color: #d32f2f;
+}
+
+.delete-confirm-actions {
+    display: flex;
+    gap: 1em;
+    justify-content: flex-end;
+}
+
+.delete-confirm-btn,
+.delete-cancel-btn {
+    padding: 0.6em 1.2em;
+    border: none;
+    border-radius: 0.4em;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.delete-confirm-btn:hover,
+.delete-cancel-btn:hover {
+    transform: translateY(-2px);
+}
+
+.delete-confirm-btn {
+    background-color: #d32f2f;
+    color: white;
+}
+
+.delete-confirm-btn:hover {
+    background-color: #b71c1c;
+}
+
+.delete-confirm-btn:disabled {
+    background-color: #bdbdbd;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.delete-cancel-btn {
+    background-color: #a6a6a6;
+    color: white;
+}
+
+.delete-cancel-btn:hover {
+    background-color: #808080;
+}
+
+#modal-body {
+    padding: 0;
+}
+
+@media (max-width: 768px) {
+    .task-modal-content {
+        max-width: 80vw;
+        width: 100%;
+        padding: 0.5em;
+    }
+
+    .modal-task-title {
+        font-size: 1.2em;
+    }
+
+    .modal-task-actions {
+        flex-direction: column;
+    }
+
+    .modal-action-btn {
+        width: 100%;
+    }
+}
+`
