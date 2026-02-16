@@ -90,30 +90,6 @@
     </form>
 
     <div id="alert-container"></div>
-
-    <script>
-        // Home Assistant Security Context
-        // When this panel is loaded within Home Assistant, the 'hass' object
-        // will be passed automatically with built-in authentication
-
-        class SaviiaTaskPanel extends HTMLElement {
-            connectedCallback() {
-                if (window.hass) {
-                    window.setHass(window.hass);
-                }
-            }
-            set hass(hassObj) {
-                window.hass = hassObj;
-                if (typeof window.setHass === 'function') {
-                    window.setHass(hassObj);
-                }
-            }
-        }
-
-        customElements.define('saviia-task-panel', SaviiaTaskPanel);
-    </script>
-
-    <script src="js/new_task/new_task.js"></script>
 </body>
 
 </html>

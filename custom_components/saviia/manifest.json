@@ -6,7 +6,7 @@
         "@raxlab"
     ],
     "config_flow": true,
-    "dependencies": [],
+    "dependencies": ["http"],
     "documentation": "https://github.com/raxlab/saviia",
     "integration_type": "service",
     "iot_class": "cloud_polling",
@@ -14,5 +14,5 @@
     "requirements": [
         "saviialib==1.10.0"
     ],
-    "version": "7.0.9.3"
+    "version": "7.0.9.5"
 }
