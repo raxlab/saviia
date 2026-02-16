@@ -1,17 +1,26 @@
 class SaviiaPanel extends HTMLElement {
-    async set hass(hass) {
+    set hass(hass) {
         this._hass = hass;
 
         if (!this._loaded) {
             this._loaded = true;
+            this._loadReact();
+        } else if (this._mount) {
+            this._mount(this, hass);
+        }
+    }
 
+    async _loadReact() {
+        try {
             const module = await import("/frontend/saviia/main.js");
 
             this._mount = module.mountApp;
 
-            this._mount(this, hass);
-        } else if (this._mount) {
-            this._mount(this, hass);
+            if (this._mount) {
+                this._mount(this, this._hass);
+            }
+        } catch (err) {
+            console.error("Error loading React:", err);
         }
     }
 }
