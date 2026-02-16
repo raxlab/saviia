@@ -1,12 +1,11 @@
 class SaviiaPanel extends HTMLElement {
-    set hass(hass) {
+    async set hass(hass) {
         this._hass = hass;
 
         if (!this._loaded) {
             this._loaded = true;
 
-            // const module = import("/frontend/saviia/main.js");
-            const module = import("http://localhost:5173/src/main.jsx");
+            const module = await import("/frontend/saviia/main.js");
 
             this._mount = module.mountApp;
 
