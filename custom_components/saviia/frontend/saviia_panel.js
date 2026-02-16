@@ -5,20 +5,18 @@ class SaviiaPanel extends HTMLElement {
         if (!this._loaded) {
             this._loaded = true;
             this._loadReact();
-        } else if (this._mount) {
-            this._mount(this, hass);
+        } else if (this._update) {
+            this._update(hass);
         }
     }
 
     async _loadReact() {
         try {
-            const module = await import("/frontend/saviia/main.js");
+            const module = await import("./main.js");
 
-            this._mount = module.mountApp;
-
-            if (this._mount) {
-                this._mount(this, this._hass);
-            }
+            this._mount = module.updateApp;
+            
+            module.mountApp(this, this._hass)
         } catch (err) {
             console.error("Error loading React:", err);
         }
