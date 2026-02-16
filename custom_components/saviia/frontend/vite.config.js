@@ -11,8 +11,8 @@ export default defineConfig({
   ],
   base: "/frontend/saviia/",
   build: {
-    outDir: "../custom_components/saviia/frontend",
-    emptyOutDir: true,
+    outDir: "../frontend",
+    emptyOutDir: false,
     rollupOptions: {
       output: {
         entryFileNames: "main.js",
