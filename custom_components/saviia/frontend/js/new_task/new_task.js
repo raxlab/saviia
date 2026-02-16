@@ -1,28 +1,46 @@
 import { CONFIG } from "./new_task_constants.js";
+export function initNewTaskPanel() {
+    const dropzone = document.getElementById("dropzone");
+    const imageInput = document.getElementById("image-input");
+    const preview = document.getElementById("preview");
 
-const dropzone = document.getElementById("dropzone");
-const imageInput = document.getElementById("image-input");
-const preview = document.getElementById("preview");
+    if (!dropzone) {
+        console.error("Dropzone not found");
+        return;
+    }
 
-let imagesBase64 = [];
-dropzone.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dropzone.classList.add("dragover");
-});
-dropzone.addEventListener("dragleave", () => {
-    dropzone.classList.remove("dragover");
-});
-dropzone.addEventListener("drop", (e) => {
-    e.preventDefault();
-    dropzone.classList.remove("dragover");
-    handleFiles(e.dataTransfer.files);
-});
-dropzone.addEventListener("click", () => {
-    imageInput.click();
-});
-imageInput.addEventListener("change", (e) => {
-    handleFiles(e.target.files);
-});
+    let imagesBase64 = [];
+
+    dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.classList.add("dragover");
+    });
+
+    dropzone.addEventListener("dragleave", () => {
+        dropzone.classList.remove("dragover");
+    });
+
+    dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        handleFiles(e.dataTransfer.files);
+    });
+
+    dropzone.addEventListener("click", () => {
+        imageInput.click();
+    });
+
+    imageInput.addEventListener("change", (e) => {
+        handleFiles(e.target.files);
+    });
+
+    document.getElementById("survey-form")
+        .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            console.log("Submit triggered"); // debug
+        });
+}
+
 
 function handleFiles(files) {
     [...files].forEach(file => {

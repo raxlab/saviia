@@ -12,6 +12,7 @@ class SaviiaPanel extends HTMLElement {
             window.hass = this._hass;
 
             await import("/frontend/saviia/js/new_task/new_task.js");
+            module.initNewTaskPanel();
 
             this._loaded = true;
         }
