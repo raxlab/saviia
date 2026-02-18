@@ -1,8 +1,0 @@
-panel_custom: 
-  - name: saviia-get-tasks
-    sidebar_title: "SAVIIA Get Tasks"
-    sidebar_icon: "mdi:format-list-checks"
-    url_path: "saviia-get-tasks"
-    module_url: "local/saviia/frontend/saviia-get-tasks.panel.js"
-    trust_external: true
-    require_admin: false

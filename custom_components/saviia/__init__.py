@@ -179,7 +179,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 config={
                     "_panel_custom": {
                         "name": "saviia-get-tasks.panel",
-                        "module_url": "/saviia/frontend/saviia-get-tasks.panel.js",
+                        "module_url": "/frontend/saviia-get-tasks/saviia-get-tasks.panel.js",
                         "embed_iframe": False,
                     }
                 },
@@ -187,7 +187,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             logclient.debug(
                 DebugArgs(
                     status=LogStatus.SUCCESSFUL,
-                    metadata={"msg": "Frontend registered at /saviia-all-tasks"},
+                    metadata={"msg": "Frontend registered at /saviia-get-tasks"},
                 )
             )
         except Exception as e:  # noqa: BLE001
