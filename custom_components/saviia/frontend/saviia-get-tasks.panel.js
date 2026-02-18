@@ -11,8 +11,12 @@ const logger = createLogger('SaviiaGetTasks');
 logger.info("SAVIIA Get Tasks panel loading...");
 
 class SaviiaGetTasks extends LitElement {
+    set hass(hass) {
+        this._hass = hass;
+    }
     static get properties() {
         return {
+            hass: { type: Object },
             allTasks: { type: Array },
             filteredTasks: { type: Array },
             isLoading: { type: Boolean },
