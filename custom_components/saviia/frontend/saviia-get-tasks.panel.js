@@ -36,7 +36,7 @@ class SaviiaGetTasks extends LitElement {
             isModalOpen: { type: Boolean },
             isEditing: { type: Boolean },
             deleteConfirmText: { type: String },
-            tasksAPI: { type: Object },
+            
         };
     }
 
@@ -60,6 +60,7 @@ class SaviiaGetTasks extends LitElement {
         this.isModalOpen = false;
         this.isEditing = false;
         this.deleteConfirmText = '';
+        this.tasksAPI = new TasksAPI()
         this.CONFIG = {
             ALERT_TIMEOUT: 3000,
             DELETE_CONFIRM_TEXT: 'delete-task',
