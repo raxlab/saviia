@@ -156,7 +156,7 @@ async def async_local_backup(call: ServiceCall) -> None:
 
 async def async_get_netcamera_rates(call: ServiceCall) -> ServiceResponse:
     """Get camera rates service."""
-    logclient.method_name = "async_get_camera_rates"
+    logclient.method_name = "async_get_netcamera_rates"
     logclient.debug(DebugArgs(status=LogStatus.STARTED))
     _ensure_domain_setup(call.hass)
     api = _check_api_in_entry(call.hass)
@@ -202,15 +202,8 @@ async def async_update_task(call: ServiceCall) -> ServiceResponse:
     api = _check_api_in_entry(call.hass)
     task_service = api.get("tasks")
     try:
-        webhook_url, task, completed, channel_id = (
-            call.data.get("webhook_url"),
-            call.data.get("task"),
-            call.data.get("completed"),
-            call.data.get("channel_id", ""),
-        )
-        result = await task_service.update_task(
-            webhook_url, task, completed, channel_id
-        )
+        task, completed = call.data.get("task"), call.data.get("completed")
+        result = await task_service.update_task(task, completed)
         if result.get("status") != HTTPStatus.OK.value:
             logclient.error(
                 ErrorArgs(
@@ -250,12 +243,8 @@ async def async_delete_task(call: ServiceCall) -> ServiceResponse:
     api = _check_api_in_entry(call.hass)
     task_service = api.get("tasks")
     try:
-        webhook_url, task_id, channel_id = (
-            call.data.get("webhook_url"),
-            call.data.get("task_id"),
-            call.data.get("channel_id", ""),
-        )
-        result = await task_service.delete_task(webhook_url, task_id, channel_id)
+        task_id = call.data.get("task_id")
+        result = await task_service.delete_task(task_id)
         if result.get("status") != HTTPStatus.OK.value:
             logclient.error(
                 ErrorArgs(
@@ -282,6 +271,88 @@ async def async_delete_task(call: ServiceCall) -> ServiceResponse:
             ErrorArgs(
                 status=LogStatus.ERROR,
                 metadata={"msg": f"Error deleting task: {e}"},
+            )
+        )
+        raise
+
+
+async def async_create_task(call: ServiceCall) -> ServiceResponse:
+    """Create a Task in a Discord channel."""
+    logclient.method_name = "async_create_task"
+    logclient.debug(DebugArgs(status=LogStatus.STARTED))
+    _ensure_domain_setup(call.hass)
+    api = _check_api_in_entry(call.hass)
+    task_service = api.get("tasks")
+    try:
+        task, images = call.data.get("task"), call.data.get("images", [])
+        result = await task_service.create_task(task, images)
+        if result.get("status") != HTTPStatus.OK.value:
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": result["message"]},
+                )
+            )
+        else:
+            logclient.info(
+                InfoArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={
+                        "msg": f"Task created successfully: {result.get('metadata')}"
+                    },
+                )
+            )
+        return {
+            "api_status": result.get("status"),
+            "api_message": result.get("message"),
+            "api_metadata": result.get("metadata"),
+        }
+    except Exception as e:
+        logclient.error(
+            ErrorArgs(
+                status=LogStatus.ERROR,
+                metadata={"msg": f"Error creating task: {e}"},
+            )
+        )
+        raise
+
+
+async def async_get_tasks(call: ServiceCall) -> ServiceResponse:
+    """Get all the tasks stored in the Discord channel."""
+    logclient.method_name = "async_get_tasks"
+    logclient.debug(DebugArgs(status=LogStatus.STARTED))
+    _ensure_domain_setup(call.hass)
+    api = _check_api_in_entry(call.hass)
+    task_service = api.get("tasks")
+    try:
+        params = call.data.get("params", {})
+        result = await task_service.get_tasks(params)
+        if result.get("status") != HTTPStatus.OK.value:
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": result["message"]},
+                )
+            )
+        else:
+            logclient.info(
+                InfoArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={
+                        "msg": f"Tasks fetched successfully: {result.get('metadata')}"
+                    },
+                )
+            )
+        return {
+            "api_status": result.get("status"),
+            "api_message": result.get("message"),
+            "api_metadata": result.get("metadata"),
+        }
+    except Exception as e:
+        logclient.error(
+            ErrorArgs(
+                status=LogStatus.ERROR,
+                metadata={"msg": f"Error creating task: {e}"},
             )
         )
         raise
@@ -322,6 +393,20 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         schema=ServicesParams.SERVICE_DELETE_TASK_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
+    hass.services.async_register(
+        GeneralParams.DOMAIN,
+        ServicesParams.SERVICE_CREATE_TASK,
+        async_create_task,
+        schema=ServicesParams.SERVICE_CREATE_TASK_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
+    hass.services.async_register(
+        GeneralParams.DOMAIN,
+        ServicesParams.SERVICE_GET_TASKS,
+        async_get_tasks,
+        schema=ServicesParams.SERVICE_GET_TASKS_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
 
 
 async def async_unload_services(hass: HomeAssistant) -> None:
@@ -335,3 +420,5 @@ async def async_unload_services(hass: HomeAssistant) -> None:
     )
     hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_UPDATE_TASK)
     hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_DELETE_TASK)
+    hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_CREATE_TASK)
+    hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_GET_TASKS)

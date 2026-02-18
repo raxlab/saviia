@@ -31,11 +31,6 @@ update_task:
   name: Update a Discord Task
   description: Saviia provides this action for updating a message that had been sent in a Discord Channel
   fields:
-    webhook_url:
-      name: Discord channel webhook URL
-      required: true
-      selector:
-        text:
     task:
       name: Task payload to update the Discord message
       required: true
@@ -46,99 +41,37 @@ update_task:
       required: true
       selector:
         boolean:
-    channel_id:
-      name: Channel ID from Discord
-      required: false
-      selector:
-        text:
 
 delete_task:
   name: Delete a Discord Task
   description: Saviia provides this action for deleting a message that had been sent in a Discord Channel
   fields:
-    webhook_url:
-      name: Discord channel webhook URL
-      required: true
-      selector:
-        text:
     task_id:
       name: Task ID from Discord webhook channel
       required: true
       selector:
         text:
-    channel_id:
-      name: Channel ID from Discord
-      required: false
-      selector:
-        text:
+
 create_task:
   name: "Create Task"
   description: "Create a new task and send it to Discord via webhook"
   fields:
-    title:
-      name: Title
-      description: "Task title"
+    task:
+      name: Task payload
       required: true
       selector:
-        text:
-    details:
-      name: Details
-      description: "Task description/details"
-      required: false
-      selector:
-        text:
-          multiline: true
-    assignee:
-      name: Assignee
-      description: "Person assigned to the task"
-      required: false
-      selector:
-        text:
-    category:
-      name: Category
-      description: "Task category"
-      required: false
-      selector:
-        text:
-    deadline:
-      name: Deadline
-      description: "Task deadline date (YYYY-MM-DD format)"
-      required: false
-      selector:
-        text:
-    periodicity:
-      name: Periodicity
-      description: "Task recurrence type"
-      required: false
-      selector:
-        select:
-          options:
-            - "Sin periodicidad"
-            - "daily"
-            - "weekly"
-            - "monthly"
-            - "yearly"
-    periodicity_num:
-      name: Periodicity Number
-      description: "Number of periods (days, weeks, months, years)"
-      required: false
-      selector:
-        number:
-          min: 1
-          max: 365
-          mode: box
-    priority:
-      name: Priority
-      description: "Task priority level"
-      required: false
-      selector:
-        select:
-          options:
-            - "Baja"
-            - "Media"
-            - "Alta"
-            - "Urgente"
+        object:
     images:
       name: Images
       description: "Base64 encoded images to attach"
       required: false
+
+get_tasks:
+  name: "Get Tasks"
+  description: "Retrieves a list of tasks based on the provided parameters."
+  fields:
+    params:
+      name: Parameters
+      required: false
+      selector:
+        object:

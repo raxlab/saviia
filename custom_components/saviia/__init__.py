@@ -68,6 +68,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             logger=GeneralParams.LOGGER,
             latitude=config_entry.data.get("latitude"),
             longitude=config_entry.data.get("longitude"),
+            bot_token=config_entry.data.get("bot_token"),
+            tasks_channel_id=config_entry.data.get("task_channel_id"),
         )
     )
     hass.data.setdefault(GeneralParams.DOMAIN, {})
@@ -198,10 +200,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 )
             )
 
-    # Setup of variables needed for services
-    hass.data[GeneralParams.DOMAIN]["discord_webhook_url"] = config_entry.data.get(
-        "discord_webhook_url"
-    )
     return True
 
 

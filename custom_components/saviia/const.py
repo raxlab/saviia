@@ -59,6 +59,20 @@ class ServicesParams:
             vol.Optional("channel_id"): cv.string,
         }
     )
+    SERVICE_CREATE_TASK = "create_task"
+    SERVICE_CREATE_TASK_SCHEMA = vol.Schema(
+        {
+            vol.Required("task"): dict,
+            vol.Optional("images"): list,
+        }
+    )
+
+    SERVICE_GET_TASKS = "get_tasks"
+    SERVICE_GET_TASKS_SCHEMA = vol.Schema(
+        {
+            vol.Optional("params"): dict,
+        }
+    )
 
 
 class ConfigDefaultsParams:
