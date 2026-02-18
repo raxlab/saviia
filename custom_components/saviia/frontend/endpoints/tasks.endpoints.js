@@ -1,4 +1,4 @@
-import { hass, environment, baseUrl, token } from "../services/ha-client";
+import { hass, environment, baseUrl, token } from "../services/ha-client.js";
 import { createLogger } from "../services/logger.js";
 
 const logger = createLogger("TasksAPI");
