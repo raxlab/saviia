@@ -7,16 +7,16 @@ export default class TasksAPI {
     constructor(hass = null) {
         this.webhookUrl = "https://discord.com/api/webhooks/1452857904926294068/1AXRVxx3blLgOHuJFZ_EYnQNgt3eVcINFv495zjcE502v8NX3XunMXtwt9JZGh2jVlJ4" // TODO: DELETE
         this.hass = hass;
-        this.environment = this.hass ? 'production' : 'development';
-        this.baseUrl = this.environment === "development"
-            ? import.meta.env?.VITE_HA_URL
-            : '';
-        this.token = this.environment === "development"
-            ? import.meta.env?.VITE_HA_TOKEN
-            : '';
-        this._hassHeaders = {
-            'Authorization': `Bearer ${this.token}`,
-            'Content-Type': 'application/json'
+        this.environment = window.location.origin.includes("homeassistant")
+            ? "production"
+            : "development";
+        if (this.environment === "development") {
+            this.baseUrl = import.meta.env?.VITE_HA_URL;
+            this.token = import.meta.env?.VITE_HA_TOKEN;
+            this._hassHeaders = {
+                'Authorization': `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            }
         }
         logger.info("Initialized", { environment: this.environment });
     }

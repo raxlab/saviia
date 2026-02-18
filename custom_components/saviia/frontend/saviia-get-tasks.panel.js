@@ -13,9 +13,15 @@ logger.info("SAVIIA Get Tasks panel loading...");
 class SaviiaGetTasks extends LitElement {
     set hass(hass) {
         this._hass = hass;
-        if (!this.tasksAPI) {
+
+        if (!this.tasksAPI || this.tasksAPI.hass !== hass) {
             this.tasksAPI = new TasksAPI(hass);
-        } 
+        }
+
+        if (!this._initialized && hass) {
+            this._initialized = true;
+            this.fetchTasks();
+        }
     }
     static get properties() {
         return {
@@ -36,7 +42,6 @@ class SaviiaGetTasks extends LitElement {
             isModalOpen: { type: Boolean },
             isEditing: { type: Boolean },
             deleteConfirmText: { type: String },
-            
         };
     }
 
@@ -65,11 +70,18 @@ class SaviiaGetTasks extends LitElement {
             ALERT_TIMEOUT: 3000,
             DELETE_CONFIRM_TEXT: 'delete-task',
         };
+        this.tasksAPI = null;
+        this._initialized = false;
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.fetchTasks();
+        // Dev mode
+        if (!this._initialized && !this._hass) {
+            this.tasksAPI = new TasksAPI();
+            this._initialized = true;
+            this.fetchTasks();
+        }
     }
 
     disconnectedCallback() {
