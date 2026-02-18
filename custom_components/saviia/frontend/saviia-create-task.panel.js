@@ -1,11 +1,26 @@
-import { LitElement, html, css } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
+import { LitElement, html } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 import { Styles } from "./styles";
 import { createLogger } from "./services/logger.js";
+import TasksAPI from './endpoints/tasks.endpoints.js';
 
 const logger = createLogger("SaviiaCreateTask");
+logger.info("SAVIIA Create Tasks panel loading...");
 
 export class SaviiaCreateTask extends LitElement {
+  set hass(hass) {
+    this._hass = hass;
+
+    if (!this.tasksAPI || this.tasksAPI.hass !== hass) {
+      this.tasksAPI = new TasksAPI(hass);
+    }
+
+    if (!this._initialized && hass) {
+      this._initialized = true;
+      this.fetchTasks();
+    }
+  }
   static properties = {
+    hass: { type: Object },
     images: { state: true },
     isSubmitting: { state: true }
   };
@@ -13,6 +28,7 @@ export class SaviiaCreateTask extends LitElement {
   constructor() {
     super();
     this.images = [];
+    this.tasksAPI = new TasksAPI();
     this.isSubmitting = false;
     this.CONFIG = {
       ACCEPTED_IMAGE_TYPES: ["image/jpeg", "image/png", "image/gif"],
@@ -80,46 +96,21 @@ export class SaviiaCreateTask extends LitElement {
     const author = form.querySelector("#author").value;
     let periodicity = form.querySelector("#periodicity").value || "Sin periodicidad";
     const periodicityNum = form.querySelector("#periodicity-number").value;
-    const details = form.querySelector("#details").value || "Sin descripción";
+    const description = form.querySelector("#details").value || "Sin descripción";
     const category = form.querySelector("#categ").value || "Sin categoría";
-
-    const content = `## ${title}\n` +
-      `* __Estado__: Pendiente\n` +
-      `* __Fecha de realización__: ${deadline}\n` +
-      `* __Descripcion__: ${details}\n` +
-      `* __Periodicidad__: ${this.getPeriodicity(periodicity, periodicityNum)}\n` +
-      `* __Prioridad__: ${priorityNum}\n` +
-      `* __Categoría__: ${category}\n` +
-      `* __Persona asignada__: ${author}\n`;
+    const task = {
+      title: title,
+      description: description,
+      deadline: deadline,
+      priority: priorityNum,
+      assignee: author,
+      category: category,
+      periodicity: this.getPeriodicity(periodicity, periodicityNum)
+    }
 
     try {
-      logger.debug(content);
-      const formData = new FormData();
-      this.images.forEach((img, index) => {
-        const binaryString = atob(img.data);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        const blob = new Blob([bytes], { type: img.type });
-        formData.append(`files[${index}]`, blob, img.name);
-      });
-      const embeds = this.images.map((img, index) => ({
-        title: `Imagen ${index + 1}: ${img.name}`,
-        image: { url: `attachment://${img.name}` }
-      }));
-      const payloadJson = {
-        content: content,
-        embeds: embeds
-      };
-      formData.append("payload_json", JSON.stringify(payloadJson));
-      // TODO: Change into service call 
-      const response = await fetch("https://discord.com/api/webhooks/1452857904926294068/1AXRVxx3blLgOHuJFZ_EYnQNgt3eVcINFv495zjcE502v8NX3XunMXtwt9JZGh2jVlJ4", {
-        method: "POST",
-        body: formData
-      });
-      logger.debug("Discord response:", response);
-      if (!response.ok) throw new Error(`No se pudo crear la tarea: ${response.statusText}`);
+      const response = await this.tasksAPI.createTask(task, this.images)
+      logger.debug("Response:", response);
     } catch (err) {
       logger.error(err);
       alert("Hubo un error al crear la tarea. Por favor, inténtalo de nuevo.");

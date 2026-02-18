@@ -224,9 +224,15 @@ class SaviiaGetTasks extends LitElement {
                 .filter(msg => msg.content && msg.content.trim().length > 0)
                 .map(msg => ({
                     ...this.parseTaskContent(msg.content),
-                    messageId: msg.id,
-                    channelId: msg.channel_id,
-                    createdAt: new Date(msg.timestamp).toLocaleDateString('es-ES'),
+                    title: msg.title,
+                    deadline: msg.deadline, 
+                    priority: msg.priority,
+                    description: msg.description,
+                    periodicity: msg.periodicity,
+                    assignee: msg.assignee,
+                    category: msg.category,
+                    status: msg.completed,
+                    messageId: msg.task_id,
                     embeds: msg.embeds || []
                 }));
             localStorage.setItem('tasksCache', JSON.stringify(tasks));

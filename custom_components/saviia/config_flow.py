@@ -73,7 +73,8 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=GeneralParams.DOMAIN):
                 vol.Optional("latitude"): cv.latitude,
                 vol.Optional("longitude"): cv.longitude,
                 # Task Creation Parameters
-                vol.Optional("discord_webhook_url", default=""): cv.string,
+                vol.Optional("bot_token", default=""): cv.string,
+                vol.Optional("task_channel_id", default=""): cv.string,
             }
         )
 

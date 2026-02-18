@@ -5,7 +5,6 @@ const logger = createLogger("TasksAPI");
 
 export default class TasksAPI {
     constructor(hass = null) {
-        this.webhookUrl = "https://discord.com/api/webhooks/1452857904926294068/1AXRVxx3blLgOHuJFZ_EYnQNgt3eVcINFv495zjcE502v8NX3XunMXtwt9JZGh2jVlJ4" // TODO: DELETE
         this.hass = hass;
         this.environment = window.location.origin.includes("homeassistant")
             ? "production"
@@ -21,18 +20,15 @@ export default class TasksAPI {
         logger.info("Initialized", { environment: this.environment });
     }
     async _callServiceWithErrorHandling(domain, service, data = {}) {
-        if (!this.hass) {
-            throw new Error("Hass instance not available");
-        }
         try {
-            logger.debug("Calling HA service", { domain, service });
-            const result = await this.hass.callService(
-                domain, service, data, { return_response: true }
-            )
-            logger.debug("HA service call succeeded", { domain, service });
-            return result
+            const result = await this.hass.callApi(
+                "POST",
+                `services/${domain}/${service}?return_response`,
+                data
+            );
+            return result;
         } catch (error) {
-            logger.error(`Error while calling service ${service} at ${domain}`, error)
+            logger.error(`Error while calling service ${service}`, error);
             throw new Error(`Home Assistant service error: ${error.message}`);
         }
     }
@@ -53,7 +49,7 @@ export default class TasksAPI {
     async getTasks() {
         logger.info("Fetching tasks");
         if (this.environment === "development") {
-            const url = `${this.baseUrl}/rest_command/discord_get_tasks?return_response`
+            const url = `${this.baseUrl}/saviia/get_tasks?return_response`
             const data = await this._fetchWithErrorHandling(url, {
                 method: 'POST',
                 headers: this._hassHeaders
@@ -62,21 +58,16 @@ export default class TasksAPI {
             logger.info("Tasks fetched", { count: Array.isArray(messages) ? messages.length : 0 });
             return messages
         } else {
-            const result = await this._callServiceWithErrorHandling(
-                'rest_command', 'discord_get_tasks'
-            )
-            logger.info("Tasks fetched via hass service", result);
-            return result
+            const data = await this._callServiceWithErrorHandling('saviia', 'get_tasks')
+            const messages = data.service_response.content
+            logger.info("Tasks fetched via hass service", messages);
+            return messages
         }
     }
 
     async updateTask(task, completed) {
         logger.info("Updating task", { taskId: task?.tid, completed });
-        const payload = JSON.stringify({
-            webhook_url: this.webhookUrl,
-            task: task,
-            completed: completed,
-        })
+        const payload = JSON.stringify({ task: task, completed: completed })
         if (this.environment === "development") {
             const url = `${this.baseUrl}/saviia/update_task?return_response`
             const result = await this._fetchWithErrorHandling(url, {
@@ -87,9 +78,7 @@ export default class TasksAPI {
             logger.info('Task updated at Discord', { taskId: task?.tid })
             return result
         } else {
-            const result = await this._callServiceWithErrorHandling(
-                'saviia', 'update_task?return_response', payload
-            )
+            const result = await this._callServiceWithErrorHandling('saviia', 'update_task', payload);
             logger.info('Task updated via hass service', { taskId: task?.tid }, result)
             return result;
         }
@@ -97,10 +86,7 @@ export default class TasksAPI {
 
     async deleteTask(taskId) {
         logger.info("Deleting task", { taskId });
-        const payload = JSON.stringify({
-            webhook_url: this.webhookUrl,
-            task_id: taskId
-        })
+        const payload = JSON.stringify({ task_id: taskId })
         if (this.environment === "development") {
             const url = `${this.baseUrl}/saviia/delete_task?return_response`
             const result = await this._fetchWithErrorHandling(url, {
@@ -111,9 +97,26 @@ export default class TasksAPI {
             logger.info('Task deleted at Discord', { taskId })
             return result
         } else {
-            const result = await this._callServiceWithErrorHandling(
-                'saviia', 'delete_task?return_response', payload
-            )
+            const result = await this._callServiceWithErrorHandling('saviia', 'delete_task', payload);
+            logger.info('Task deleted via hass service', { taskId }, result)
+            return result;
+        }
+    }
+
+    async createTask(task, images = {}) {
+        logger.info("Creating task", { task });
+        const payload = JSON.stringify({ task: task, images: images })
+        if (this.environment === "development") {
+            const url = `${this.baseUrl}/saviia/delete_task?return_response`
+            const result = await this._fetchWithErrorHandling(url, {
+                method: 'POST',
+                headers: this._hassHeaders,
+                body: payload
+            })
+            logger.info('Task deleted at Discord', { taskId })
+            return result
+        } else {
+            const result = await this._callServiceWithErrorHandling('saviia', 'delete_task', payload);
             logger.info('Task deleted via hass service', { taskId }, result)
             return result;
         }
