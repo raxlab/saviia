@@ -10,12 +10,13 @@ body {
     color: #212121;
     font-size: clamp(14px, 2vw, 16px);
 }
+h1, h2, h3, h4, h5, h6, p {
+    text-align: center;
+}
 
-
-h1, h2, h3, h4, h5, h6, p, i, legend {
+h1, h2, h3, h4, h5, h6, p, i, legend, label, td, th {
     margin: 1em auto;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    text-align: center;
 }
 
 .filters-sort-container {

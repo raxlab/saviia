@@ -60,34 +60,6 @@ class ServicesParams:
         }
     )
 
-    SERVICE_CREATE_TASK = "create_task"
-    SERVICE_CREATE_TASK_SCHEMA = vol.Schema(
-        {
-            vol.Required("title"): cv.string,
-            vol.Optional("details", default="Sin descripción"): cv.string,
-            vol.Optional("assignee", default="No asignada"): cv.string,
-            vol.Optional("category", default="Sin categoría"): cv.string,
-            vol.Optional("deadline", default=""): cv.string,
-            vol.Optional("periodicity", default="Sin periodicidad"): vol.In(
-                ["Sin periodicidad", "daily", "weekly", "monthly", "yearly"]
-            ),
-            vol.Optional("periodicity_num", default=1): cv.positive_int,
-            vol.Optional("priority", default="Baja"): vol.In(
-                ["Baja", "Media", "Alta", "Urgente"]
-            ),
-            vol.Optional("images", default=[]): vol.All(
-                cv.ensure_list,
-                [
-                    {
-                        vol.Required("name"): cv.string,
-                        vol.Required("type"): cv.string,
-                        vol.Required("data"): cv.string,
-                    }
-                ],
-            ),
-        }
-    )
-
 
 class ConfigDefaultsParams:
     """Config flow default parameters."""

@@ -136,6 +136,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     await hass.config_entries.async_forward_entry_setups(
         config_entry, GeneralParams.PLATFORMS
     )
+    # Panel registration
     if not hass.data[GeneralParams.DOMAIN].get("services_registered"):
         await async_setup_services(hass)
         hass.data[GeneralParams.DOMAIN]["services_registered"] = True
@@ -145,22 +146,23 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 metadata={"msg": "Services setup successful"},
             )
         )
+        # Panel setup
         await hass.http.async_register_static_paths(
             [
                 StaticPathConfig(
-                    url_path="/frontend/saviia",
-                    path=hass.config.path("custom_components/saviia/dist"),
+                    url_path="/frontend/saviia-get-tasks",
+                    path=hass.config.path("custom_components/saviia/frontend"),
                     cache_headers=False,
                 )
             ]
         )
         try:
-            if await _panel_exists(hass, "saviia"):
+            if await _panel_exists(hass, "saviia-get-tasks"):
                 logclient.debug(
                     DebugArgs(
                         status=LogStatus.SUCCESSFUL,
                         metadata={
-                            "msg": "SAVIIA Panel already exists, skipping registration"
+                            "msg": "SAVIIA Get Tasks Panel already exists, skipping registration"
                         },
                     )
                 )
@@ -168,14 +170,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             async_register_built_in_panel(
                 hass,
                 component_name="custom",
-                sidebar_title="SAVIIA",
+                sidebar_title="SAVIIA Get Tasks",
                 sidebar_icon="mdi:clipboard-check",
-                frontend_url_path="saviia",
+                frontend_url_path="saviia-get-tasks",
                 require_admin=False,
                 config={
                     "_panel_custom": {
-                        "name": "saviia-panel",
-                        "module_url": "/frontend/saviia/saviia_panel.js",
+                        "name": "saviia-get-tasks.panel",
+                        "module_url": "/frontend/saviia/saviia-get-tasks.panel.js",
                         "embed_iframe": False,
                     }
                 },
@@ -183,7 +185,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             logclient.debug(
                 DebugArgs(
                     status=LogStatus.SUCCESSFUL,
-                    metadata={"msg": "Frontend registered at /saviia"},
+                    metadata={"msg": "Frontend registered at /saviia-all-tasks"},
                 )
             )
         except Exception as e:  # noqa: BLE001
@@ -194,6 +196,10 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 )
             )
 
+    # Setup of variables needed for services
+    hass.data[GeneralParams.DOMAIN]["discord_webhook_url"] = config_entry.data.get(
+        "discord_webhook_url"
+    )
     return True
 
 

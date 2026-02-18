@@ -15,7 +15,7 @@ export const modalStyle = css`
 }
 
 .task-modal-content {
-    background-color: var(--color-light);
+    background-color: #ffffff;
     border-radius: 0.8em;
     padding: 2em;
     max-width: 80vw;
@@ -34,7 +34,7 @@ export const modalStyle = css`
     border: none;
     font-size: 1.8em;
     cursor: pointer;
-    color: var(--color-text);
+    color: #333333;
     padding: 0;
     width: 2em;
     height: 2em;
@@ -45,12 +45,12 @@ export const modalStyle = css`
 }
 
 .task-modal-close:hover {
-    color: var(--color-accent);
+    color: #1976d2;
 }
 
 .modal-task-title {
     font-size: 1.5em;
-    color: var(--color-accent);
+    color: #1976d2;
     margin-bottom: 1em;
     margin-top: 0.5em;
 }
@@ -60,18 +60,19 @@ export const modalStyle = css`
 }
 
 .modal-task-field-label {
-    color: var(--color-primary);
+    color: #555555;
     font-size: 0.95em;
     margin-bottom: 0.3em;
     display: block;
 }
 
 .modal-task-field-value {
-    color: var(--color-text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #333333;
     padding: 0.5em 0.8em;
-    background-color: var(--color-background);
+    background-color: #f5f5f5;
     border-radius: 0.4em;
-    border-left: 3px solid var(--color-accent);
+    border-left: 3px solid #1976d2;
 }
 
 .modal-task-images {
@@ -80,7 +81,7 @@ export const modalStyle = css`
 
 .modal-task-images-title {
     font-weight: 600;
-    color: var(--color-primary);
+    color: #555555;
     margin-bottom: 0.8em;
     font-size: 0.95em;
 }
@@ -100,16 +101,16 @@ export const modalStyle = css`
 
 .modal-task-image-caption {
     padding: 0.5em;
-    background-color: var(--color-background);
+    background-color: #f5f5f5;
     color: #757575;
     font-size: 0.85em;
     text-align: center;
 }
 
 .task-details-btn {
-    background-color: var(--color-accent);
-    color: gray;
-    border: none;
+    background-color: #fdfeff;
+    color: darkgray;
+    border: 1px solid lightgray;
     padding: 0.5em 1em;
     border-radius: 0.4em;
     cursor: pointer;
@@ -118,7 +119,7 @@ export const modalStyle = css`
 }
 
 .task-details-btn:hover {
-    background-color: var(--color-accent-hover);
+    background-color: #e3e3e3;
 }
 
 /* Task Edit Form Styles */
@@ -139,8 +140,8 @@ export const modalStyle = css`
     border-radius: 0.4em;
     font-family: inherit;
     font-size: 0.95em;
-    background-color: var(--color-light);
-    color: var(--color-text);
+    background-color: #ffffff;
+    color: #333333;
     box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -149,8 +150,8 @@ export const modalStyle = css`
 .task-edit-form input[type="date"]:focus,
 .task-edit-form textarea:focus {
     outline: none;
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb), 0.1);
+    border-color: #1976d2;
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
 }
 
 .task-edit-form textarea {
@@ -183,12 +184,12 @@ export const modalStyle = css`
 }
 
 .edit-btn {
-    background-color: var(--color-accent);
-    color: var(--color-light);
+    background-color: #1976d2;
+    color: #ffffff;
 }
 
 .edit-btn:hover {
-    background-color: var(--color-accent-hover);
+    background-color: #1565c0;
 }
 
 .submit-btn {
@@ -240,7 +241,7 @@ export const modalStyle = css`
 }
 
 .delete-confirm-content {
-    background-color: var(--color-light);
+    background-color: #ffffff;
     border-radius: 0.8em;
     padding: 2em;
     max-width: 400px;
@@ -255,7 +256,7 @@ export const modalStyle = css`
 }
 
 .delete-confirm-text {
-    color: var(--color-text);
+    color: #333333;
     margin-bottom: 1em;
     font-size: 0.95em;
     line-height: 1.5;
@@ -268,7 +269,7 @@ export const modalStyle = css`
 .delete-confirm-input-label {
     display: block;
     font-size: 0.9em;
-    color: var(--color-primary);
+    color: #555555;
     margin-bottom: 0.5em;
 }
 
@@ -335,6 +336,52 @@ export const modalStyle = css`
 
 #modal-body {
     padding: 0;
+}
+
+/* Priority Badge Styles */
+.priority-badge {
+    padding: 0.25em 0.5em;
+    border-radius: 0.4em;
+    font-weight: 600;
+    display: inline-block;
+    font-size: 0.85em;
+}
+
+.priority-1 {
+    background-color: #d32f2f;
+    color: white;
+}
+
+.priority-2 {
+    background-color: #f57c00;
+    color: white;
+}
+
+.priority-3 {
+    background-color: #fbc02d;
+    color: black;
+}
+
+.priority-4 {
+    background-color: #388e3c;
+    color: white;
+}
+
+/* Modal Visibility Control */
+.task-modal {
+    display: none !important;
+}
+
+.task-modal.show {
+    display: flex !important;
+}
+
+.delete-confirm-modal {
+    display: none !important;
+}
+
+.delete-confirm-modal.show {
+    display: flex !important;
 }
 
 @media (max-width: 768px) {
