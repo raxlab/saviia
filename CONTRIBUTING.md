@@ -59,3 +59,22 @@ file.
 ## License
 
 By contributing, you agree that your contributions will be licensed under its MIT License.
+
+# Local Development
+For local development, **you need to create a `.env` file in the `frontend` directory** with the following content:
+
+```env
+VITE_HA_URL=http://localhost:8123
+VITE_HA_TOKEN=your_long_lived_access_token
+```
+
+Then, you can run the frontend using Vite:
+
+```bash
+cd custom_components/saviia/frontend
+npm install
+npm run dev
+```
+
+Finally, the terminal will open a browser window with the frontend running at ` http://localhost:8000/`. 
+You can interact with it and see the console logs for debugging.

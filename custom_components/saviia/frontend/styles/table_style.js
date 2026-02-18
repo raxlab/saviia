@@ -1,27 +1,12 @@
 import { css } from 'lit';
 
 export const tableStyle = css`
-:root {
-    --color-primary: #212121;
-    --color-background: #f5f5f5;
-    --color-text: #212121;
-    --color-light: #ffffff;
-    --color-dark: #000000;
-    --color-accent: #d1d1d1;
-    --color-accent-hover: rgb(243, 243, 243);
-    --color-border: #dcdada;
-    --color-priority-1: #e53935;
-    --color-priority-2: #f57c00;
-    --color-priority-3: #fbc02d;
-    --color-priority-4: #43a047;
-}
-
 .tasks-table {
     width: 90%;
     max-width: 1200px;
     margin: 2em auto;
     border-collapse: collapse;
-    background-color: var(--color-light);
+    background-color: #ffffff;
     border-radius: 0.5em;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -30,20 +15,20 @@ export const tableStyle = css`
 }
 
 .tasks-table thead {
-    background-color: var(--color-accent);
     color: gray;
 }
 
 .tasks-table th {
     padding: 1em;
     text-align: left;
-    font-size: 0.95em;
+    font-size: 1em;
+    color: black;
 }
 
 .tasks-table td {
     padding: 1em;
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-text);
+    border-bottom: 1px solid #dcdada;
+    color: #212121;
 }
 
 .tasks-table tbody tr {
@@ -60,7 +45,7 @@ export const tableStyle = css`
 
 .task-title {
     font-weight: 500;
-    color: var(--color-accent);
+    color: #d1d1d1;
 }
 
 .task-status.Completada {
@@ -76,9 +61,7 @@ export const tableStyle = css`
 .task-status {
     padding: .5rem;
     border-radius: .5rem;
-    
 }
-
 
 .task-description {
     max-width: 300px;
@@ -94,7 +77,7 @@ export const tableStyle = css`
     padding: 0.3em 0.6em;
     border-radius: 0.3em;
     font-size: 0.85em;
-    color: var(--color-light);
+    color: #ffffff;
 }
 
 .priority-1 {
@@ -110,19 +93,49 @@ export const tableStyle = css`
 .priority-3 {
     color: rgb(205, 205, 0);
     background-color: rgb(251, 255, 182);
-
 }
 
 .priority-4 {
     color: rgb(6, 187, 6);
     background-color: rgb(216, 253, 216);
 }
+.show {
+    opacity: 1
+}
 
 .loading-spinner {
     text-align: center;
     padding: 2em;
     font-size: 1.1em;
-    color: var(--color-accent);
+    color: #d1d1d1;
+}
+
+.header-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.header-action-btn {
+    padding: 10px 20px;
+    background-color: var(--color-accent, #007bff);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.header-action-btn:hover {
+    background-color: var(--color-accent-dark, #0056b3);
+    opacity: 0.9;
+}
+
+.header-action-btn:active {
+    transform: scale(0.98);
 }
 
 @media (max-width: 768px) {
@@ -140,5 +153,4 @@ export const tableStyle = css`
         max-width: 150px;
     }
 }
-
 `
