@@ -179,7 +179,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 config={
                     "_panel_custom": {
                         "name": "saviia-get-tasks",
-                        "module_url": "/saviia/frontend/saviia-get-tasks.panel.js",
+                        "module_url": "/frontend/saviia/saviia-get-tasks.panel.js",
                         "embed_iframe": False,
                     }
                 },
