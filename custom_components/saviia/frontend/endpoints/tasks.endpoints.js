@@ -1,24 +1,32 @@
-import { hass, environment, baseUrl, token } from "../services/ha-client.js";
 import { createLogger } from "../services/logger.js";
 
 const logger = createLogger("TasksAPI");
 
 
 export default class TasksAPI {
-    constructor() {
+    constructor(hass = null) {
         this.webhookUrl = "https://discord.com/api/webhooks/1452857904926294068/1AXRVxx3blLgOHuJFZ_EYnQNgt3eVcINFv495zjcE502v8NX3XunMXtwt9JZGh2jVlJ4" // TODO: DELETE
         this.hass = hass;
-        this.environment = environment;
+        this.environment = this.hass ? 'production' : 'development';
+        this.baseUrl = this.environment === "development"
+            ? import.meta.env?.VITE_HA_URL
+            : '';
+        this.token = this.environment === "development"
+            ? import.meta.env?.VITE_HA_TOKEN
+            : '';
         this._hassHeaders = {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${this.token}`,
             'Content-Type': 'application/json'
         }
         logger.info("Initialized", { environment: this.environment });
     }
     async _callServiceWithErrorHandling(domain, service, data = {}) {
+        if (!this.hass) {
+            throw new Error("Hass instance not available");
+        }
         try {
             logger.debug("Calling HA service", { domain, service });
-            const result = await hass.callService(domain, service, data)
+            const result = await this.hass.callService(domain, service, data)
             logger.debug("HA service call succeeded", { domain, service });
             return result
         } catch (error) {
@@ -43,7 +51,7 @@ export default class TasksAPI {
     async getTasks() {
         logger.info("Fetching tasks");
         if (this.environment === "development") {
-            const url = `${baseUrl}/rest_command/discord_get_tasks?return_response`
+            const url = `${this.baseUrl}/rest_command/discord_get_tasks?return_response`
             const data = await this._fetchWithErrorHandling(url, {
                 method: 'POST',
                 headers: this._hassHeaders
@@ -68,7 +76,7 @@ export default class TasksAPI {
             completed: completed,
         })
         if (this.environment === "development") {
-            const url = `${baseUrl}/saviia/update_task?return_response`
+            const url = `${this.baseUrl}/saviia/update_task?return_response`
             const result = await this._fetchWithErrorHandling(url, {
                 method: 'POST',
                 headers: this._hassHeaders,
@@ -92,7 +100,7 @@ export default class TasksAPI {
             task_id: taskId
         })
         if (this.environment === "development") {
-            const url = `${baseUrl}/saviia/delete_task?return_response`
+            const url = `${this.baseUrl}/saviia/delete_task?return_response`
             const result = await this._fetchWithErrorHandling(url, {
                 method: 'POST',
                 headers: this._hassHeaders,
