@@ -59,10 +59,13 @@ def _check_api_in_entry(hass) -> SaviiaAPI:
     api_exists = False
     api: SaviiaAPI
     for entry_data in hass.data[GeneralParams.DOMAIN].values():
-        if entry_data.get("api"):
-            api_exists = True
-            api = entry_data["api"]
-            break
+        try:
+            if entry_data.get("api"):
+                api_exists = True
+                api = entry_data["api"]
+                break
+        except AttributeError:
+            continue
     if not api_exists:
         error_message = "No API instance found in any config entry"
         logclient.error(
