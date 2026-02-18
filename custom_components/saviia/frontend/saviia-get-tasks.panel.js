@@ -1,11 +1,10 @@
 import { LitElement, html, css } from 'lit';
-import { property } from 'lit/decorators.js';
-import { hass } from './services/ha-client.js';
 import { Styles } from './styles/index.js';
 import TasksAPI from './endpoints/tasks.endpoints.js';
 import { createLogger } from './services/logger.js';
 
 const logger = createLogger('SaviiaGetTasks');
+logger.info("SAVIIA Get Tasks panel loading...");
 
 class SaviiaGetTasks extends LitElement {
     static get properties() {
@@ -700,3 +699,4 @@ class SaviiaGetTasks extends LitElement {
 }
 
 customElements.define('saviia-get-tasks', SaviiaGetTasks);
+logger.info("SAVIIA Get Tasks registered");

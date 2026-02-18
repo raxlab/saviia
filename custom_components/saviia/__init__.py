@@ -1,5 +1,7 @@
 """SAVIIA Integration."""
 
+from pathlib import Path
+
 from homeassistant.components.frontend import async_register_built_in_panel
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
@@ -151,7 +153,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             [
                 StaticPathConfig(
                     url_path="/frontend/saviia-get-tasks",
-                    path=hass.config.path("custom_components/saviia/frontend"),
+                    path=str(Path(__file__).parent / "frontend"),
                     cache_headers=False,
                 )
             ]
@@ -171,13 +173,13 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 hass,
                 component_name="custom",
                 sidebar_title="SAVIIA Get Tasks",
-                sidebar_icon="mdi:clipboard-check",
+                sidebar_icon="mdi:format-list-checks",
                 frontend_url_path="saviia-get-tasks",
                 require_admin=False,
                 config={
                     "_panel_custom": {
                         "name": "saviia-get-tasks.panel",
-                        "module_url": "/frontend/saviia/saviia-get-tasks.panel.js",
+                        "module_url": "/saviia/frontend/saviia-get-tasks.panel.js",
                         "embed_iframe": False,
                     }
                 },
