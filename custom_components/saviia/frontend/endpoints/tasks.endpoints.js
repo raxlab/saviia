@@ -26,7 +26,9 @@ export default class TasksAPI {
         }
         try {
             logger.debug("Calling HA service", { domain, service });
-            const result = await this.hass.callService(domain, service, data)
+            const result = await this.hass.callService(
+                domain, service, data, { return_response: true }
+            )
             logger.debug("HA service call succeeded", { domain, service });
             return result
         } catch (error) {
@@ -63,7 +65,7 @@ export default class TasksAPI {
             const result = await this._callServiceWithErrorHandling(
                 'rest_command', 'discord_get_tasks'
             )
-            logger.info("Tasks fetched via hass service");
+            logger.info("Tasks fetched via hass service", result);
             return result
         }
     }
@@ -88,7 +90,7 @@ export default class TasksAPI {
             const result = await this._callServiceWithErrorHandling(
                 'saviia', 'update_task?return_response', payload
             )
-            logger.info('Task updated via hass service', { taskId: task?.tid })
+            logger.info('Task updated via hass service', { taskId: task?.tid }, result)
             return result;
         }
     }
@@ -112,7 +114,7 @@ export default class TasksAPI {
             const result = await this._callServiceWithErrorHandling(
                 'saviia', 'delete_task?return_response', payload
             )
-            logger.info('Task deleted via hass service', { taskId })
+            logger.info('Task deleted via hass service', { taskId }, result)
             return result;
         }
     }
