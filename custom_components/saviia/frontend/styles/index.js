@@ -1,8 +1,8 @@
-import { alertStyle } from "./alert_style";
-import { formStyle } from "./form_style";
-import { generalStyle } from "./general_style";
-import { modalStyle } from "./modal_style";
-import { tableStyle } from "./table_style";
+import { alertStyle } from "./alert_style.js";
+import { formStyle } from "./form_style.js";
+import { generalStyle } from "./general_style.js";
+import { modalStyle } from "./modal_style.js";
+import { tableStyle } from "./table_style.js";
 
 export class Styles {
     constructor() {
