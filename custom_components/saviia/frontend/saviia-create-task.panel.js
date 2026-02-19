@@ -16,7 +16,6 @@ export class SaviiaCreateTask extends LitElement {
 
     if (!this._initialized && hass) {
       this._initialized = true;
-      this.fetchTasks();
     }
   }
   static properties = {
