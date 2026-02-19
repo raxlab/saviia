@@ -20,7 +20,7 @@ export const modalStyle = css`
     background-color: #ffffff;
     border-radius: 0.8em;
     padding: 2em;
-    max-width: 80vw;
+    max-width: 90vw;
     width: 100%;
     max-height: 80vh;
     overflow-y: auto;
@@ -47,12 +47,12 @@ export const modalStyle = css`
 }
 
 .task-modal-close:hover {
-    color: #1976d2;
+    color: #03a9f4;
 }
 
 .modal-task-title {
     font-size: 1.5em;
-    color: #1976d2;
+    color: #03a9f4;
     margin-bottom: 1em;
     margin-top: 0.5em;
 }
@@ -74,7 +74,7 @@ export const modalStyle = css`
     padding: 0.5em 0.8em;
     background-color: #f5f5f5;
     border-radius: 0.4em;
-    border-left: 3px solid #1976d2;
+    border-left: 3px solid #03a9f4;
 }
 
 .modal-task-images {
@@ -89,7 +89,10 @@ export const modalStyle = css`
 }
 
 .modal-task-image {
-    margin-bottom: 1em;
+    width: 100%;
+    max-width: 50%;
+    padding: 1rem;
+    margin: 0 auto;
     border-radius: 0.5em;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -152,7 +155,7 @@ export const modalStyle = css`
 .task-edit-form input[type="date"]:focus,
 .task-edit-form textarea:focus {
     outline: none;
-    border-color: #1976d2;
+    border-color: #03a9f4;
     box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
 }
 
@@ -186,7 +189,7 @@ export const modalStyle = css`
 }
 
 .edit-btn {
-    background-color: #1976d2;
+    background-color: #03a9f4;
     color: #ffffff;
 }
 
@@ -246,7 +249,7 @@ export const modalStyle = css`
     background-color: #ffffff;
     border-radius: 0.8em;
     padding: 2em;
-    max-width: 400px;
+    max-width: 70vw;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
@@ -277,6 +280,7 @@ export const modalStyle = css`
 
 .delete-confirm-input {
     width: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 0.7em;
     border: 1px solid #d0d0d0;
     border-radius: 0.4em;

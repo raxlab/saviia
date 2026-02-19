@@ -150,7 +150,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 metadata={"msg": "Services setup successful"},
             )
         )
-        # Panel setup
+        # Panel static path setup
         await hass.http.async_register_static_paths(
             [
                 StaticPathConfig(
@@ -160,7 +160,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 )
             ]
         )
+        # Panel registration
         try:
+            # Saviia Get Tasks panel
             if await _panel_exists(hass, "saviia-get-tasks"):
                 logclient.debug(
                     DebugArgs(
@@ -170,28 +172,60 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                         },
                     )
                 )
-                return True
-            async_register_built_in_panel(
-                hass,
-                component_name="custom",
-                sidebar_title="SAVIIA Get Tasks",
-                sidebar_icon="mdi:format-list-checks",
-                frontend_url_path="saviia-get-tasks",
-                require_admin=False,
-                config={
-                    "_panel_custom": {
-                        "name": "saviia-get-tasks",
-                        "module_url": "/frontend/saviia/saviia-get-tasks.panel.js",
-                        "embed_iframe": False,
-                    }
-                },
-            )
-            logclient.debug(
-                DebugArgs(
-                    status=LogStatus.SUCCESSFUL,
-                    metadata={"msg": "Frontend registered at /saviia-get-tasks"},
+            else:
+                async_register_built_in_panel(
+                    hass,
+                    component_name="custom",
+                    sidebar_title="SAVIIA Get Tasks",
+                    sidebar_icon="mdi:format-list-checks",
+                    frontend_url_path="saviia-get-tasks",
+                    require_admin=False,
+                    config={
+                        "_panel_custom": {
+                            "name": "saviia-get-tasks",
+                            "module_url": "/frontend/saviia/saviia-get-tasks.panel.js",
+                            "embed_iframe": False,
+                        }
+                    },
                 )
-            )
+                logclient.debug(
+                    DebugArgs(
+                        status=LogStatus.SUCCESSFUL,
+                        metadata={"msg": "Frontend registered at /saviia-get-tasks"},
+                    )
+                )
+            # Saviia Create task panel
+            if await _panel_exists(hass, "saviia-create-task"):
+                logclient.debug(
+                    DebugArgs(
+                        status=LogStatus.SUCCESSFUL,
+                        metadata={
+                            "msg": "SAVIIA Create Task Panel already exists, skipping registration"
+                        },
+                    )
+                )
+            else:
+                async_register_built_in_panel(
+                    hass,
+                    component_name="custom",
+                    sidebar_title="SAVIIA Create Tasks",
+                    sidebar_icon="mdi:checkbox-marked-circle-plus-outline",
+                    frontend_url_path="saviia-create-task",
+                    require_admin=False,
+                    config={
+                        "_panel_custom": {
+                            "name": "saviia-create-tasks",
+                            "module_url": "/frontend/saviia/saviia-create-task.panel.js",
+                            "embed_iframe": False,
+                        }
+                    },
+                )
+                logclient.debug(
+                    DebugArgs(
+                        status=LogStatus.SUCCESSFUL,
+                        metadata={"msg": "Frontend registered at /saviia-create-task"},
+                    )
+                )
         except Exception as e:  # noqa: BLE001
             logclient.error(
                 ErrorArgs(
@@ -199,7 +233,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                     metadata={"msg": f"Error registering frontend: {e!s}"},
                 )
             )
-
     return True
 
 

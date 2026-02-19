@@ -87,12 +87,13 @@ export class SaviiaCreateTask extends LitElement {
   async submitTask(e) {
     e.preventDefault();
     this.isSubmitting = true;
+    let cantSubmit = false;
 
     const form = e.target;
 
     const title = form.querySelector("#task-title").value;
     const deadline = form.querySelector("#deadline").value;
-    const priorityNum = form.querySelector("#priority").value;
+    const priorityNum = parseInt(form.querySelector("#priority").value);
     const author = form.querySelector("#author").value;
     let periodicity = form.querySelector("#periodicity").value || "Sin periodicidad";
     const periodicityNum = form.querySelector("#periodicity-number").value;
@@ -105,17 +106,34 @@ export class SaviiaCreateTask extends LitElement {
       priority: priorityNum,
       assignee: author,
       category: category,
-      periodicity: this.getPeriodicity(periodicity, periodicityNum)
+      periodicity: periodicity !== "Sin periodicidad" 
+        ? this.getPeriodicity(periodicity, periodicityNum) 
+        : periodicity,
     }
+    // Parameters validation
+    if (periodicity !== "Sin periodicidad" && !periodicityNum) {
+      alert("Por favor, indica el número de periodicidad para la repetición de esta tarea.");
+      this.isSubmitting = false;
+      return;
+    }
+    if (this.images.length > 10) {
+      alert("No puedes agregar más de 10 imágenes a una tarea.");
+      this.isSubmitting = false;
+      return;
+    }
+    
 
     try {
       const response = await this.tasksAPI.createTask(task, this.images)
       logger.debug("Response:", response);
     } catch (err) {
       logger.error(err);
-      alert("Hubo un error al crear la tarea. Por favor, inténtalo de nuevo.");
+      alert(`Hubo un error al crear la tarea. Por favor, inténtalo de nuevo ${err.message}`);
+      cantSubmit = true;
     } finally {
-      alert("Tarea creada con éxito ✅");
+      if (!cantSubmit){
+        alert("Tarea creada con éxito ✅");
+      }
       this.isSubmitting = false;
       this.images = [];
       form.reset();
@@ -130,6 +148,7 @@ export class SaviiaCreateTask extends LitElement {
 
     <form @submit=${this.submitTask}>
     <fieldset>
+      <legend>Detalles de la tarea</legend>
       <label>
         <p>Nombre de la tarea <span style="color: #03a9f4">*</span> </p>
         <input id="task-title" required placeholder="Nombre" />
@@ -188,13 +207,14 @@ export class SaviiaCreateTask extends LitElement {
       @drop=${this.onDrop}
       @dragover=${(e) => e.preventDefault()}
       >
-      Arrastra imágenes
       <input
+      id="file-input"
       type="file"
       accept="image/*"
       multiple
       @change=${this.onFileInput}
-      />
+      >
+      <label for="file-input" id="file-input-label">Haz click para agregar tus imagenes o arrastralas</label>
       </div>
       <div id="preview">
       ${this.images.map((img, i) => html`
