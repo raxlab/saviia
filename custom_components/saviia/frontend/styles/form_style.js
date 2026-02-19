@@ -6,9 +6,16 @@ export const formStyle = css`
 
 form {
     width: 90vw;
-    max-width: 500px;
+    max-width: 70vw;
     margin: 0 auto;
     padding: 2em 1em;
+    background-color: #f9f9f9;
+    border-radius: 0.8em;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+legend {
+    font-weight: 700;
+    color: lightgray;
 }
 
 fieldset {
@@ -89,8 +96,26 @@ input[type="submit"]:hover {
     background-color: #0288d1;
 }
 
+form button {
+    display: block;
+    width: 90%;
+    max-width: 300px;
+    margin: 1em auto;
+    height: 2.5em;
+    font-size: 1rem;
+    background-color: #03a9f4;
+    border: none;
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+form button:hover {
+    background-color: #73c3e0;
+}
 #dropzone {
-    border: 2px dashed #0056b3;
+    border: 2px dashed #009ac7;
     border-radius: 8px;
     padding: 30px;
     text-align: center;
@@ -102,13 +127,22 @@ input[type="submit"]:hover {
 
 #dropzone:hover {
     background-color: rgba(0, 123, 255, 0.1);
-    border-color: #0056b3;
+    border-color: #009ac7;
 }
 
 #dropzone.dragover {
     background-color: rgba(0, 123, 255, 0.2);
-    border-color: #0056b3;
+    border-color: #009ac7;
     box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+
+#file-input {
+    display: none;
+}
+#file-input-label {
+    display: block;
+    font-size: 0.9rem;
+    color: #0098c791;
 }
 
 #preview {

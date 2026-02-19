@@ -3,27 +3,36 @@ import {
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
 export const tableStyle = css`
-.tasks-table {
+.table-container {
     width: 90%;
     max-width: 1200px;
     margin: 2em auto;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 70vh;
+    border-radius: 0.5em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    -webkit-overflow-scrolling: touch;
+}
+
+.tasks-table {
+    width: 100%;
+    min-width: 800px;
     border-collapse: collapse;
     background-color: #ffffff;
-    border-radius: 0.5em;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    max-height: 70vh;
-    overflow-y: auto;
 }
 
 .tasks-table thead {
-    color: gray;
+    color: #009ac7;
+    background-color: #03a8f44e;
 }
 
 .tasks-table th {
+    color: #009ac7;
     padding: 1em;
     text-align: left;
     font-size: 1em;
+    font-weight: 500;
     color: black;
 }
 
@@ -31,6 +40,7 @@ export const tableStyle = css`
     padding: 1em;
     border-bottom: 1px solid #dcdada;
     color: #212121;
+    text-align: left;
 }
 
 .tasks-table tbody tr {
@@ -121,7 +131,7 @@ export const tableStyle = css`
 
 .header-action-btn {
     padding: 10px 20px;
-    background-color: var(--color-accent, #007bff);
+    background-color: var(--color-accent, #03a9f4);
     color: white;
     border: none;
     border-radius: 5px;
@@ -132,7 +142,7 @@ export const tableStyle = css`
 }
 
 .header-action-btn:hover {
-    background-color: var(--color-accent-dark, #0056b3);
+    background-color: var(--color-accent-dark, #03a9f4);
     opacity: 0.9;
 }
 
@@ -141,18 +151,30 @@ export const tableStyle = css`
 }
 
 @media (max-width: 768px) {
-    .tasks-table {
+    .table-container {
         width: 95%;
-        font-size: 0.9em;
+        max-width: 95vw;
+        margin: 1em auto;
+    }
+    
+    .tasks-table {
+        min-width: 700px;
+        font-size: 0.85em;
     }
 
     .tasks-table th,
     .tasks-table td {
-        padding: 0.75em 0.5em;
+        padding: 0.6em 0.4em;
+        font-size: 0.9em;
     }
 
     .task-description {
-        max-width: 150px;
+        max-width: 120px;
+    }
+    
+    .task-details-btn {
+        padding: 0.4em 0.8em;
+        font-size: 0.85em;
     }
 }
 `

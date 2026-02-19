@@ -54,9 +54,9 @@ export default class TasksAPI {
                 method: 'POST',
                 headers: this._hassHeaders
             })
-            const messages = data.service_response.content
-            logger.info("Tasks fetched", { count: Array.isArray(messages) ? messages.length : 0 });
-            return messages
+            const tasks = data.service_response.api_metadata.tasks
+            logger.info("Tasks fetched", { count: tasks.length });
+            return tasks
         } else {
             const data = await this._callServiceWithErrorHandling('saviia', 'get_tasks')
             const messages = data.service_response.content
@@ -103,21 +103,21 @@ export default class TasksAPI {
         }
     }
 
-    async createTask(task, images = {}) {
+    async createTask(task, images = []) {
         logger.info("Creating task", { task });
-        const payload = JSON.stringify({ task: task, images: images })
+        const payload = { task: task, images: images }
         if (this.environment === "development") {
-            const url = `${this.baseUrl}/saviia/delete_task?return_response`
+            const url = `${this.baseUrl}/saviia/create_task?return_response`
             const result = await this._fetchWithErrorHandling(url, {
                 method: 'POST',
                 headers: this._hassHeaders,
-                body: payload
+                body: JSON.stringify(payload)
             })
-            logger.info('Task deleted at Discord', { taskId })
+            logger.info('Task created successfully at Discord', { task }, { images: images.length })
             return result
         } else {
-            const result = await this._callServiceWithErrorHandling('saviia', 'delete_task', payload);
-            logger.info('Task deleted via hass service', { taskId }, result)
+            const result = await this._callServiceWithErrorHandling('saviia', 'create_task', payload);
+            logger.info('Task created via hass service', { task }, result)
             return result;
         }
     }

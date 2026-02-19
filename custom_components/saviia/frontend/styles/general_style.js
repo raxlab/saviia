@@ -15,7 +15,9 @@ body {
 h1, h2, h3, h4, h5, h6, p {
     text-align: center;
 }
-
+fieldset legend, fieldset p {
+    text-align: left;
+}
 h1, h2, h3, h4, h5, h6, p, i, legend, label, td, th {
     margin: 1em auto;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -80,4 +82,28 @@ h1, h2, h3, h4, h5, h6, p, i, legend, label, td, th {
 .clear-filter-btn:hover {
     background-color: #eeeeee;
 }
+
+
+@media (max-width: 768px) {
+    body {
+        font-size: clamp(12px, 3vw, 14px);
+    }
+    
+    h1 {
+        font-size: 2.5rem;
+    }
+    
+    h2, h3 {
+        font-size: 2rem;
+    }
+    
+    h4, h5, h6 {
+        font-size: .9rem;
+    }
+    
+    p {
+        font-size: 1rem;
+    }
+}
+
 `

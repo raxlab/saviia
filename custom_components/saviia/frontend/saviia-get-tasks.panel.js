@@ -212,37 +212,19 @@ class SaviiaGetTasks extends LitElement {
     // API calls
     async fetchTasks() {
         try {
-            const messages = await this.tasksAPI.getTasks();
-            logger.debug("Fetched messages:", messages);
-            if (!Array.isArray(messages) || messages.length === 0) {
+            const tasks = await this.tasksAPI.getTasks();
+            const mappedTasks = tasks.map(task => ({
+                ...task,
+                status: task.completed ? "Completada" : "Pendiente"
+            }));
+            if (!Array.isArray(mappedTasks) || mappedTasks.length === 0) {
                 this.error = "No hay tareas creadas aún.";
                 this.isLoading = false;
                 alert("No hay tareas creadas aún.");
                 return;
             }
-            const tasks = messages
-                .filter(msg => msg.content && msg.content.trim().length > 0)
-                .map(msg => ({
-                    ...this.parseTaskContent(msg.content),
-                    title: msg.title,
-                    deadline: msg.deadline, 
-                    priority: msg.priority,
-                    description: msg.description,
-                    periodicity: msg.periodicity,
-                    assignee: msg.assignee,
-                    category: msg.category,
-                    status: msg.completed,
-                    messageId: msg.task_id,
-                    embeds: msg.embeds || []
-                }));
-            localStorage.setItem('tasksCache', JSON.stringify(tasks));
-            if (tasks.length === 0) {
-                this.error = "No hay tareas para mostrar.";
-                this.isLoading = false;
-                alert("No hay tareas para mostrar.");
-                return;
-            }
-            this.allTasks = tasks;
+            localStorage.setItem('tasksCache', JSON.stringify(mappedTasks));
+            this.allTasks = mappedTasks;
             this.filterAndSortTasks();
             this.isLoading = false;
 
@@ -332,6 +314,7 @@ class SaviiaGetTasks extends LitElement {
     }
 
     handleDeleteClick() {
+        this.deleteConfirmText = '';
         const deleteModal = this.shadowRoot?.querySelector('.delete-confirm-modal');
         if (deleteModal) {
             deleteModal.classList.add('show');
@@ -372,7 +355,7 @@ class SaviiaGetTasks extends LitElement {
             const formattedPeriodicity = this.getPeriodicity(periodicity, periodicityNum);
 
             const updatedTask = {
-                tid: task.messageId,
+                tid: task.task_id,
                 title: formData.get('title'),
                 deadline: formData.get('deadline'),
                 description: formData.get('description'),
@@ -386,7 +369,7 @@ class SaviiaGetTasks extends LitElement {
             await this.updateTask(updatedTask, completed);
             const tasksCache = JSON.parse(localStorage.getItem('tasksCache') || '[]');
             const updatedTasks = tasksCache.map(t =>
-                t.messageId === task.messageId ? { ...t, ...updatedTask } : t
+                t.task_id === task.task_id ? { ...t, ...updatedTask } : t
             );
             localStorage.setItem('tasksCache', JSON.stringify(updatedTasks));
             this.allTasks = updatedTasks;
@@ -402,9 +385,9 @@ class SaviiaGetTasks extends LitElement {
     async handleDeleteTask(task) {
         try {
             logger.info('Deleting task:', task);
-            await this.deleteTask(task.messageId);
+            await this.deleteTask(task.task_id);
             const tasksCache = JSON.parse(localStorage.getItem('tasksCache') || '[]');
-            const updatedTasks = tasksCache.filter(t => t.messageId !== task.messageId);
+            const updatedTasks = tasksCache.filter(t => t.task_id !== task.task_id);
             this.allTasks = updatedTasks;
             localStorage.setItem('tasksCache', JSON.stringify(updatedTasks));
             this.filterAndSortTasks();
@@ -463,10 +446,11 @@ class SaviiaGetTasks extends LitElement {
             ${this.modalEmbeds && this.modalEmbeds.length > 0 ? html`
                 <div class="modal-task-images">
                     <h3 class="modal-task-images-title">Imágenes adjuntas</h3>
-                    ${this.modalEmbeds.map((embed, index) => html`
+                    ${console.log(this.modalEmbeds)}
+                    ${this.modalEmbeds.map((imgUrl, index) => html`
                         <div class="modal-task-image">
-                            <img src="${embed.image?.url || ''}" alt="Task image ${index + 1}">
-                            ${embed.title ? html`<div class="modal-task-image-caption">${this.escapeHtml(embed.title)}</div>` : ''}
+                            <img src="${imgUrl || ''}" alt="Task image ${index + 1}">
+                            ${html`<div class="modal-task-image-caption">Imágen ${index + 1}</div>`}
                         </div>
                     `)}
                 </div>
@@ -642,20 +626,26 @@ class SaviiaGetTasks extends LitElement {
             </div>
             ` : ''}
         
-        <table class="tasks-table ${!this.isLoading && this.filteredTasks.length > 0 ? 'show' : ''}">
-          <thead>
-            <tr>
-              <th>Tarea</th>
-              <th>Estado</th>
-              <th>Fecha de Ejecución</th>
-              <th>Prioridad</th>
-              <th>Asignada a</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
+        <div class="table-container">
+          <table class="tasks-table ${!this.isLoading && this.filteredTasks.length > 0 ? 'show' : ''}">
+            <thead>
+              <tr>
+                <th>Prioridad</th>
+                <th>Tarea</th>
+                <th>Estado</th>
+                <th>Fecha de Ejecución</th>
+                <th>Asignada a</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
           <tbody>
             ${this.filteredTasks.map(task => html`
               <tr>
+                <td>
+                <span class="priority-badge priority-${task.priority}">
+                    ${this.escapeHtml(task.priority)}
+                </span>
+                </td>
                 <td class="task-title">${this.escapeHtml(task.title)}</td>
                 <td>
                   <span class="task-status ${this.escapeHtml(task.status)}">
@@ -663,11 +653,6 @@ class SaviiaGetTasks extends LitElement {
                   </span>
                 </td>
                 <td>${this.escapeHtml(task.deadline)}</td>
-                <td>
-                  <span class="priority-badge priority-${task.priority}">
-                    ${this.escapeHtml(task.priority)}
-                  </span>
-                </td>
                 <td>${this.escapeHtml(task.assignee)}</td>
                 <td>
                   <button 
@@ -681,6 +666,7 @@ class SaviiaGetTasks extends LitElement {
             `)}
           </tbody>
         </table>
+        </div>
 
         <!-- Modal -->
         <div class="task-modal ${this.isModalOpen ? 'show' : ''}" @click=${this.handleModalClickOutside}>
@@ -704,11 +690,13 @@ class SaviiaGetTasks extends LitElement {
                 id="delete-confirm-input" 
                 class="delete-confirm-input" 
                 placeholder="delete-task"
+                .value=${this.deleteConfirmText}
                 @input=${this.handleDeleteInput}
               >
             </div>
             <div class="delete-confirm-actions">
               <button class="delete-cancel-btn" @click=${() => {
+                this.deleteConfirmText = '';
                 const modal = this.shadowRoot.querySelector('.delete-confirm-modal');
                 if (modal) modal.classList.remove('show');
             }}>Cancelar</button>
