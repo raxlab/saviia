@@ -21,6 +21,7 @@ export default class TasksAPI {
     }
     async _callServiceWithErrorHandling(domain, service, data = {}) {
         try {
+            console.debug(domain, service, data)
             const result = await this.hass.callApi(
                 "POST",
                 `services/${domain}/${service}?return_response`,
@@ -59,15 +60,16 @@ export default class TasksAPI {
             return tasks
         } else {
             const data = await this._callServiceWithErrorHandling('saviia', 'get_tasks')
-            const messages = data.service_response.content
-            logger.info("Tasks fetched via hass service", messages);
-            return messages
+            console.log(data)
+            const tasks = data.service_response.api_metadata.tasks
+            logger.info("Tasks fetched via hass service", tasks);
+            return tasks
         }
     }
 
     async updateTask(task, completed) {
         logger.info("Updating task", { taskId: task?.tid, completed });
-        const payload = JSON.stringify({ task: task, completed: completed })
+        const payload = { task: task, completed: completed };
         if (this.environment === "development") {
             const url = `${this.baseUrl}/saviia/update_task?return_response`
             const result = await this._fetchWithErrorHandling(url, {
@@ -86,7 +88,7 @@ export default class TasksAPI {
 
     async deleteTask(taskId) {
         logger.info("Deleting task", { taskId });
-        const payload = JSON.stringify({ task_id: taskId })
+        const payload = { task_id: taskId };
         if (this.environment === "development") {
             const url = `${this.baseUrl}/saviia/delete_task?return_response`
             const result = await this._fetchWithErrorHandling(url, {
