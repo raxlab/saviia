@@ -214,7 +214,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                     require_admin=False,
                     config={
                         "_panel_custom": {
-                            "name": "saviia-create-tasks",
+                            "name": "saviia-create-task",
                             "module_url": "/frontend/saviia/saviia-create-task.panel.js",
                             "embed_iframe": False,
                         }

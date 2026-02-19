@@ -1,5 +1,5 @@
 import { LitElement, html } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
-import { Styles } from "./styles";
+import { Styles } from "./styles/index.js";
 import { createLogger } from "./services/logger.js";
 import TasksAPI from './endpoints/tasks.endpoints.js';
 
