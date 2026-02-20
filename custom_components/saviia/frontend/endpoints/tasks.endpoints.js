@@ -6,9 +6,9 @@ const logger = createLogger("TasksAPI");
 export default class TasksAPI {
     constructor(hass = null) {
         this.hass = hass;
-        this.environment = window.location.origin.includes("homeassistant")
-            ? "production"
-            : "development";
+        this.environment = window.location.origin.includes("local")
+            ? "development"
+            : "production";
         if (this.environment === "development") {
             this.baseUrl = import.meta.env?.VITE_HA_URL;
             this.token = import.meta.env?.VITE_HA_TOKEN;
