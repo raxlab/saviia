@@ -211,4 +211,6 @@ class SaviiaNetcameraRatesSensor(SaviiaBaseSensor):
             **base,
             "photo_rate": self.metadata.get("photo_rate", -1),
             "video_rate": self.metadata.get("video_rate", -1),
+            "precipitation": self.metadata.get("precipitation", -1),
+            "precipitation_prob": self.metadata.get("precipitation_probability", -1),
         }

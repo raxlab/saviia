@@ -166,27 +166,27 @@ async def async_get_netcamera_rates(call: ServiceCall) -> ServiceResponse:
     camera_services = api.get("netcamera")
     try:
         result = await camera_services.get_camera_rates()
-        logclient.info(
-            InfoArgs(
-                status=LogStatus.SUCCESSFUL,
-                metadata={"msg": f"Camera rates retrieved: {result.get('metadata')}"},
+        if result.get("status") != HTTPStatus.OK.value:
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": result["message"]},
+                )
             )
-        )
-        if result.get("status") == HTTPStatus.OK.value:
-            rate_status, photo_rate, video_rate = result.get("metadata").values()
-            return {
-                "status": rate_status,
-                "photo_rate": photo_rate,
-                "video_rate": video_rate,
-            }
-        logclient.error(
-            ErrorArgs(
-                status=LogStatus.ERROR,
-                metadata={"msg": result["message"]},
+        else:
+            logclient.info(
+                InfoArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={
+                        "msg": f"Camera rates retrieved: {result.get('metadata')}"
+                    },
+                )
             )
-        )
-        return result
-
+        return {
+            "api_status": result.get("status"),
+            "api_message": result.get("message"),
+            "api_metadata": result.get("metadata"),
+        }
     except Exception as e:
         logclient.error(
             ErrorArgs(
