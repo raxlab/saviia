@@ -127,11 +127,11 @@ async def async_detect_failures(call: ServiceCall) -> ServiceResponse:
         local_backup_source_path, n_days, db_driver, db_host, db_name, user, pwd = (
             call.data.get("local_backup_source_path"),
             call.data.get("n_days"),
-            call.data.get("db_driver"),
-            call.data.get("db_host"),
-            call.data.get("db_name"),
-            call.data.get("user"),
-            call.data.get("pwd"),
+            call.data.get("db_driver", ""),
+            call.data.get("db_host", ""),
+            call.data.get("db_name", ""),
+            call.data.get("user", ""),
+            call.data.get("pwd", ""),
         )
         result = await thies_service.detect_failures(
             local_backup_source_path, n_days, db_driver, db_host, db_name, user, pwd
