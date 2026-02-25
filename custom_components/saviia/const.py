@@ -69,6 +69,18 @@ class ServicesParams:
             vol.Optional("params"): dict,
         }
     )
+    SERVICE_DETECT_FAILURES = "detect_failures"
+    SERVICE_DETECT_FAILURES_SCHEMA = vol.Schema(
+        {
+            vol.Required("local_backup_source_path"): str,
+            vol.Required("n_days"): int,
+            vol.Optional("db_driver"): str,
+            vol.Optional("db_host"): str,
+            vol.Optional("db_name"): str,
+            vol.Optional("user"): str,
+            vol.Optional("pwd"): str,
+        }
+    )
 
 
 class ConfigDefaultsParams:
