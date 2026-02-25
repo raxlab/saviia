@@ -3,6 +3,48 @@ sync_thies_files:
   description: "Initiates file synchronization with the FTP server and cloud storage."
   fields: {}
 
+detect_failures:
+  name: "Detect failures from Thies Sensors"
+  description: Check all the sensors at Thies Station, then use the results to produce a report analysing  possible sensor failures.
+  fields: 
+    local_backup_source_path:
+        name: Relative path to the local backup directory.
+        required: true
+        selector:
+          text:
+    n_days:
+      name: The number of days to analyse from today
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 90
+    db_driver:
+        name: ODBC Driver where the historical data from ODBC is retrieved
+        required: false
+        selector:
+          text:
+    db_host:
+        name: Server where the ODBC is located.
+        required: false
+        selector:
+          text:
+    db_name:
+        name: Name of the warehouse (SAVIIA Golden layer) in which the historical data is stored
+        required: false
+        selector:
+          text:
+    user:
+        name: Username of the account that has access to the ODBC
+        required: false
+        selector:
+          text:
+    pwd:
+        name: Password of the account that has access to the ODBC
+        required: false
+        selector:
+          text:
+
 sync_local_backup:
   name: "Execute Local backup for extracted files"
   description: "Initiates a file backup which are uploaded in Filebrowser and moved to Sharepoint folder "

@@ -32,8 +32,6 @@ from custom_components.saviia.libs.log_client import (
     LogStatus,
 )
 
-HTTP_OK = 200
-
 logclient = LogClient(
     LogClientArgs(client_name="logging", service_name="services", class_name="services")
 )
@@ -117,6 +115,56 @@ async def async_sync_thies_files(call: ServiceCall) -> None:
                 )
             )
             raise
+
+
+async def async_detect_failures(call: ServiceCall) -> ServiceResponse:
+    logclient.method_name = "async_detect_failures"
+    logclient.debug(DebugArgs(status=LogStatus.STARTED))
+    _ensure_domain_setup(call.hass)
+    api = _check_api_in_entry(call.hass)
+    thies_service = api.get("thies")
+    try:
+        local_backup_source_path, n_days, db_driver, db_host, db_name, user, pwd = (
+            call.data.get("local_backup_source_path"),
+            call.data.get("n_days"),
+            call.data.get("db_driver"),
+            call.data.get("db_host"),
+            call.data.get("db_name"),
+            call.data.get("user"),
+            call.data.get("pwd"),
+        )
+        result = await thies_service.detect_failures(
+            local_backup_source_path, n_days, db_driver, db_host, db_name, user, pwd
+        )
+        if result.get("status") != HTTPStatus.OK.value:
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": result["message"]},
+                )
+            )
+        else:
+            logclient.info(
+                InfoArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={
+                        "msg": f"The validation for thies sensors was successful: {result.get('metadata')}"
+                    },
+                )
+            )
+        return {
+            "api_status": result.get("status"),
+            "api_message": result.get("message"),
+            "api_metadata": result.get("metadata"),
+        }
+    except Exception as e:
+        logclient.error(
+            ErrorArgs(
+                status=LogStatus.ERROR,
+                metadata={"msg": f"Error during the thies sensor validation: {e}"},
+            )
+        )
+        raise
 
 
 async def async_local_backup(call: ServiceCall) -> None:
@@ -410,6 +458,13 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         schema=ServicesParams.SERVICE_GET_TASKS_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
+    hass.services.async_register(
+        GeneralParams.DOMAIN,
+        ServicesParams.SERVICE_DETECT_FAILURES,
+        async_detect_failures,
+        schema=ServicesParams.SERVICE_DETECT_FAILURES_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
 
 
 async def async_unload_services(hass: HomeAssistant) -> None:
@@ -425,3 +480,6 @@ async def async_unload_services(hass: HomeAssistant) -> None:
     hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_DELETE_TASK)
     hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_CREATE_TASK)
     hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_GET_TASKS)
+    hass.services.async_remove(
+        GeneralParams.DOMAIN, ServicesParams.SERVICE_DETECT_FAILURES
+    )
