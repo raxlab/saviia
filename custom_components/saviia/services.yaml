@@ -117,3 +117,8 @@ get_tasks:
       required: false
       selector:
         object:
+
+get_pending_tasks:
+  name: "Get pending Tasks"
+  description: "It retrieves a list of incomplete tasks, which are sorted by deadline (overdue and on time), periodicity and priority"
+  fields: {}

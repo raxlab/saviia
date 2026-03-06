@@ -409,6 +409,46 @@ async def async_get_tasks(call: ServiceCall) -> ServiceResponse:
         raise
 
 
+async def async_get_pending_tasks(call: ServiceCall) -> ServiceResponse:
+    """Get all the pending tasks."""
+    logclient.method_name = "async_get_pending_tasks"
+    logclient.debug(DebugArgs(status=LogStatus.STARTED))
+    _ensure_domain_setup(call.hass)
+    api = _check_api_in_entry(call.hass)
+    task_service = api.get("tasks")
+    try:
+        result = await task_service.get_pending_tasks()
+        if result.get("status") != HTTPStatus.OK.value:
+            logclient.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={"msg": result["message"]},
+                )
+            )
+        else:
+            logclient.info(
+                InfoArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={
+                        "msg": f"Pending tasks fetched successfully: {result.get('metadata')}"
+                    },
+                )
+            )
+        return {
+            "api_status": result.get("status"),
+            "api_message": result.get("message"),
+            "api_metadata": result.get("metadata"),
+        }
+    except Exception as e:
+        logclient.error(
+            ErrorArgs(
+                status=LogStatus.ERROR,
+                metadata={"msg": f"Error while retrieving the pending task: {e}"},
+            )
+        )
+        raise
+
+
 async def async_setup_services(hass: HomeAssistant) -> None:
     """Set up services for the SAVIIA integration."""
     hass.services.async_register(
@@ -465,6 +505,13 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         schema=ServicesParams.SERVICE_DETECT_FAILURES_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
+    hass.services.async_register(
+        GeneralParams.DOMAIN,
+        ServicesParams.SERVICE_GET_PENDING_TASKS,
+        async_get_pending_tasks,
+        schema=ServicesParams.SERVICE_GET_PENDING_TASKS_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
 
 
 async def async_unload_services(hass: HomeAssistant) -> None:
@@ -480,6 +527,9 @@ async def async_unload_services(hass: HomeAssistant) -> None:
     hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_DELETE_TASK)
     hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_CREATE_TASK)
     hass.services.async_remove(GeneralParams.DOMAIN, ServicesParams.SERVICE_GET_TASKS)
+    hass.services.async_remove(
+        GeneralParams.DOMAIN, ServicesParams.SERVICE_GET_PENDING_TASKS
+    )
     hass.services.async_remove(
         GeneralParams.DOMAIN, ServicesParams.SERVICE_DETECT_FAILURES
     )

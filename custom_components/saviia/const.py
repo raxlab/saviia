@@ -69,6 +69,9 @@ class ServicesParams:
             vol.Optional("params"): dict,
         }
     )
+    SERVICE_GET_PENDING_TASKS = "get_pending_tasks"
+    SERVICE_GET_PENDING_TASKS_SCHEMA = vol.Schema({})
+
     SERVICE_DETECT_FAILURES = "detect_failures"
     SERVICE_DETECT_FAILURES_SCHEMA = vol.Schema(
         {
