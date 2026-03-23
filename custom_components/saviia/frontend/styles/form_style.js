@@ -22,6 +22,7 @@ fieldset {
     border: none;
     padding: 1.5rem 0;
     border-bottom: 1px solid #e0e0e0;
+    margin-top: 1rem;
 }
 
 fieldset:last-of-type {
