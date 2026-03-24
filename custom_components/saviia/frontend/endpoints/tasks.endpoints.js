@@ -75,7 +75,7 @@ export default class TasksAPI {
             const result = await this._fetchWithErrorHandling(url, {
                 method: 'POST',
                 headers: this._hassHeaders,
-                body: payload
+                body: JSON.stringify(payload)
             })
             logger.info('Task updated at Discord', { taskId: task?.tid })
             return result
@@ -94,7 +94,7 @@ export default class TasksAPI {
             const result = await this._fetchWithErrorHandling(url, {
                 method: 'POST',
                 headers: this._hassHeaders,
-                body: payload
+                body: JSON.stringify(payload)
             })
             logger.info('Task deleted at Discord', { taskId })
             return result

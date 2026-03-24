@@ -93,21 +93,30 @@ export class SaviiaCreateTask extends LitElement {
     const title = form.querySelector("#task-title").value;
     const deadline = form.querySelector("#deadline").value;
     const priorityNum = parseInt(form.querySelector("#priority").value);
-    const author = form.querySelector("#author").value;
+    const assignee = form.querySelector("#assignee").value;
     let periodicity = form.querySelector("#periodicity").value || "Sin periodicidad";
     const periodicityNum = form.querySelector("#periodicity-number").value;
     const description = form.querySelector("#details").value || "Sin descripción";
     const category = form.querySelector("#categ").value || "Sin categoría";
+    const creation = form.querySelector("#creation").value;
+    const execution = form.querySelector("#execution").value;
+    const assignee_email = form.querySelector("#assignee_email").value || "";
+    const assignee_discord_username = form.querySelector("#assignee_discord_username").value || "";
+
     const task = {
       title: title,
       description: description,
       deadline: deadline,
       priority: priorityNum,
-      assignee: author,
+      assignee: assignee,
       category: category,
-      periodicity: periodicity !== "Sin periodicidad" 
-        ? this.getPeriodicity(periodicity, periodicityNum) 
+      periodicity: periodicity !== "Sin periodicidad"
+        ? this.getPeriodicity(periodicity, periodicityNum)
         : periodicity,
+      creation: creation,
+      execution: execution,
+      assignee_email: assignee_email,
+      assignee_discord_username: assignee_discord_username
     }
     // Parameters validation
     if (periodicity !== "Sin periodicidad" && !periodicityNum) {
@@ -120,7 +129,7 @@ export class SaviiaCreateTask extends LitElement {
       this.isSubmitting = false;
       return;
     }
-    
+
 
     try {
       const response = await this.tasksAPI.createTask(task, this.images)
@@ -130,7 +139,7 @@ export class SaviiaCreateTask extends LitElement {
       alert(`Hubo un error al crear la tarea. Por favor, inténtalo de nuevo ${err.message}`);
       cantSubmit = true;
     } finally {
-      if (!cantSubmit){
+      if (!cantSubmit) {
         alert("Tarea creada con éxito ✅");
       }
       this.isSubmitting = false;
@@ -147,16 +156,31 @@ export class SaviiaCreateTask extends LitElement {
 
     <form @submit=${this.submitTask}>
     <fieldset>
-      <legend>Detalles de la tarea</legend>
+      <legend>Detalles generales de la tarea</legend>
+
       <label>
         <p>Nombre de la tarea <span style="color: #03a9f4">*</span> </p>
         <input id="task-title" required placeholder="Nombre" />
       </label>
+      
       <label>
-        <p>Fecha de ejecución de la tarea <span style="color: #03a9f4">*</span> </p>
-        <i>La(s) persona(s) encargadas de esta tarea deben finalizarla antes de esta fecha.</i>
+        <p>Fecha de creación de la tarea <span style="color: #03a9f4">*</span> </p>
+        <i>Fecha en la que el autor registró la tarea en el formulario.</i>
+        <input id="creation" type="date" required/>
+      </label>
+
+      <label>
+        <p>Fecha limite de la tarea <span style="color: #03a9f4">*</span> </p>
+        <i>La(s) persona(s) asignadas a esta tarea deben finalizarla antes de la fecha determinada.</i>
         <input id="deadline" type="date" required />
       </label>
+      
+      <label>
+        <p>Fecha de realización de la tarea </p>
+        <i>Fecha cuando el usuario logró completar la tarea.</i>
+        <input id="execution" type="date"/>
+      </label>
+      
       <label>
         <p>Prioridad <span style="color: #03a9f4">*</span> </p>
           <i>1 es la prioridad más alta y 4 la más baja</i>
@@ -168,11 +192,31 @@ export class SaviiaCreateTask extends LitElement {
           <li>4</li>
         </ul>
       </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Detalles del responsable de la tarea</legend>
       <label>
         <p>Persona asignada <span style="color: #03a9f4">*</span> </p>
         <i>La persona responsable de realizar esta tarea.</i>
-        <input id="author" type="text" required />
+        <input id="assignee" type="text" required />
       </label>
+
+      <label>
+        <p>Email</span> </p>
+        <i>Correo electrónico de la persona responsable</i>
+        <input id="assignee_email" type="email" />
+      </label>
+      
+      <label>
+        <p>Nombre de usuario en Discord</span> </p>
+        <i>Nombre de usuario en Discord del responsable. Formato: @username.</i>
+        <input id="assignee_discord_username" type="text" placeholder="@username" />
+      </label>
+    </fieldset>
+
+    <fieldset>
+    <legend>Detalles adicionales de la tarea</legend>
       <label>
         <p>Periodicidad</p>
         <i>Indica si esta tarea se repite en un intervalo de tiempo específico.</i>
@@ -198,6 +242,7 @@ export class SaviiaCreateTask extends LitElement {
         <textarea id="details" rows="4"></textarea>
       </label>
     </fieldset>
+    
     <fieldset>
       <legend>Imágenes</legend>
       <i>Arrastra imágenes aquí o haz click para seleccionarlas. Solo se pueden agregar hasta un máximo de 10 imágenes.</i>
