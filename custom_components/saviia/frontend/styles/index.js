@@ -3,7 +3,7 @@ import { formStyle } from "./form_style.js";
 import { generalStyle } from "./general_style.js";
 import { modalStyle } from "./modal_style.js";
 import { tableStyle } from "./table_style.js";
-
+import { ganttStyle } from "./gantt_style.js";
 export class Styles {
     constructor() {
         this.stylesList = {
@@ -12,6 +12,7 @@ export class Styles {
             'general': generalStyle,
             'modal': modalStyle,
             'table': tableStyle,
+            'gantt': ganttStyle,
         };
     }
 
