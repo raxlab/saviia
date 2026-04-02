@@ -52,7 +52,7 @@ class SaviiaGanttPanel extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        if (!this._initialized && !this._hass) {
+        if (!this._initialized && !this._hass && window.location.hostname === "localhost" && window.location.port === "8000") {
             this.tasksAPI = new TasksAPI();
             this._initialized = true;
             this.fetchTasks();
