@@ -76,8 +76,8 @@ class SaviiaGetTasks extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        // Dev mode
-        if (!this._initialized && !this._hass) {
+        // Dev mode only: allow standalone loading without Home Assistant on localhost:8000.
+        if (!this._initialized && !this._hass && window.location.hostname === "localhost" && window.location.port === "8000") {
             this.tasksAPI = new TasksAPI();
             this._initialized = true;
             this.fetchTasks();

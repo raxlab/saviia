@@ -121,4 +121,16 @@ get_tasks:
 get_pending_tasks:
   name: "Get pending Tasks"
   description: "It retrieves a list of incomplete tasks, which are sorted by deadline (overdue and on time), periodicity and priority"
-  fields: {}
+  fields: 
+    download: 
+      name: Download attachments
+      description: "Whether to download the attachments of the tasks or not"
+      required: false
+      selector:
+        boolean:
+    notify:
+      name: Send an email notification
+      description: "Whether to send an email notification with the list of pending tasks or not"
+      required: false
+      selector:
+        boolean:

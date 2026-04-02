@@ -6,9 +6,7 @@ const logger = createLogger("TasksAPI");
 export default class TasksAPI {
     constructor(hass = null) {
         this.hass = hass;
-        this.environment = window.location.origin.includes("local")
-            ? "development"
-            : "production";
+        this.environment = this._detectEnvironment();
         if (this.environment === "development") {
             this.baseUrl = import.meta.env?.VITE_HA_URL;
             this.token = import.meta.env?.VITE_HA_TOKEN;
@@ -19,8 +17,25 @@ export default class TasksAPI {
         }
         logger.info("Initialized", { environment: this.environment });
     }
+
+    _detectEnvironment() {
+        try {
+            const location = window.location;
+            if (location.hostname === "localhost" && location.port === "8000") {
+                return "development";
+            }
+        } catch (error) {
+            logger.warn("Could not detect browser location, falling back to production", error);
+        }
+
+        return "production";
+    }
+
     async _callServiceWithErrorHandling(domain, service, data = {}) {
         try {
+            if (!this.hass) {
+                throw new Error("Home Assistant instance is not available");
+            }
             console.debug(domain, service, data)
             const result = await this.hass.callApi(
                 "POST",

@@ -70,7 +70,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             longitude=config_entry.data.get("longitude"),
             bot_token=config_entry.data.get("bot_token"),
             tasks_channel_id=config_entry.data.get("task_channel_id"),
-            local_backup_path=config_entry.data.get("local_backup_source_path", "")
+            local_backup_path=config_entry.data.get("local_backup_source_path", ""),
+            email_address=config_entry.data.get("email_address", ""),
+            email_password=config_entry.data.get("email_password", ""),
         )
     )
     hass.data.setdefault(GeneralParams.DOMAIN, {})

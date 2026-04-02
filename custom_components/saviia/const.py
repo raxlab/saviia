@@ -70,7 +70,10 @@ class ServicesParams:
         }
     )
     SERVICE_GET_PENDING_TASKS = "get_pending_tasks"
-    SERVICE_GET_PENDING_TASKS_SCHEMA = vol.Schema({})
+    SERVICE_GET_PENDING_TASKS_SCHEMA = vol.Schema({
+        vol.Optional("download"): bool,
+        vol.Optional("notify"): bool,
+    })
 
     SERVICE_DETECT_FAILURES = "detect_failures"
     SERVICE_DETECT_FAILURES_SCHEMA = vol.Schema(

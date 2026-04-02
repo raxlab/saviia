@@ -417,7 +417,9 @@ async def async_get_pending_tasks(call: ServiceCall) -> ServiceResponse:
     api = _check_api_in_entry(call.hass)
     task_service = api.get("tasks")
     try:
-        result = await task_service.get_pending_tasks()
+        download = call.data.get("params", {}).get("download", False)
+        notify = call.data.get("params", {}).get("notify", False)
+        result = await task_service.get_pending_tasks(download, notify)
         if result.get("status") != HTTPStatus.OK.value:
             logclient.error(
                 ErrorArgs(

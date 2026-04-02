@@ -75,6 +75,9 @@ class SaviiaConfigFlow(config_entries.ConfigFlow, domain=GeneralParams.DOMAIN):
                 # Task Creation Parameters
                 vol.Optional("bot_token", default=""): cv.string,
                 vol.Optional("task_channel_id", default=""): cv.string,
+                # Email client notification
+                vol.Optional("email_address", default=""): cv.string,
+                vol.Optional("email_password", default=""): cv.string,
             }
         )
 
