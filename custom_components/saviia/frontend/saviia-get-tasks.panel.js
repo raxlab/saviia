@@ -130,42 +130,6 @@ class SaviiaGetTasks extends LitElement {
         return "Sin periodicidad";
     }
 
-    parseTaskContent(content) {
-        const lines = content.split('\n').filter(line => line.trim());
-        const task = {
-            title: '',
-            deadline: '',
-            description: '',
-            periodicity: '',
-            priority: '',
-            category: '',
-            assignee: '',
-            status: '',
-        };
-
-        lines.forEach(line => {
-            if (line.startsWith('##')) {
-                task.title = line.replace('##', '').trim();
-            } else if (line.includes('__Fecha de realización__')) {
-                task.deadline = line.split(':')[1]?.trim() || '';
-            } else if (line.includes('__Descripcion__')) {
-                task.description = line.split(':')[1]?.trim() || '';
-            } else if (line.includes('__Periodicidad__')) {
-                task.periodicity = line.split(':')[1]?.trim() || '';
-            } else if (line.includes('__Prioridad__')) {
-                task.priority = line.split(':')[1]?.trim() || '';
-            } else if (line.includes('__Categoría__')) {
-                task.category = line.split(':')[1]?.trim() || '';
-            } else if (line.includes('__Persona asignada__')) {
-                task.assignee = line.split(':')[1]?.trim() || '';
-            } else if (line.includes('__Estado__')) {
-                task.status = line.split(':')[1]?.trim() || '';
-            }
-        });
-
-        return task;
-    }
-
     sortTasks(tasks, sortType) {
         const sorted = [...tasks];
         switch (sortType) {
@@ -195,14 +159,19 @@ class SaviiaGetTasks extends LitElement {
         }
         if (filters.dateFrom || filters.dateTo) {
             filtered = filtered.filter(task => {
-                const taskDate = new Date(task.deadline);
+                const taskDeadlineDate = new Date(task.deadline);
+
                 if (filters.dateFrom) {
                     const fromDate = new Date(filters.dateFrom);
-                    if (taskDate < fromDate) return false;
+                    if (fromDate > taskDeadlineDate) {
+                        return false;
+                    }
                 }
                 if (filters.dateTo) {
                     const toDate = new Date(filters.dateTo);
-                    if (taskDate > toDate) return false;
+                    if (taskDeadlineDate > toDate) {
+                        return false;
+                    }
                 }
                 return true;
             });
@@ -358,12 +327,16 @@ class SaviiaGetTasks extends LitElement {
                 tid: task.task_id,
                 title: formData.get('title'),
                 deadline: formData.get('deadline'),
+                execution: formData.get('execution'),
+                creation: formData.get('creation'),
                 description: formData.get('description'),
                 periodicity: formattedPeriodicity,
                 priority: parseInt(formData.get('priority')),
                 category: formData.get('category'),
                 assignee: formData.get('assignee'),
                 status: newStatus,
+                assignee_email: formData.get('assignee_email'),
+                assignee_discord_username: formData.get('assignee_discord_username'),
             };
 
             await this.updateTask(updatedTask, completed);
@@ -414,9 +387,20 @@ class SaviiaGetTasks extends LitElement {
         return html`
             <h2 class="modal-task-title">${this.escapeHtml(this.selectedTask.title)}</h2>
             <div class="modal-task-field">
-                <label class="modal-task-field-label">Fecha de realización</label>
+                <label class="modal-task-field-label">Fecha de creación</label>
+                <div class="modal-task-field-value">${this.escapeHtml(this.selectedTask.creation)}</div>
+            </div>
+            
+            <div class="modal-task-field">
+                <label class="modal-task-field-label">Fecha límite</label>
                 <div class="modal-task-field-value">${this.escapeHtml(this.selectedTask.deadline)}</div>
             </div>
+
+            <div class="modal-task-field">
+                <label class="modal-task-field-label">Fecha de ejecución</label>
+                <div class="modal-task-field-value">${this.escapeHtml(this.selectedTask.execution || 'Aún no ejecutada')}</div>
+            </div>
+
             <div class="modal-task-field">
                 <label class="modal-task-field-label">Estado</label>
                 <div class="modal-task-field-value">${this.escapeHtml(this.selectedTask.status)}</div>
@@ -435,6 +419,15 @@ class SaviiaGetTasks extends LitElement {
                 <label class="modal-task-field-label">Asignada a</label>
                 <div class="modal-task-field-value">${this.escapeHtml(this.selectedTask.assignee)}</div>
             </div>
+            <div class="modal-task-field">
+                <label class="modal-task-field-label">Email de la persona asignada</label>
+                <div class="modal-task-field-value">${this.escapeHtml(this.selectedTask.assignee_email || 'No especificado')}</div>
+            </div>
+            <div class="modal-task-field">
+                <label class="modal-task-field-label">Usuario de discord de la persona asignada</label>
+                <div class="modal-task-field-value">${this.escapeHtml(this.selectedTask.assignee_discord_username || 'No especificado')}</div>
+            </div>
+                
             <div class="modal-task-field">
                 <label class="modal-task-field-label">Periodicidad</label>
                 <div class="modal-task-field-value">${this.escapeHtml(this.selectedTask.periodicity)}</div>
@@ -478,8 +471,16 @@ class SaviiaGetTasks extends LitElement {
                     </select>
                 </div>
                 <div class="modal-task-field">
-                    <label class="modal-task-field-label" for="edit-deadline">Fecha de realización</label>
+                    <label class="modal-task-field-label" for="edit-creation">Fecha de creación</label>
+                    <input type="date" id="edit-creation" name="creation" value="${this.selectedTask.creation}" >
+                </div>
+                <div class="modal-task-field">
+                    <label class="modal-task-field-label" for="edit-deadline">Fecha límite</label>
                     <input type="date" id="edit-deadline" name="deadline" value="${this.selectedTask.deadline}" required>
+                </div>
+                <div class="modal-task-field">
+                    <label class="modal-task-field-label" for="edit-execution">Fecha de ejecución</label>
+                    <input type="date" id="edit-execution" name="execution" value="${this.selectedTask.execution}" >
                 </div>
                 <div class="modal-task-field">
                     <label class="modal-task-field-label" for="edit-priority">Prioridad</label>
@@ -498,6 +499,15 @@ class SaviiaGetTasks extends LitElement {
                     <label class="modal-task-field-label" for="edit-assignee">Asignada a</label>
                     <input type="text" id="edit-assignee" name="assignee" value="${this.escapeHtml(this.selectedTask.assignee)}">
                 </div>
+                <div class="modal-task-field">
+                    <label class="modal-task-field-label" for="edit-assignee-email">Email de la persona asignada</label>
+                    <input type="email" id="edit-assignee-email" name="assignee_email" value="${this.escapeHtml(this.selectedTask.assignee_email || '')}">
+                </div>
+                <div class="modal-task-field">
+                    <label class="modal-task-field-label" for="edit-assignee-discord">Usuario de discord de la persona asignada</label>
+                    <input type="text" id="edit-assignee-discord" name="assignee_discord_username" value="${this.escapeHtml(this.selectedTask.assignee_discord_username || '')}">
+                </div>  
+
                 <div class="modal-task-field">
                     <label class="modal-task-field-label" for="edit-periodicity">Periodicidad</label>
                     <select id="edit-periodicity" name="periodicity">
@@ -630,30 +640,34 @@ class SaviiaGetTasks extends LitElement {
           <table class="tasks-table ${!this.isLoading && this.filteredTasks.length > 0 ? 'show' : ''}">
             <thead>
               <tr>
+                <th>Título</th>
+                <th>Responsable</th>
+                <th>Creada</th>
+                <th>Límite</th>
                 <th>Prioridad</th>
-                <th>Tarea</th>
                 <th>Estado</th>
-                <th>Fecha de Ejecución</th>
-                <th>Asignada a</th>
                 <th>Acciones</th>
               </tr>
             </thead>
           <tbody>
             ${this.filteredTasks.map(task => html`
               <tr>
+                <td class="task-title">${this.escapeHtml(task.title)}</td>
+                <td>${this.escapeHtml(task.assignee)}</td>
+                <td>${this.escapeHtml(task.creation)}</td>
+                <td>${this.escapeHtml(task.deadline)}</td>
                 <td>
                 <span class="priority-badge priority-${task.priority}">
                     ${this.escapeHtml(task.priority)}
                 </span>
                 </td>
-                <td class="task-title">${this.escapeHtml(task.title)}</td>
                 <td>
                   <span class="task-status ${this.escapeHtml(task.status)}">
                     ${this.escapeHtml(task.status)}
                   </span>
                 </td>
-                <td>${this.escapeHtml(task.deadline)}</td>
-                <td>${this.escapeHtml(task.assignee)}</td>
+                
+                
                 <td>
                   <button 
                     class="task-details-btn" 

@@ -12,7 +12,7 @@
     "iot_class": "cloud_polling",
     "issue_tracker": "https://github.com/raxlab/saviia/issues",
     "requirements": [
-        "saviialib==1.17.0"
+        "saviialib==1.18.0"
     ],
-    "version": "7.5.6"
+    "version": "7.5.7"
 }
