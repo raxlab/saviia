@@ -6,6 +6,7 @@ import {
 
 import "./saviia-get-tasks.panel.js";
 import "./saviia-gantt.panel.js";
+import "./saviia-create-task.panel.js";
 import { createLogger } from "./services/logger.js";
 
 const logger = createLogger("SaviiaTasksPanel");
@@ -78,7 +79,7 @@ class SaviiaTasksPanel extends LitElement {
 
 			.view-switch {
 				display: grid;
-				grid-template-columns: 1fr 1fr;
+				grid-template-columns: 1fr 1fr 1fr;
 				width: 100%;
 			}
 
@@ -114,6 +115,7 @@ class SaviiaTasksPanel extends LitElement {
 
 		const checklist = this.shadowRoot?.querySelector("saviia-get-tasks");
 		const gantt = this.shadowRoot?.querySelector("saviia-gantt");
+		const createTask = this.shadowRoot?.querySelector("saviia-create-task");
 
 		if (checklist && checklist.hass !== this._hass) {
 			checklist.hass = this._hass;
@@ -121,6 +123,10 @@ class SaviiaTasksPanel extends LitElement {
 
 		if (gantt && gantt.hass !== this._hass) {
 			gantt.hass = this._hass;
+		}
+
+		if (createTask && createTask.hass !== this._hass) {
+			createTask.hass = this._hass;
 		}
 	}
 
@@ -130,6 +136,8 @@ class SaviiaTasksPanel extends LitElement {
 
 	render() {
 		const isChecklist = this.activeView === "checklist";
+		const isGantt = this.activeView === "gantt";
+		const isCreate = this.activeView === "create";
 
 		return html`
 			<div class="panel-wrapper">
@@ -143,12 +151,20 @@ class SaviiaTasksPanel extends LitElement {
 						Checklist
 					</button>
 					<button
-						class="view-btn ${!isChecklist ? "active" : ""}"
+						class="view-btn ${isGantt ? "active" : ""}"
 						role="tab"
-						aria-selected=${!isChecklist ? "true" : "false"}
+						aria-selected=${isGantt ? "true" : "false"}
 						@click=${() => this.handleViewChange("gantt")}
 					>
 						Gantt
+					</button>
+					<button
+						class="view-btn ${isCreate ? "active" : ""}"
+						role="tab"
+						aria-selected=${isCreate ? "true" : "false"}
+						@click=${() => this.handleViewChange("create")}
+					>
+						Crear
 					</button>
 				</div>
 
@@ -156,8 +172,12 @@ class SaviiaTasksPanel extends LitElement {
 					<saviia-get-tasks></saviia-get-tasks>
 				</section>
 
-				<section class="view-panel" ?hidden=${isChecklist}>
+				<section class="view-panel" ?hidden=${!isGantt}>
 					<saviia-gantt></saviia-gantt>
+				</section>
+
+				<section class="view-panel" ?hidden=${!isCreate}>
+					<saviia-create-task></saviia-create-task>
 				</section>
 			</div>
 		`;

@@ -212,7 +212,7 @@ class SaviiaGanttPanel extends LitElement {
 
     handleShiftWindow(direction) {
         const start = this.getWindowStart();
-        const shift = direction === "next" ? 12 : -12;
+        const shift = direction === "next" ? 1 : -1;
         this.windowStart = this.toIsoDate(this.addMonths(start, shift));
     }
 
@@ -266,9 +266,15 @@ class SaviiaGanttPanel extends LitElement {
                 <th class="task-col">Tarea</th>
                 ${months.map(
             (monthDate) =>
-                html`<th class="month-head ${this.isCurrentMonth(monthDate) ? 'month-head-current' : ''}">${monthDate.toLocaleDateString("es-ES", {
-                    month: "short",
-                }).toLocaleUpperCase()}</th>`
+                html`<th class="month-head ${this.isCurrentMonth(monthDate) ? 'month-head-current' : ''}">${(() => {
+                    const monthLabel = monthDate.toLocaleDateString("es-ES", {
+                        month: "short",
+                    }).toLocaleUpperCase();
+
+                    return monthDate.getMonth() === 0
+                        ? `${monthLabel} - ${monthDate.getFullYear()}`
+                        : monthLabel;
+                })()}</th>`
         )}
               </tr>
             </thead>
@@ -335,9 +341,9 @@ class SaviiaGanttPanel extends LitElement {
 
         <div class="toolbar">
           <div class="button-row">
-            <button @click=${() => this.handleShiftWindow("prev")}>12 meses anteriores</button>
-            <button @click=${() => this.handleShiftWindow("next")}>12 meses siguientes</button>
-            <button @click=${this.handleResetYear}>Año actual</button>
+            <button @click=${() => this.handleShiftWindow("prev")}>Mes anterior</button>
+            <button @click=${() => this.handleShiftWindow("next")}>Mes siguiente</button>
+            <button @click=${this.handleResetYear}>Mes actual</button>
             <button @click=${() => this.fetchTasks()}>Recargar</button>
           </div>
         </div>

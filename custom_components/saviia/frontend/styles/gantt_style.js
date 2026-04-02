@@ -122,7 +122,7 @@ export const ganttStyle = css`
 
       .chart-scroll {
         overflow: auto;
-        max-height: 76vh;
+        height: clamp(320px, 62vh, 760px);
         background: #fcfdfe;
       }
 
@@ -293,6 +293,10 @@ export const ganttStyle = css`
           padding: 0.72rem;
           gap: 0.55rem;
           margin: 0.75rem 0;
+        }
+
+        .chart-scroll {
+          height: clamp(260px, 56vh, 540px);
         }
 
         .button-row {
