@@ -70,6 +70,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             longitude=config_entry.data.get("longitude"),
             bot_token=config_entry.data.get("bot_token"),
             tasks_channel_id=config_entry.data.get("task_channel_id"),
+            local_backup_path=config_entry.data.get("local_backup_source_path", "")
         )
     )
     hass.data.setdefault(GeneralParams.DOMAIN, {})
@@ -163,12 +164,12 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         # Panel registration
         try:
             # Saviia Get Tasks panel
-            if await _panel_exists(hass, "saviia-get-tasks"):
+            if await _panel_exists(hass, "saviia-tasks"):
                 logclient.debug(
                     DebugArgs(
                         status=LogStatus.SUCCESSFUL,
                         metadata={
-                            "msg": "SAVIIA Get Tasks Panel already exists, skipping registration"
+                            "msg": "SAVIIA Tasks Panel already exists, skipping registration"
                         },
                     )
                 )
@@ -176,14 +177,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 async_register_built_in_panel(
                     hass,
                     component_name="custom",
-                    sidebar_title="SAVIIA Get Tasks",
-                    sidebar_icon="mdi:format-list-checks",
-                    frontend_url_path="saviia-get-tasks",
+                    sidebar_title="SAVIIA Tasks",
+                    sidebar_icon="mdi:checkbox-marked-circle-auto-outline",
+                    frontend_url_path="saviia-tasks",
                     require_admin=False,
                     config={
                         "_panel_custom": {
-                            "name": "saviia-get-tasks",
-                            "module_url": "/frontend/saviia/saviia-get-tasks.panel.js",
+                            "name": "saviia-tasks",
+                            "module_url": "/frontend/saviia/saviia-tasks.panel.js",
                             "embed_iframe": False,
                         }
                     },
@@ -191,39 +192,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                 logclient.debug(
                     DebugArgs(
                         status=LogStatus.SUCCESSFUL,
-                        metadata={"msg": "Frontend registered at /saviia-get-tasks"},
-                    )
-                )
-            # Saviia Create task panel
-            if await _panel_exists(hass, "saviia-create-task"):
-                logclient.debug(
-                    DebugArgs(
-                        status=LogStatus.SUCCESSFUL,
-                        metadata={
-                            "msg": "SAVIIA Create Task Panel already exists, skipping registration"
-                        },
-                    )
-                )
-            else:
-                async_register_built_in_panel(
-                    hass,
-                    component_name="custom",
-                    sidebar_title="SAVIIA Create Tasks",
-                    sidebar_icon="mdi:checkbox-marked-circle-plus-outline",
-                    frontend_url_path="saviia-create-task",
-                    require_admin=False,
-                    config={
-                        "_panel_custom": {
-                            "name": "saviia-create-task",
-                            "module_url": "/frontend/saviia/saviia-create-task.panel.js",
-                            "embed_iframe": False,
-                        }
-                    },
-                )
-                logclient.debug(
-                    DebugArgs(
-                        status=LogStatus.SUCCESSFUL,
-                        metadata={"msg": "Frontend registered at /saviia-create-task"},
+                        metadata={"msg": "Frontend registered at /saviia-tasks"},
                     )
                 )
         except Exception as e:  # noqa: BLE001
