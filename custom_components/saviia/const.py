@@ -29,6 +29,23 @@ class GeneralParams:
 class ServicesParams:
     """Services parameters."""
 
+    ALLOWED_CONFIG_KEYS = frozenset(
+        {
+            "ftp_host",
+            "ftp_port",
+            "sharepoint_tenant_name",
+            "sharepoint_site_name",
+            "thies_ftp_server_avg_path",
+            "thies_ftp_server_ext_path",
+            "sharepoint_avg_backup_folder_name",
+            "sharepoint_ext_backup_folder_name",
+            "local_backup_source_path",
+            "sharepoint_backup_base_url",
+            "latitude",
+            "longitude",
+        }
+    )
+
     SERVICE_SYNC_FILES = "sync_files"
     SERVICE_SYNC_FILES_SCHEMA = vol.Schema({})
 
@@ -70,10 +87,12 @@ class ServicesParams:
         }
     )
     SERVICE_GET_PENDING_TASKS = "get_pending_tasks"
-    SERVICE_GET_PENDING_TASKS_SCHEMA = vol.Schema({
-        vol.Optional("download"): bool,
-        vol.Optional("notify"): bool,
-    })
+    SERVICE_GET_PENDING_TASKS_SCHEMA = vol.Schema(
+        {
+            vol.Optional("download"): bool,
+            vol.Optional("notify"): bool,
+        }
+    )
 
     SERVICE_DETECT_FAILURES = "detect_failures"
     SERVICE_DETECT_FAILURES_SCHEMA = vol.Schema(
@@ -85,6 +104,13 @@ class ServicesParams:
             vol.Optional("db_name"): str,
             vol.Optional("user"): str,
             vol.Optional("pwd"): str,
+        }
+    )
+
+    SERVICE_GET_CONFIG_VALUE = "get_config_value"
+    SERVICE_GET_CONFIG_VALUE_SCHEMA = vol.Schema(
+        {
+            vol.Required("key"): cv.string,
         }
     )
 
