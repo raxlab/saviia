@@ -197,6 +197,39 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
                         metadata={"msg": "Frontend registered at /saviia-tasks"},
                     )
                 )
+
+            # Saviia Sensor Status panel
+            if await _panel_exists(hass, "saviia-sensor-status"):
+                logclient.debug(
+                    DebugArgs(
+                        status=LogStatus.SUCCESSFUL,
+                        metadata={
+                            "msg": "SAVIIA Sensor Status Panel already exists, skipping registration"
+                        },
+                    )
+                )
+            else:
+                async_register_built_in_panel(
+                    hass,
+                    component_name="custom",
+                    sidebar_title="SAVIIA Sensors",
+                    sidebar_icon="mdi:access-point-check",
+                    frontend_url_path="saviia-sensor-status",
+                    require_admin=False,
+                    config={
+                        "_panel_custom": {
+                            "name": "saviia-sensor-status",
+                            "module_url": "/frontend/saviia/saviia-sensor-status.panel.js",
+                            "embed_iframe": False,
+                        }
+                    },
+                )
+                logclient.debug(
+                    DebugArgs(
+                        status=LogStatus.SUCCESSFUL,
+                        metadata={"msg": "Frontend registered at /saviia-sensor-status"},
+                    )
+                )
         except Exception as e:  # noqa: BLE001
             logclient.error(
                 ErrorArgs(

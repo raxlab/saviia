@@ -42,6 +42,14 @@ export default class TasksAPI {
                 `services/${domain}/${service}?return_response`,
                 data
             );
+            const apiMetadata = result?.api_metadata || {};
+            logger.debug(`Service ${domain}.${service} called successfully`, { apiMetadata });
+            const apiStatus = result?.api_status || 200;
+            const apiMessage = result?.api_message || "Success";
+            if (apiStatus !== 200) {
+                logger.error(`Service ${domain}.${service} returned error status`, { apiStatus, apiMessage });
+                throw new Error(`Service error: ${apiMessage} (status ${apiStatus})`);
+            }
             return result;
         } catch (error) {
             logger.error(`Error while calling service ${service}`, error);
@@ -136,6 +144,48 @@ export default class TasksAPI {
             const result = await this._callServiceWithErrorHandling('saviia', 'create_task', payload);
             logger.info('Task created via hass service', { task }, result)
             return result;
+        }
+    }
+
+    async getFailedSensors(localBackup, days) {
+        logger.info("Fetching failed sensors", { localBackup, days });
+        const payload = { local_backup_source_path: localBackup, n_days: days }
+        if (this.environment === "development") {
+            const url = `${this.baseUrl}/saviia/detect_failures?return_response`
+            const result = await this._fetchWithErrorHandling(url, {
+                method: 'POST',
+                headers: this._hassHeaders,
+                body: JSON.stringify(payload)
+            })
+            const sensors = result.service_response.api_metadata.validation
+            logger.info('Failed sensors fetched at Discord', { count: sensors.length })
+            return sensors
+        } else {
+            const result = await this._callServiceWithErrorHandling('saviia', 'detect_failures', payload);
+            logger.info('Failed sensors fetched via hass service',
+                { count: result.service_response.api_metadata.validation.length });
+            return result;
+        }
+    }
+
+    async getConfigFlowValue(key) {
+        logger.info("Fetching config flow value", { key });
+        const payload = { key }
+        if (this.environment === "development") {
+            const url = `${this.baseUrl}/saviia/get_config_value?return_response`
+            const result = await this._fetchWithErrorHandling(url, {
+                method: 'POST',
+                headers: this._hassHeaders,
+                body: JSON.stringify(payload)
+            })
+            const value = result.service_response.value
+            logger.info('Config flow value fetched at Discord', { key, value });
+            return value
+        } else {
+            const result = await this._callServiceWithErrorHandling('saviia', 'get_config_value', payload);
+            const value = result.service_response.value
+            logger.info('Config flow value fetched via hass service', { key, value });
+            return value;
         }
     }
 }
