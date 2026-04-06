@@ -134,3 +134,14 @@ get_pending_tasks:
       required: false
       selector:
         boolean:
+
+get_config_value:
+  name: "Get Config Value"
+  description: "Returns a whitelisted configuration value from the SAVIIA config entry"
+  fields:
+    key:
+      name: Config key
+      description: "Whitelisted config key to retrieve (for example: local_backup_source_path)"
+      required: true
+      selector:
+        text:

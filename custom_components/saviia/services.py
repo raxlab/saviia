@@ -17,6 +17,7 @@ from http import HTTPStatus
 from homeassistant.core import (
     SupportsResponse,
 )
+from homeassistant.exceptions import HomeAssistantError
 from saviialib import SaviiaAPI
 
 from custom_components.saviia.const import (
@@ -74,6 +75,60 @@ def _check_api_in_entry(hass) -> SaviiaAPI:
         )
         raise ValueError(error_message)
     return api
+
+
+def _get_config_entry_data(hass) -> dict:
+    """Get config entry data for the integration."""
+    logclient.method_name = "_get_config_entry_data"
+    entries = hass.config_entries.async_entries(GeneralParams.DOMAIN)
+    if not entries:
+        error_message = "No config entry found for SAVIIA"
+        logclient.error(
+            ErrorArgs(
+                status=LogStatus.ERROR,
+                metadata={"msg": error_message},
+            )
+        )
+        raise HomeAssistantError(error_message)
+
+    return dict(entries[0].data)
+
+
+async def async_get_config_value(call: ServiceCall) -> ServiceResponse:
+    """Return a safe config flow value from config entry data."""
+    logclient.method_name = "async_get_config_value"
+    logclient.debug(DebugArgs(status=LogStatus.STARTED))
+    _ensure_domain_setup(call.hass)
+
+    key = call.data.get("key")
+    if key not in ServicesParams.ALLOWED_CONFIG_KEYS:
+        error_message = (
+            f"The requested key '{key}' is not allowed. "
+            "This service only exposes a safe whitelist of config keys."
+        )
+        logclient.error(
+            ErrorArgs(
+                status=LogStatus.ERROR,
+                metadata={"msg": error_message},
+            )
+        )
+        raise HomeAssistantError(error_message)
+
+    config_data = _get_config_entry_data(call.hass)
+    if key not in config_data:
+        error_message = f"Key '{key}' was not found in SAVIIA config entry data"
+        logclient.error(
+            ErrorArgs(
+                status=LogStatus.ERROR,
+                metadata={"msg": error_message},
+            )
+        )
+        raise HomeAssistantError(error_message)
+
+    return {
+        "key": key,
+        "value": config_data[key],
+    }
 
 
 async def async_sync_thies_files(call: ServiceCall) -> None:
@@ -514,6 +569,13 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         schema=ServicesParams.SERVICE_GET_PENDING_TASKS_SCHEMA,
         supports_response=SupportsResponse.ONLY,
     )
+    hass.services.async_register(
+        GeneralParams.DOMAIN,
+        ServicesParams.SERVICE_GET_CONFIG_VALUE,
+        async_get_config_value,
+        schema=ServicesParams.SERVICE_GET_CONFIG_VALUE_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
+    )
 
 
 async def async_unload_services(hass: HomeAssistant) -> None:
@@ -534,4 +596,7 @@ async def async_unload_services(hass: HomeAssistant) -> None:
     )
     hass.services.async_remove(
         GeneralParams.DOMAIN, ServicesParams.SERVICE_DETECT_FAILURES
+    )
+    hass.services.async_remove(
+        GeneralParams.DOMAIN, ServicesParams.SERVICE_GET_CONFIG_VALUE
     )
