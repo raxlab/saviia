@@ -150,6 +150,79 @@ export const tableStyle = css`
     transform: scale(0.98);
 }
 
+.header {
+    max-width: 90%;
+    margin: 1.4rem auto 0.4rem;
+}
+
+.meta {
+    color: #64727c;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 0.25rem;
+}
+
+.status-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.status-dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    flex-shrink: 0;
+}
+
+.status-dot.failed {
+    background: #d64747;
+    border-color: #b72d2d;
+    box-shadow: 0 0 0 3px rgba(214, 71, 71, 0.16);
+}
+
+.status-dot.ok {
+    background: #25a35a;
+    border-color: #128344;
+    box-shadow: 0 0 0 3px rgba(37, 163, 90, 0.16);
+}
+
+.status-text {
+    font-weight: 600;
+}
+
+.status-text.failed {
+    color: #a12626;
+}
+
+.status-text.ok {
+    color: #0f7940;
+}
+
+.sensor-name {
+    font-weight: 600;
+}
+
+.empty {
+    max-width: 90%;
+    margin: 2rem auto;
+    padding: 1rem;
+    border-radius: 0.6rem;
+    border: 1px solid #dbe3ea;
+    background: #f8fafc;
+    text-align: center;
+    color: #4e5c67;
+}
+
+.help-text {
+    color: #4e5c67;
+    font-size: 0.9rem;
+    text-align: center;
+    margin: 0.5rem auto 1.2rem;
+    max-width: 90%;
+}
+
 @media (max-width: 768px) {
     .table-container {
         width: 95%;
