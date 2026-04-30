@@ -89,12 +89,52 @@ class SaviiaTasksPanel extends LitElement {
 				padding: 0.5rem 0.6rem;
 			}
 		}
+
+		/* Mobile-only Home button */
+		#ha-home-btn {
+			display: none;
+			position: fixed;
+			bottom: 16px;
+			right: 16px;
+			z-index: 9999;
+			background: #03a9f4;
+			color: #fff;
+			border: none;
+			border-radius: 12px;
+			width: 56px;
+			height: 56px;
+			padding: 6px;
+			display: inline-flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+			cursor: pointer;
+		}
+
+		#ha-home-btn .label {
+			font-size: 11px;
+			margin-top: 2px;
+			line-height: 1;
+		}
+
+		@media (max-width: 767px) {
+			#ha-home-btn { display: inline-flex; }
+		}
 	`;
 
 	constructor() {
 		super();
 		this.activeView = "checklist";
 		this.hass = null;
+	}
+
+	openHome() {
+		var origin = window.location && window.location.origin;
+		if (!origin || origin === "null") {
+			origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ":" + window.location.port : "");
+		}
+		window.location.href = origin + "/";
 	}
 
 	set hass(hass) {
@@ -180,6 +220,16 @@ class SaviiaTasksPanel extends LitElement {
 					<saviia-create-task></saviia-create-task>
 				</section>
 			</div>
+
+				<!-- Mobile-only Home button -->
+				<button id="ha-home-btn" @click="${this.openHome}" aria-label="Open Home">
+					<span class="icon" aria-hidden="true">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M3 10.5L12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V10.5z" fill="currentColor"/>
+						</svg>
+					</span>
+					<span class="label">Home</span>
+				</button>
 		`;
 	}
 }
