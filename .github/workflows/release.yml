@@ -50,7 +50,7 @@ jobs:
           zip -r "saviia-${VERSION}.zip" custom_components/saviia -x "custom_components/saviia/*.zip"
 
       - name: Upload the ZIP file to the release
-        uses: softprops/action-gh-release@v2.2.2
+        uses: softprops/action-gh-release@v2.5.0
         with:
           tag_name: ${{ env.TAG_NAME }}
           name: ${{ env.TAG_NAME }}
